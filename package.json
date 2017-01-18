@@ -1,0 +1,48 @@
+{
+  "name": "manifester",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src.server/app.js",
+  "scripts": {
+    "start": "node ./bin/www",
+    "build": "gulp default",
+    "watch": "gulp watch"
+  },
+  "dependencies": {
+    "express": "~4.14.0",
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "morgan": "~1.7.0",
+    "hbs": "~4.0.1",
+    "serve-favicon": "~2.3.0",
+    "node-persist": "^2.0.7",
+    "googleapis": "^15.0.0",
+    "riot": "^3.0.5"
+  },
+  "devDependencies": {
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-inject": "^3.0.0",
+    "gulp-less": "^3.0.5",
+    "gulp-shell": "^0.5.2",
+    "gulp-sourcemap": "^1.0.1",
+    "gulp-sourcemaps": "^1.6.0",
+    "jsonfile": "^2.4.0",
+    "less": "^2.7.2",
+    "main-bower-files": "^2.11.1",
+    "rollup-plugin-babel": "^2.4.0",
+    "rollup-plugin-commonjs": "^2.2.1",
+    "rollup-plugin-json": "^2.1.0",
+    "rollup-plugin-node-resolve": "^1.5.0",
+    "rollup-plugin-riot": "^0.1.1",
+    "rollup-watch": "^3.2.2",
+    "run-sequence": "^1.1.5"
+  },
+  "settings": {
+    "src_client": "src.client/riot",
+    "dir_public": "public",
+    "dir_dist": "public/dist"
+  }
+}

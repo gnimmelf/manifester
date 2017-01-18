@@ -1,0 +1,24 @@
+{
+  "moduleType": [
+    "globals"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6"
+    },
+    "overrides": {
+        "bootstrap": {
+            "main": [
+                "dist/css/bootstrap.min.css",
+                "dist/css/bootstrap-theme.min.css",
+                "dist/js/bootstrap.min.js"
+            ]
+        }
+    }
+}
