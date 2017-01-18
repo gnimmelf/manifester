@@ -25,9 +25,9 @@ var settings = require('./package.json').settings;
 /**
  * default task - call gulp and its done
  */
-gulp.task('default' , ['setup' , 'watch']);
+gulp.task('default' , ['build' , 'watch']);
 
-gulp.task('setup' , function(done) {
+gulp.task('build' , function(done) {
 	runSequence('rollup', 'less', done);
 });
 
