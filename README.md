@@ -1,0 +1,2 @@
+# manifester
+Testing Riot.js
