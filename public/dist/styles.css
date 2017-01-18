@@ -1,0 +1,13 @@
+{"version":3,"sources":["app/style.less"],"names":[],"mappings":"AAAA;EACE,sBAAA","sourcesContent":["app {\n  background-color: #ccc;\n}"],"file":"../../app/style.css"}
+app {
+  background-color: #ccc;
+}
+
+/*# sourceMappingURL=../public/app/style.css.map */
+
+{"version":3,"sources":["list/style.less"],"names":[],"mappings":"AAAA;EACE,sBAAA","sourcesContent":["list {\n  background-color: #eec;\n}"],"file":"../../list/style.css"}
+list {
+  background-color: #eec;
+}
+
+/*# sourceMappingURL=../public/list/style.css.map */

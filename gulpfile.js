@@ -4,16 +4,19 @@
  */
 var gulp = require('gulp');
 var shell = require('gulp-shell');
+var inject = require('gulp-inject');
+var concat = require('gulp-concat');
+// less processor
+var less = require('gulp-less');
+var sourcemaps = require('gulp-sourcemaps');
+
 // bower required tools
 var bowerFiles = require('main-bower-files');
-var inject = require('gulp-inject');
 
 // build in tool
 var path = require('path');
 var join = path.join;
-// less processor
-var less = require('gulp-less');
-var sourcemaps = require('gulp-sourcemaps');
+
 var del = require('del');
 var runSequence = require('run-sequence');
 
