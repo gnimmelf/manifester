@@ -3,7 +3,6 @@
  * for integration with rollup / riot
  */
 var gulp = require('gulp');
-var shell = require('gulp-shell');
 var inject = require('gulp-inject');
 var concat = require('gulp-concat');
 // less processor
@@ -21,6 +20,13 @@ var del = require('del');
 var runSequence = require('run-sequence');
 
 var settings = require('./package.json').settings;
+
+// http://stackoverflow.com/a/13879531/1008905
+var spawn = require('child_process').spawn;
+function exec(command, done) {
+   spawn('sh', ['-c', command], { stdio: 'inherit' });
+   (done && done());
+}
 
 /**
  * default task - call gulp and its done
@@ -41,17 +47,17 @@ gulp.task('rollup:clear' , function() {
     ]);
 });
 
-gulp.task('rollup:c' , shell.task([
-	'rollup -c'
-]));
+gulp.task('rollup:c' , function(done) {
+  exec('rollup -c', done);  
+});
 
 gulp.task('rollup' , function(done) {
 	runSequence('rollup:clear' , 'rollup:c' , done);
 });
 
-gulp.task('watch' , function() {  
+gulp.task('watch', ['less'], function(done) {  
   gulp.watch([join(settings.src_client, '**', '*.less')] , ['less']);
-  shell.task(['rollup -c -watch'])
+  exec('rollup -c --watch', done);
 });
 
 /**
