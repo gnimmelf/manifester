@@ -38,14 +38,16 @@ export default {
       presets: ["es2015-rollup"]
     }),       
   ],
+  external: [
+    // https://github.com/rollup/rollup/wiki/JavaScript-API#external
+    'riot',
+    'jquery',
+    'rx'
+  ],
   globals: {
+    // https://github.com/rollup/rollup/wiki/JavaScript-API#globals
     riot: 'riot',
     jquery: '$',
     rx: 'Rx',
   },
-  external: [
-     'riot',
-     'jquery',
-     'rx'
- ]
 }

@@ -1,13 +1,19 @@
 <!DOCTYPE html>
   <html lang="en"> 
   <head>
-  <title>{{title}}</title>
-  <link rel="stylesheet" href="/styles/normalize.css">
-  <link rel="stylesheet" href="/dist/styles.css">
-
+    <title>{{title}}</title>
+    <!-- Vendors: Plain usage of bower_components from /vendor -->
+    <script src="/vendor/riot/riot.js"></script>      
+    <script src="/vendor/rxjs/dist/rx.lite.js"></script>  
+    <script src="/vendor/jquery/dist/jquery.js"></script>  
+    <script src="/vendor/bootstrap/dist/js/bootstrap.js"></script>      
+    <link rel="stylesheet" href="/vendor/bootstrap/dist/css/bootstrap.css" />    
+    <!-- App style -->
+    <link rel="stylesheet" href="/dist/styles.css" />
   </head>
   <body>
   </body>
   {{{body}}}      
-  <script src="/dist/bundle.js"></script>
+  <!-- App bundle -->
+  <script src="/dist/bundle.js"></script>  
 </html>

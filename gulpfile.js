@@ -30,6 +30,7 @@ function exec(command, done) {
 
 /**
  * default task - call gulp and its done
+ * NOTE! Bower components are linked to directly 'as is' from within the html-templates
  */
 gulp.task('default' , ['build' , 'watch']);
 
