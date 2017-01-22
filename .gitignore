@@ -30,8 +30,10 @@ bower_components
 # Debug log from npm
 npm-debug.log
 
-# Dist directory for builds
+# Dist directories for builds
+dist.server
 public/dist
+
 
 # .bowerrc directory (instead of bower_components)
 public/vendor

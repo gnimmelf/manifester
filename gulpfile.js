@@ -31,3 +31,4 @@ gulp.task('watch:client', ['build'], function(done) {
     join(settings.src_client, '**', '*tag.html'),
   ] , ['client:rollup:compile']);
 });
+

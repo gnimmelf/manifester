@@ -2,9 +2,10 @@
   "name": "manifester",
   "version": "0.0.0",
   "private": true,
-  "main": "src.server/app.js",
+  "main": "dist.server/app.js",
   "scripts": {
     "start": "node ./bin/www",
+    "prestart": "npm run -s build",
     "build": "gulp build",
     "watch": "gulp watch:client"
   },
@@ -24,6 +25,7 @@
     "babel-preset-env": "^1.1.8",
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-es2015-rollup": "^3.0.0",
+    "babel-preset-stage-0": "^6.22.0",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -43,7 +45,7 @@
   },
   "settings": {
     "src_server": "src.server",
-    "dir_server_dist": ".",
+    "dir_server_dist": "dist.server",
     "src_client": "src.client/riot",
     "dir_public": "public",
     "dir_client_dist": "public/dist"
