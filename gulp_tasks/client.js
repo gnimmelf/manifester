@@ -16,7 +16,7 @@ var settings = require('../package.json').settings;
 
 module.exports = function(gulp) 
 {
-  gulp.task('rollup:compile', (done) => {
+  gulp.task('client:rollup:compile', (done) => {
     return gulp.src('src.client/riot/main.js')
       .pipe(sourcemaps.init())
       .pipe(rollup({ 
@@ -57,10 +57,10 @@ module.exports = function(gulp)
          */
         format: 'iife', 
       }))
-      .on('error', utils.handleError)
+      .on('error', utils.streamOnError)
       // inlining the sourcemap into the exported .js file 
       .pipe(sourcemaps.write())
       .pipe(rename('bundle.js'))
-      .pipe(gulp.dest(settings.dir_dist));      
+      .pipe(gulp.dest(settings.dir_client_dist));      
   });
 }

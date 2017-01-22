@@ -9,7 +9,8 @@ var runSequence = require('run-sequence');
 
 var settings = require('./package.json').settings;
 
-require('./gulp_tasks/rollup')(gulp);
+require('./gulp_tasks/server')(gulp);
+require('./gulp_tasks/client')(gulp);
 require('./gulp_tasks/less')(gulp);
 
 /**
@@ -17,16 +18,16 @@ require('./gulp_tasks/less')(gulp);
  */
 
 gulp.task('default' , ['build']);
+gulp.task('build' , ['build:client', 'server:transpile']);
 
-gulp.task('build' , function() {
-	runSequence('less:compile', 'rollup:compile');
+gulp.task('build:client' , function() {
+	runSequence('client:less:compile', 'client:rollup:compile');
 });
 
-
-gulp.task('watch', ['build'], function(done) {  
+gulp.task('watch:client', ['build'], function(done) {  
   gulp.watch([join(settings.src_client, '**', '*.less')] , ['less:compile']);
   gulp.watch([
     join(settings.src_client, '**', '*.js'),
     join(settings.src_client, '**', '*tag.html'),
-  ] , ['rollup:compile']);
+  ] , ['client:rollup:compile']);
 });

@@ -1,7 +1,7 @@
 var gulp = require('gulp');
-var less = require('gulp-less');
 var sourcemaps = require('gulp-sourcemaps');
 var concat = require('gulp-concat');
+var babel = require("gulp-babel");
 
 // Helpers
 var join = require('path').join;
@@ -11,14 +11,13 @@ var settings = require('../package.json').settings;
 
 module.exports = function(gulp) 
 {
-  gulp.task('client:less:compile' , function(done) {
+  gulp.task('server:transpile' , function(done) {
     return gulp.src(
-      join(settings.src_client, '**', '*.less'))
+      join(settings.src_server, '**', '*.js'))
       .pipe(sourcemaps.init())
-      .pipe(less())
+      .pipe(babel())
       .on('error', utils.streamOnError)
-      .pipe(sourcemaps.write(settings.dir_public))
-      .pipe(concat('styles.css'))
-      .pipe(gulp.dest(settings.dir_client_dist));
+      .pipe(sourcemaps.write('.'))
+      .pipe(gulp.dest(settings.src_server));
   });
 }
