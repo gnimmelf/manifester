@@ -17,7 +17,8 @@ module.exports = function(gulp)
       .pipe(sourcemaps.init())
       .pipe(babel())
       .on('error', utils.streamOnError)
+      .pipe(concat("server.js"))
       .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(settings.src_server));
+      .pipe(gulp.dest(settings.dir_server_dist));
   });
 }
