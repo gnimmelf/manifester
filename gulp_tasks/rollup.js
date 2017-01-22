@@ -10,6 +10,7 @@ var sourcemaps = require('gulp-sourcemaps');
 
 // Helpers
 var join = require('path').join;
+var utils = require('./utils');
 // Package settings
 var settings = require('../package.json').settings;
 
@@ -49,12 +50,14 @@ module.exports = function(gulp)
           jquery: '$',
           rx: 'Rx',
         },
+        onwarn: utils.makeOnwarn("Sourcemap is likely to be incorrect:")
       }, {
         /** Bundle generate options
          * https://github.com/rollup/rollup/wiki/JavaScript-API#bundlegenerate-options- 
          */
-        format: 'iife',        
+        format: 'iife', 
       }))
+      .on('error', utils.handleError)
       // inlining the sourcemap into the exported .js file 
       .pipe(sourcemaps.write())
       .pipe(rename('bundle.js'))
