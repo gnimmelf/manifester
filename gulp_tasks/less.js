@@ -14,10 +14,14 @@ module.exports = function(gulp)
   gulp.task('client:less:compile' , function(done) {
     return gulp.src(
       join(settings.src_client, '**', '*.less'))
+      .pipe(sourcemaps.write({
+        destPath: settings.dir_client_dist,        
+        includeContent: true,
+        sourceRoot: settings.src_client,
+      }))
       .pipe(sourcemaps.init())
       .pipe(less())
-      .on('error', utils.streamOnError)
-      .pipe(sourcemaps.write(settings.dir_public))
+      .on('error', utils.streamOnError)      
       .pipe(concat('styles.css'))
       .pipe(gulp.dest(settings.dir_client_dist));
   });
