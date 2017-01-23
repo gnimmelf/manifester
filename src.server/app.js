@@ -4,16 +4,18 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
 var storage = require('node-persist');
+
+// Helpers
 var upquire = require('upquire');
+var upquire_path = function(folder_path) { return upquire(folder_path, { pathOnly: true }) }
 
 var index = require('./routes/index');
 
 var app = express();
 
 // view engine setup
-app.set('views', upquire('/src.server/views', { pathOnly: true }));
+app.set('views', upquire_path('/src.server/views'));
 app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
@@ -22,8 +24,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '../dist.client')));
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(settings.url_dist_client, express.static(upquire_path(settings.dir_dist_client)));
+app.use(settings.url_src_client, express.static(upquire_path(settings.dir_src_client)));
+app.use(express.static(upquire_path('/public')));
 
 
 app.use('/', index);

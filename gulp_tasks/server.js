@@ -18,6 +18,6 @@ module.exports = function(gulp)
       .pipe(babel())
       .on('error', utils.streamOnError)
       .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(settings.dir_server_dist));
+      .pipe(gulp.dest(settings.dir_dist_server));
   });
 }

@@ -18,17 +18,17 @@ require('./gulp_tasks/less')(gulp);
  */
 
 gulp.task('default' , ['build']);
-gulp.task('build' , ['build:client', 'server:transpile']);
+gulp.task('build' , ['client:build', 'server:transpile']);
 
-gulp.task('build:client' , function() {
+gulp.task('client:build' , function() {
 	runSequence('client:less:compile', 'client:rollup:compile');
 });
 
-gulp.task('watch:client', ['build'], function(done) {  
-  gulp.watch([join(settings.src_client, '**', '*.less')] , ['less:compile']);
+gulp.task('client:watch', ['client:build'], function(done) {  
+  gulp.watch([join(settings.dir_src_client, '**', '*.less')] , ['less:compile']);
   gulp.watch([
-    join(settings.src_client, '**', '*.js'),
-    join(settings.src_client, '**', '*tag.html'),
+    join(settings.dir_src_client, '**', '*.js'),
+    join(settings.dir_src_client, '**', '*tag.html'),
   ] , ['client:rollup:compile']);
 });
 

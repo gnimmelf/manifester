@@ -45,10 +45,12 @@
     "run-sequence": "^1.1.5"
   },
   "settings": {
-    "src_server": "src.server",
-    "dir_server_dist": "dist.server",
-    "src_client": "src.client/riot",
-    "dir_public": "public",
-    "dir_client_dist": "dist.client"
+    "dir_src_server": "src.server",
+    "dir_dist_server": "dist.server",
+    "dir_src_client": "src.client/riot",
+    "dir_dist_client": "dist.client",
+    "url_src_client": "/src",
+    "url_dist_client": "/dist",
+    "dir_public": "public"
   }
 }

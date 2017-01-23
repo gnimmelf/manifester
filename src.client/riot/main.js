@@ -1,5 +1,5 @@
 import riot from 'riot';
-import './app/tag.html';
+import './app/app.tag.html';
 
 import rx from 'rx';
 

@@ -55,12 +55,15 @@ module.exports = function(gulp)
         /** Bundle generate options
          * https://github.com/rollup/rollup/wiki/JavaScript-API#bundlegenerate-options- 
          */
-        format: 'iife', 
+        format: 'umd', 
       }))
       .on('error', utils.streamOnError)
       // inlining the sourcemap into the exported .js file 
-      .pipe(sourcemaps.write())
+      .pipe(sourcemaps.write(settings.dir_dist_client, {        
+        includeContent: true,
+        sourceRoot: '/src',
+      }))
       .pipe(rename('bundle.js'))
-      .pipe(gulp.dest(settings.dir_client_dist));      
+      .pipe(gulp.dest(settings.dir_dist_client));      
   });
 }
