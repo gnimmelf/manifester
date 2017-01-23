@@ -16,6 +16,11 @@ var settings = require('../package.json').settings;
 
 module.exports = function(gulp) 
 {
+
+  gulp.task('client:clean' , function() {
+    return del(settings.dir_dist_client);    
+  });
+
   gulp.task('client:rollup:compile', (done) => {
     return gulp.src('src.client/riot/main.js')
       .pipe(sourcemaps.init())
@@ -60,8 +65,9 @@ module.exports = function(gulp)
       .on('error', utils.streamOnError)
       // inlining the sourcemap into the exported .js file 
       .pipe(sourcemaps.write(settings.dir_dist_client, {        
-        includeContent: true,
-        sourceRoot: '/src',
+        //addComment: false,
+        //includeContent: false,
+        //sourceRoot: '/src',
       }))
       .pipe(rename('bundle.js'))
       .pipe(gulp.dest(settings.dir_dist_client));      

@@ -18,7 +18,12 @@ require('./gulp_tasks/less')(gulp);
  */
 
 gulp.task('default' , ['build']);
-gulp.task('build' , ['client:build', 'server:transpile']);
+gulp.task('build' , ['clean', 'client:build', 'server:transpile']);
+
+gulp.task('clean' , function() {
+  runSequence('client:clean', 'server:clean');
+});
+
 
 gulp.task('client:build' , function() {
 	runSequence('client:less:compile', 'client:rollup:compile');

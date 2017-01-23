@@ -5,11 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var storage = require('node-persist');
-
 // Helpers
 var upquire = require('upquire');
 var upquire_path = function(folder_path) { return upquire(folder_path, { pathOnly: true }) }
-
+// Package settings
+var settings = require('../package.json').settings;
+// Routes
 var index = require('./routes/index');
 
 var app = express();

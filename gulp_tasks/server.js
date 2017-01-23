@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var sourcemaps = require('gulp-sourcemaps');
 var concat = require('gulp-concat');
 var babel = require("gulp-babel");
+var del = require('del');
 
 // Helpers
 var join = require('path').join;
@@ -11,9 +12,14 @@ var settings = require('../package.json').settings;
 
 module.exports = function(gulp) 
 {
+
+  gulp.task('server:clean' , function() {
+    return del(settings.dir_dist_server);
+  });
+
   gulp.task('server:transpile' , function(done) {
     return gulp.src(
-      join(settings.src_server, '**', '*.js'))
+      join(settings.dir_src_server, '**', '*.js'))
       .pipe(sourcemaps.init())
       .pipe(babel())
       .on('error', utils.streamOnError)
