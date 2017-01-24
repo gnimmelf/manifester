@@ -1,18 +1,18 @@
-import '../list/tag.html'; 
+import '../list/tag.html';
 
 <app>
 	<h1>{ opts.title }</h1>
 
   <list items={ list_items } title="List"></list>
 
-  <script>    
+  <script>
     const tag = this;
 
     document.title = opts.title;
 
-    tag.list_items = [ 
-      { title: 'First' }, 
-      { title: 'Second' } 
+    tag.list_items = [
+      { title: 'First' },
+      { title: 'Second' }
     ];
 
     tag.on('*', function(eventName) {

@@ -1,11 +1,11 @@
 var gulp = require('gulp');
+var runSequence = require('run-sequence');
+
 // NOTE! Bower components are linked to directly 'as is' from within the html-templates
 //var bowerFiles = require('main-bower-files');
 
 // Helpers
 var join = require('path').join;
-
-var runSequence = require('run-sequence');
 
 var settings = require('./package.json').settings;
 
@@ -27,12 +27,13 @@ gulp.task('clean', ['client:clean', 'server:clean']);
 
 
 gulp.task('client:build', ['client:clean'], function() {
-	runSequence('client:less:compile');
   runSequence('client:rollup:compile');
+  runSequence('client:postcss');
+
 });
 
-gulp.task('client:watch', ['client:build'], function(done) {  
-  gulp.watch([join(settings.dir_src_client, '**', '*.less')] , ['less:compile']);
+gulp.task('client:watch', ['client:build'], function(done) {
+  gulp.watch([join(settings.dir_src_client, '**', '*.less')] , ['client:postcss']);
   gulp.watch([
     join(settings.dir_src_client, '**', '*.js'),
     join(settings.dir_src_client, '**', '*tag.html'),
