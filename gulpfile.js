@@ -11,22 +11,24 @@ var settings = require('./package.json').settings;
 
 require('./gulp_tasks/server')(gulp);
 require('./gulp_tasks/client')(gulp);
-require('./gulp_tasks/less')(gulp);
 
 /**
  * Default task - call gulp and its done
  */
 
-gulp.task('default' , ['build']);
-gulp.task('build' , ['clean', 'client:build', 'server:transpile']);
+gulp.task('default', ['build']);
 
-gulp.task('clean' , function() {
-  runSequence('client:clean', 'server:clean');
+gulp.task('build', ['clean'], function() {
+  runSequence(['client:build']);
+  runSequence(['server:transpile']);
 });
 
+gulp.task('clean', ['client:clean', 'server:clean']);
 
-gulp.task('client:build' , function() {
-	runSequence('client:less:compile', 'client:rollup:compile');
+
+gulp.task('client:build', ['client:clean'], function() {
+	runSequence('client:less:compile');
+  runSequence('client:rollup:compile');
 });
 
 gulp.task('client:watch', ['client:build'], function(done) {  

@@ -1,3 +1,9 @@
+var rimraf = require('rimraf');
+
+exports.rmdir = function(path, cb) {
+  rimraf(path, {glob: false}, cb)
+}
+
 exports.streamOnError = function(err) {
   console.error(err.stack);
   this.emit('end');
