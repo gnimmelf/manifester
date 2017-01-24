@@ -9,11 +9,11 @@ var settings = require('../package.json').settings;
 module.exports = function(gulp)
 {
 
-  gulp.task('client:clean' , function(done) {
+  gulp.task('client:clean' , (done) => {
     utils.rmdir(settings.dir_dist_client, done);
   });
 
-  gulp.task('client:postcss' , function(done) {
+  gulp.task('client:postcss' , (done) => {
     var postcss       = require('gulp-postcss');
     var autoprefixer  = require('autoprefixer');
     var postcssNext   = require('postcss-cssnext');
@@ -33,19 +33,31 @@ module.exports = function(gulp)
       .pipe(gulp.dest(settings.dir_dist_client))
   });
 
-  gulp.task('client:rollup:compile', (done) => {
+  gulp.task('client:riot:compile', (done) => {
+    var riot          = require('gulp-riot');
+    var sourcemaps    = require('gulp-sourcemaps');
+
+    return gulp.src(join(settings.dir_src_client, '**', '*tag.html'))
+      .pipe(sourcemaps.init())
+      .pipe(riot({
+          presets: ['es2015-rollup']
+      }))
+      .pipe(sourcemaps.write('.'))
+      .pipe(gulp.dest(settings.dir_dist_client))
+  });
+
+
+  gulp.task('client:rollup:bundle', ['client:riot:compile'], (done) => {
     var rollup        = require('gulp-better-rollup');
     var rename        = require('gulp-rename');
-    // https://github.com/rollup/rollup-plugin-babel
-    var babel         = require('rollup-plugin-babel');
     var json          = require('rollup-plugin-json');
-    var riot          = require('rollup-plugin-riot');
     var nodeResolve   = require('rollup-plugin-node-resolve');
     var commonjs      = require('rollup-plugin-commonjs');
     var sourcemaps    = require('rollup-plugin-sourcemaps');
 
 
     return gulp.src('src.client/riot/main.js')
+      .pipe(sourcemaps.init())
       .pipe(rollup({
         /** Rollup options
          * https://github.com/rollup/rollup/wiki/JavaScript-API#rolluprollup-options-
@@ -62,10 +74,6 @@ module.exports = function(gulp)
             browser: true
           }),
           commonjs(),
-          babel({
-            babelrc: false,
-            presets: ["es2015-rollup"]
-          }),
         ],
         external: [
           'riot',
@@ -85,7 +93,8 @@ module.exports = function(gulp)
         format: 'iife',
       }))
       .on('error', utils.streamOnError)
-        .pipe(rename('bundle.js'))
+      .pipe(rename('bundle.js'))
+      .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest(settings.dir_dist_client));
   });
 }
