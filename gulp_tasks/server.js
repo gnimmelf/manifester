@@ -9,11 +9,11 @@ var utils = require('./utils');
 // Package settings
 var settings = require('../package.json').settings;
 
-module.exports = function(gulp) 
+module.exports = function(gulp)
 {
 
   gulp.task('server:clean' , function(done) {
-    utils.rmdir(settings.dir_dist_server, done);    
+    utils.rmdir(settings.dir_dist_server, done);
   });
 
   gulp.task('server:transpile' , function(done) {
