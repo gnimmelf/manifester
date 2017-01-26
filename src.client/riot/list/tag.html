@@ -6,7 +6,7 @@
     <button onclick={ parent.remove }>Remove</button>
   </div>
 
-  <script>    
+  <script>
     const tag = this;
 
     tag.remove = (event) => {
@@ -15,8 +15,12 @@
       // index on the collection
       var index = tag.opts.items.indexOf(item)
       // remove from collection
-      tag.opts.items.splice(index, 1)      
+      tag.opts.items.splice(index, 1)
     }
+
+    tag.on('*', function(eventName) {
+      console.info(eventName)
+    })
   </script>
 
 </list>

@@ -20,7 +20,11 @@ module.exports = function(gulp)
     return gulp.src(
       join(settings.dir_src_server, '**', '*.js'))
       .pipe(sourcemaps.init())
-      .pipe(babel())
+      .pipe(babel({
+        babelrc: false,
+        presets: ["es2015"],
+        //"plugins": ["external-helpers"],
+      }))
       .on('error', utils.streamOnError)
       .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest(settings.dir_dist_server));

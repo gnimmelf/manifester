@@ -27,8 +27,8 @@ gulp.task('clean', ['client:clean', 'server:clean']);
 
 
 gulp.task('client:build', ['client:clean'], function() {
-  runSequence('client:webpack:bundle');
   runSequence('client:postcss');
+  runSequence('client:webpack');
 
 });
 
@@ -37,6 +37,6 @@ gulp.task('client:watch', ['client:build'], function(done) {
   gulp.watch([
     join(settings.dir_src_client, '**', '*.js'),
     join(settings.dir_src_client, '**', '*tag.html'),
-  ] , ['client:webpack:bundle']);
+  ] , ['client:webpack']);
 });
 
