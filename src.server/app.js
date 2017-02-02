@@ -16,7 +16,7 @@ const settings = require('../package.json').settings;
 
 // Routes
 const index = require('./routes/index');
-const graphql = require('./routes/graphql');
+const graphql = require('./routes/graphql').default;
 
 // Express app
 const app = express();
