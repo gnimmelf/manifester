@@ -1,4 +1,3 @@
-var gulp = require('gulp');
 var gutil = require("gulp-util");
 
 // Helpers
@@ -14,7 +13,7 @@ module.exports = function(gulp)
     // Create a single instance of the compiler to allow caching
     var compiler = webpack({
       // Debug + sourcemap config
-      devtool: "sourcemap",
+      devtool: 'eval-cheap-module-source-map',
       debug: true,
       // Standard configs
       entry: utils.join(settings.dir_src_client, 'main.js'),

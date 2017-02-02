@@ -9,6 +9,8 @@ var join = require('path').join;
 
 var settings = require('./package.json').settings;
 
+var client_bundler_task_name = "client:webpack";
+
 require('./gulp_tasks/server')(gulp);
 require('./gulp_tasks/client')(gulp);
 
@@ -20,7 +22,7 @@ gulp.task('default', ['build']);
 
 gulp.task('build', ['clean'], function() {
   runSequence(['client:build']);
-  runSequence(['server:transpile']);
+  runSequence(['server:build']);
 });
 
 gulp.task('clean', ['client:clean', 'server:clean']);
@@ -28,7 +30,7 @@ gulp.task('clean', ['client:clean', 'server:clean']);
 
 gulp.task('client:build', ['client:clean'], function() {
   runSequence('client:postcss');
-  runSequence('client:webpack');
+  runSequence(client_bundler_task_name);
 
 });
 
@@ -37,6 +39,13 @@ gulp.task('client:watch', ['client:build'], function(done) {
   gulp.watch([
     join(settings.dir_src_client, '**', '*.js'),
     join(settings.dir_src_client, '**', '*tag.html'),
-  ] , ['client:webpack']);
+  ] , [client_bundler_task_name]);
 });
 
+gulp.task('server:build', ['server:clean'], function(done) {
+  runSequence('server:transpile:exec');
+});
+
+gulp.task('server:watch', ['server:build'], function(done) {
+  runSequence('server:transpile:exec:watch');
+});

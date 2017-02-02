@@ -5,21 +5,24 @@
   "main": "dist.server/app.js",
   "scripts": {
     "start": "node ./bin/www",
-    "prestart": "npm run -s build",
     "build": "gulp build",
     "watch": "gulp watch:client"
   },
   "dependencies": {
+    "babel-polyfill": "^6.22.0",
     "body-parser": "~1.15.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
     "express": "~4.14.0",
+    "express-graphql": "^0.6.2",
     "googleapis": "^15.0.0",
+    "graphql": "^0.9.1",
     "hbs": "~4.0.1",
     "morgan": "~1.7.0",
     "node-persist": "^2.0.7",
     "serve-favicon": "~2.3.0",
-    "upquire": "0.0.11"
+    "source-map-support": "^0.4.11",
+    "upquire": "0.0.12"
   },
   "devDependencies": {
     "babel": "^6.5.2",
@@ -36,6 +39,8 @@
     "babel-preset-es2015-riot": "^1.1.0",
     "babel-preset-es2015-rollup": "^3.0.0",
     "babel-preset-es2015-without-strict": "0.0.4",
+    "babel-preset-node5": "^12.0.0",
+    "babel-preset-node6": "^11.0.0",
     "babel-preset-stage-0": "^6.22.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -59,15 +64,16 @@
     "rollup-plugin-riot": "^0.1.1",
     "rollup-plugin-sourcemaps": "^0.4.1",
     "run-sequence": "^1.1.5",
+    "source-map-support": "^0.4.10",
     "webpack": "^1.14.0"
   },
   "settings": {
+    "dir_public": "public",
     "dir_src_server": "src.server",
     "dir_dist_server": "dist.server",
     "dir_src_client": "src.client/riot",
     "dir_dist_client": "dist.client",
     "url_src_client": "/src",
-    "url_dist_client": "/dist",
-    "dir_public": "public"
+    "url_dist_client": "/dist"
   }
 }

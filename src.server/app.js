@@ -1,19 +1,25 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var storage = require('node-persist');
-// Helpers
-var upquire = require('upquire');
-var upquire_path = function(folder_path) { return upquire(folder_path, { pathOnly: true }) }
-// Package settings
-var settings = require('../package.json').settings;
-// Routes
-var index = require('./routes/index');
+require('source-map-support').install();
+require('babel-polyfill');
 
-var app = express();
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const storage = require('node-persist');
+// Helpers
+const upquire = require('upquire');
+const upquire_path = function(folder_path) { return upquire(folder_path, { pathOnly: true }) }
+// Package settings
+const settings = require('../package.json').settings;
+
+// Routes
+const index = require('./routes/index');
+const graphql = require('./routes/graphql');
+
+// Express app
+const app = express();
 
 // view engine setup
 app.set('views', upquire_path('/src.server/views'));
@@ -31,10 +37,11 @@ app.use(express.static(upquire_path('/public')));
 
 
 app.use('/', index);
+//app.use('/graphql', graphql);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });

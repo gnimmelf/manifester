@@ -1,4 +1,3 @@
-var gulp = require('gulp');
 var gutil = require("gulp-util");
 
 // Helpers
@@ -44,6 +43,10 @@ module.exports = function(gulp)
         // https://github.com/rollup/rollup/wiki/JavaScript-API#rolluprollup-options-
         plugins: [
           json(),
+          riot({
+            ext: 'html',
+            type: 'none'
+          }),
           nodeResolve({
             jsnext: true,
             main: true,
@@ -51,9 +54,10 @@ module.exports = function(gulp)
           }),
           commonjs(),
           babel({
-            babelrc: false,
-            presets: ["es2015"],
-            //"plugins": ["external-helpers"],
+            "presets": [
+              ["es2015", {"modules": false}]
+            ],
+            "plugins": ["external-helpers"]
           })
         ],
         external: [
@@ -70,7 +74,7 @@ module.exports = function(gulp)
       }, {
         // Bundle generate options
         // https://github.com/rollup/rollup/wiki/JavaScript-API#bundlegenerate-options-
-         format: 'iife',
+        format: 'iife',
       }))
       .on('error', utils.streamOnError)
       .pipe(sourcemaps.write())

@@ -12,7 +12,7 @@ exports.streamOnError = function(err) {
 
 exports.makeOnwarn = function(supress_starts_with)
 /**
- * Custom `onwarn` for rollup to suppress annoying warnings.
+ * Custom `onwarn` for rollup to suppress annoying, unfixable warnings.
  */
 {
   var warned = {};
@@ -38,5 +38,5 @@ exports.makeOnwarn = function(supress_starts_with)
 
 exports.join = function()
 {
-  return './'+(path.join.apply(null, Array.prototype.slice.call(arguments)));
+  return (path.join.apply(null, Array.prototype.slice.call(arguments)));
 }
