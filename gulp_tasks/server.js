@@ -5,14 +5,14 @@ var sourcemaps = require('gulp-sourcemaps');
 var join = require('path').join;
 var utils = require('./utils');
 var format = require('util').format;
-var upquire = require('upquire')
 var exec = require('child_process').spawn;
 // Package settings
-var settings = require('../package.json').settings;
+var settings = require('upquire')('/package.json').settings;
 
-function transpileExec(done, doWatch) {
+function transpileExec(done, task_name, do_watch) {
+    var cwd = utils.upquirePath('/package.json');
     var cmd = '%s/babel'
-    var args = '%s --out-dir %s --source-maps'
+    var args = '%s --out-dir %s --source-maps --presets node6'
     // babel path
     cmd = format(cmd, 'node_modules/.bin');
     // src.server
@@ -20,23 +20,21 @@ function transpileExec(done, doWatch) {
     // dest.server
     args = format(args, settings.dir_dist_server);
     // Watch flag
-    if (doWatch) { args+=' --watch'; }
+    if (do_watch) { args+=' --watch'; }
 
-    //console.log(cmd, args); done(); return;
+    console.log(cwd, cmd, args.split(', ')); //done(); return;
 
-    var child = exec(cmd, args.split(' '), {cwd: upquire('/package.json', {pathOnly: true, dirname: true})});
+    var child = exec(cmd, args.split(' '), {cwd: cwd});
 
     // Redirect child output
     child.stdout.on('data', function(data) {
         console.log(''+data);
-        //Here is where the output goes
     });
     child.stderr.on('data', function(data) {
         console.log(''+data);
-        //Here is where the error output goes
     });
     child.on('close', function(code) {
-        console.log('Done (code: %s)', code);
+        console.log('%s done (code: %s)', task_name, code);
         done();
     });
 }
@@ -49,11 +47,11 @@ module.exports = function(gulp)
   });
 
   gulp.task('server:transpile:exec' , function(done) {
-    transpileExec(done)
+    transpileExec(done, 'server:transpile:exec')
   })
 
   gulp.task('server:transpile:exec:watch' , function(done) {
-    transpileExec(done, true)
+    transpileExec(done, 'server:transpile:exec:watch', true)
   })
 
   gulp.task('server:transpile:gulp' , function(done) {

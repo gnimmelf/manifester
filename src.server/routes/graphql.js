@@ -21,11 +21,9 @@ const schema = new GraphQLSchema({
   })
 });
 
-console.log('Ta-daa!');
-
-const api = graphqlHTTP({
+export default graphqlHTTP({
   schema: schema,
   graphiql: true
 });
 
-export default api;
+

@@ -13,10 +13,10 @@ module.exports = function(gulp)
     // Create a single instance of the compiler to allow caching
     var compiler = webpack({
       // Debug + sourcemap config
-      devtool: 'eval-cheap-module-source-map',
+      devtool: 'source-map',
       debug: true,
       // Standard configs
-      entry: utils.join(settings.dir_src_client, 'main.js'),
+      entry: './'+utils.join(settings.dir_src_client, 'main.js'),
       output: {
         path: settings.dir_dist_client,
         publicPath: '/',

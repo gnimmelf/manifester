@@ -1,5 +1,6 @@
 var rimraf = require('rimraf');
 var path = require('path');
+var upquire = require('upquire')
 
 exports.rmdir = function(path, cb) {
   rimraf(path, {glob: false}, cb)
@@ -8,6 +9,10 @@ exports.rmdir = function(path, cb) {
 exports.streamOnError = function(err) {
   console.error(err.stack);
   this.emit('end');
+}
+
+exports.upquirePath = function(some_path) {
+  return upquire(some_path, { pathOnly: true, dirname: true })
 }
 
 exports.makeOnwarn = function(supress_starts_with)

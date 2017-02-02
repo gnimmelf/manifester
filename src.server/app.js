@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 const storage = require('node-persist');
 // Helpers
 const upquire = require('upquire');
-const upquire_path = function(folder_path) { return upquire(folder_path, { pathOnly: true }) }
+const upquire_path = function(some_path) { return upquire(some_path, { pathOnly: true, dirname: true }) }
 // Package settings
 const settings = require('../package.json').settings;
 
@@ -37,7 +37,7 @@ app.use(express.static(upquire_path('/public')));
 
 
 app.use('/', index);
-//app.use('/graphql', graphql);
+app.use('/graphql', graphql);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -20,13 +20,12 @@ require('./gulp_tasks/client')(gulp);
 
 gulp.task('default', ['build']);
 
-gulp.task('build', ['clean'], function() {
+gulp.task('build', function() {
   runSequence(['client:build']);
   runSequence(['server:build']);
 });
 
 gulp.task('clean', ['client:clean', 'server:clean']);
-
 
 gulp.task('client:build', ['client:clean'], function() {
   runSequence('client:postcss');
@@ -46,6 +45,6 @@ gulp.task('server:build', ['server:clean'], function(done) {
   runSequence('server:transpile:exec');
 });
 
-gulp.task('server:watch', ['server:build'], function(done) {
+gulp.task('server:watch', function(done) {
   runSequence('server:transpile:exec:watch');
 });
