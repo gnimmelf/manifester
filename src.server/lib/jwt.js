@@ -32,13 +32,13 @@ var googleapis = require('googleapis');
  */
 
 // Google Service Account details
-var GSA = require('./g_service_account');
+var GSA = require('upquire')('/sensistive/g_service_account');
 
 var authClient = new googleapis.auth.JWT(
     /* function JWT(email, keyFile, key, scopes, person, [..]) */
-    SA.client_email,     
+    GSA.client_email,
     null,
-    SA.private_key,
+    GSA.private_key,
     ['https://www.googleapis.com/auth/drive.readonly']);
 
 authClient.authorize(function(err, tokens) {
@@ -48,9 +48,9 @@ authClient.authorize(function(err, tokens) {
   }
   console.log('SUCCESS', tokens)
 
-  var drive = googleapis.drive({ version: 'v3', auth: authClient });  
+  var drive = googleapis.drive({ version: 'v3', auth: authClient });
   drive.files.list({
-    q: "'0B4gB3nV9reGKdEpDWXlpcFpUQ3M' in parents",
+    q: "'0B4gB3nV9reGKWURSdDdWeGdBU1k' in parents",
   }, function(err, data) {
     if (err) {
       console.log(err);
@@ -59,7 +59,7 @@ authClient.authorize(function(err, tokens) {
     // Loop files and get urls
     console.log('------------');
     console.log(data);
-  }) 
+  })
 
 });
 
