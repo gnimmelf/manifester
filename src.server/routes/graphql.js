@@ -10,31 +10,20 @@ import {
 
 import graphqlHTTP from 'express-graphql';
 
-var TODOs = [
-  {
-    "id": 1,
-    "title": "Read emails",
-    "completed": false
-  },
-  {
-    "id": 2,
-    "title": "Buy orange",
-    "completed": true
-  }
-];
+import { promiseFiles } from '../lib/google/drive';
 
-var TodoType = new GraphQLObjectType({
-  name: 'todo',
+var FileType = new GraphQLObjectType({
+  name: 'file',
   fields: function () {
     return {
-      id: {
-        type: GraphQLInt
-      },
       title: {
         type: GraphQLString
       },
-      completed: {
-        type: GraphQLBoolean
+      id: {
+        type: GraphQLString
+      },
+      content: {
+        type: GraphQLString
       }
     }
   }
@@ -44,16 +33,15 @@ var queryType = new GraphQLObjectType({
   name: 'Query',
   fields: function () {
     return {
-      todos: {
-        type: new GraphQLList(TodoType),
+      files: {
+        type: new GraphQLList(FileType),
         resolve: function () {
-          return TODOs;
+          return promiseFiles();
         }
       }
     }
   }
 });
-
 
 const schema = new GraphQLSchema({
   query: queryType
