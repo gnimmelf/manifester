@@ -10,7 +10,7 @@ import {
 
 import graphqlHTTP from 'express-graphql';
 
-import { promiseFiles } from '../lib/google/drive';
+import { queryFiles } from '../../lib/google/drive';
 
 var FileType = new GraphQLObjectType({
   name: 'file',
@@ -20,6 +20,9 @@ var FileType = new GraphQLObjectType({
         type: GraphQLString
       },
       id: {
+        type: GraphQLString
+      },
+      mimeType: {
         type: GraphQLString
       },
       content: {
@@ -36,7 +39,7 @@ var queryType = new GraphQLObjectType({
       files: {
         type: new GraphQLList(FileType),
         resolve: function () {
-          return promiseFiles();
+          return queryFiles("'0B4gB3nV9reGKWURSdDdWeGdBU1k' in parents and trashed = false and name contains '*.md'");
         }
       }
     }

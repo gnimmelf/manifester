@@ -16,7 +16,7 @@ const settings = require('../package.json').settings;
 
 // Routes
 const index = require('./routes/index');
-const graphql = require('./routes/graphql').default;
+const documents = require('./routes/graphql/documents').default;
 
 // Express app
 const app = express();
@@ -37,7 +37,7 @@ app.use(express.static(upquire_path('/public')));
 
 
 app.use('/', index);
-app.use('/graphql', graphql);
+app.use('/graphql', documents);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

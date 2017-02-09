@@ -8,6 +8,7 @@ export const ensureObservable = (action) =>
     : Observable.from([action]);
 
 export const log = console.log.bind(console);
+export const error = console.error.bind(console);
 
 export const httpGet = function(url) {
   // https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/
