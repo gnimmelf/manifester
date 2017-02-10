@@ -12,7 +12,8 @@ import graphqlHTTP from 'express-graphql';
 
 import { queryFiles } from '../../lib/google/drive';
 
-var FileType = new GraphQLObjectType({
+var FileType = new GraphQLObjectType(
+{
   name: 'file',
   fields: function () {
     return {
@@ -32,7 +33,8 @@ var FileType = new GraphQLObjectType({
   }
 });
 
-var queryType = new GraphQLObjectType({
+var queryType = new GraphQLObjectType(
+{
   name: 'Query',
   fields: function () {
     return {
@@ -46,11 +48,13 @@ var queryType = new GraphQLObjectType({
   }
 });
 
-const schema = new GraphQLSchema({
+const schema = new GraphQLSchema(
+{
   query: queryType
 });
 
-export default graphqlHTTP({
+export default graphqlHTTP(
+{
   schema: schema,
   graphiql: true,
   pretty: true,

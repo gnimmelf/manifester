@@ -7,7 +7,7 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const storage = require('node-persist');
+
 // Helpers
 const upquire = require('upquire');
 const upquire_path = function(some_path) { return upquire(some_path, { pathOnly: true, dirname: true }) }
@@ -47,7 +47,8 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res, next)
+{
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
