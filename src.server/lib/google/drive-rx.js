@@ -54,14 +54,10 @@ const changes$ = () => {
       }
     })
     .buffer(emit$)
-    .do(log(gPageToken))
-
-  // Kickoff until
-  m$.subscribe({
-      next: (x) => log(gPageToken, x),
-    });
 
   return m$
 }
 
-changes$()
+changes$().subscribe({
+  next: (x) => log('gPageToken: ', gPageToken, '\nchanges:\n', x)
+});
