@@ -7,6 +7,9 @@ import {
   GraphQLBoolean,
   GraphQLList
 } from 'graphql';
+import {
+  TimestampType
+} from './graphql-types'
 
 import graphqlHTTP from 'express-graphql';
 
@@ -28,7 +31,10 @@ var FileType = new GraphQLObjectType(
       },
       content: {
         type: GraphQLString
-      }
+      },
+      modifiedTime: {
+        type: TimestampType,
+      },
     }
   }
 });

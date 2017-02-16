@@ -7,17 +7,19 @@ export const makeJwtRequest = (jwt) =>
 {
   let request = requestWithJWT();
 
-  return (url, options={}) =>
+  return (params={}, options={}) =>
   {
-
     let raw_body = (options.raw_body && true) || false;
 
-    debug('Requesting %s', url)
+    // Ensure params is object
+    if (typeof params == 'string') params = { url: params }
+    params.jwt = jwt;
+
+    debug('Requesting %s', params.url)
 
     return new Promise((resolve, reject) =>
     {
-      request(
-        { url: url, jwt: jwt },
+      request(params,
         (err, res, body) =>
         {
           if(err)
@@ -26,7 +28,7 @@ export const makeJwtRequest = (jwt) =>
           }
           else
           {
-            debug(url, raw_body, body)
+            debug(params.url, raw_body, body)
             resolve(raw_body ? body : JSON.parse(body));
           }
         }

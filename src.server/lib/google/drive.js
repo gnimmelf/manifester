@@ -16,7 +16,7 @@ const jwtRequest = makeJwtRequest(
   scopes: ['https://www.googleapis.com/auth/drive.readonly']
 })
 
-const base_url = "https://www.googleapis.com/drive/v3/files"
+const base_url = "https://www.googleapis.com/drive/v3/"
 
 const makeUrl = (...args) =>
 {
@@ -29,21 +29,24 @@ const makeUrl = (...args) =>
 export const queryFiles = (query="trashed = false") =>
 {
   // Check if files exist in storage
-  // Return from storage if found
-  // How to refresh storage from client?
+  // - Return from storage if found
+  // Check if files are changed
+  // - refetch changed files (by id)
 
   return new Promise((resolve, reject) => {
 
-    jwtRequest(makeUrl('q='+query))
+    jwtRequest(makeUrl('files', 'q='+query))
     .then((data) => {
       debug('files.length', data.files.length)
+
       Promise.all(
         data.files
         .map((file) =>
         {
+
           return new Promise((resolve, reject) =>
           {
-            jwtRequest(makeUrl(file.id, 'alt=media'), {raw_body: true})
+            jwtRequest(makeUrl('files', file.id, 'alt=media'), {raw_body: true})
             .then((content) =>
             {
               file.content = content;
