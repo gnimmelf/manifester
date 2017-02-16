@@ -3,14 +3,14 @@ import Rx from 'rxjs/Rx';
 import { log } from './lib/utils';
 
 
+// `value/getValue` is not present after applying instance methods
+// https://github.com/ReactiveX/rxjs/issues/2378
+let lastValue;
+
 const s1$ = new Rx.Subject()
   .mapTo(0)
   .do(x => log('s1$:', x))
 
-
-// `value/getValue` is not present after applying instance methods
-// https://github.com/ReactiveX/rxjs/issues/2378
-let lastValue;
 
 const s2$ = new Rx.Subject()
   .filter((x) => parseInt(x))

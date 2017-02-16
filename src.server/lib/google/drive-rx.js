@@ -15,43 +15,53 @@ const jwtRequest = makeJwtRequest(
 })
 
 
-let startPageToken = null;
-const reqStartPageToken$ = () => {
-  let observable;
-  if (!startPageToken) {
-    observable = Rx.Observable
-      .from(jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken'))
-      .pluck('startPageToken')
-      .do((token) => { startPageToken = token })
-  }
-  else {
-    observable = Rx.Observable.of(startPageToken)
-  }
-  observable.do(log)
-  return observable
+let gPageToken = null;
+
+const reqStartPageToken$ = Rx.Observable
+  .from(jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken'))
+  .pluck('startPageToken')
+  .do((startPageToken) => { gPageToken = startPageToken })
+
+const nextPageToken$ = new Rx.Subject()
+  .do(x => gPageToken = x)
+
+
+const changes$ = () => {
+  const emit$ = new Rx.Subject();
+
+  const m$ = Rx.Observable.merge(reqStartPageToken$, nextPageToken$)
+    .do(x => log('pageToken:', x))
+    .switchMap((pageToken) => {
+      return jwtRequest({
+        url: 'https://www.googleapis.com/drive/v3/changes',
+        json: true,
+        qs: {
+          pageToken: pageToken
+        }
+      }, {raw_body: true})
+    })
+    .do(x => log('res:\n', x))
+    .map((result) => {
+
+      if (result.newStartPageToken) {
+        // Signal buffer to emit
+        emit$.next();
+      }
+      else {
+        // Request next page of changes
+        nextPageToken$.next(result.pageToken)
+        return result.changes;
+      }
+    })
+    .buffer(emit$)
+    .do(log(gPageToken))
+
+  // Kickoff until
+  m$.subscribe({
+      next: (x) => log(gPageToken, x),
+    });
+
+  return m$
 }
 
-const changes$ = new Rx.Subject()
-  .do(log)
-  .switchMap((pageToken) => {
-    return jwtRequest({
-      url: 'https://www.googleapis.com/drive/v3/changes',
-      json: true,
-      qs: {
-        pageToken: pageToken
-      }
-    }, {raw_body: true})
-  })
-  .map((result) => {
-    if (result.startPageToken && result.startPageToken > startPageToken) {
-      startPageToken = result.startPageToken
-      changes.complete()
-    }
-    else {
-
-    }
-  })
-
-changes$
-  .subscribe(log)
-  .onComplete('Complete', log)
+changes$()
