@@ -3,49 +3,14 @@ import Rx from 'rxjs/Rx';
 import { log } from './lib/utils';
 
 
-// `value/getValue` is not present after applying instance methods
-// https://github.com/ReactiveX/rxjs/issues/2378
-let lastValue;
-
-const s1$ = new Rx.Subject()
-  .mapTo(0)
-  .do(x => log('s1$:', x))
-
-
-const s2$ = new Rx.Subject()
-  .filter((x) => parseInt(x))
-  .distinctUntilChanged()
-  .do(x => lastValue = x)
-  .do(x => log('s2$:', x))
-
-const execute = () => {
-  const end$ = new Rx.Subject();
-
-  const m$ = Rx.Observable.merge(s1$, s2$)
-    .do((x) => log('m$', x))
-    .mergeMap((x) => {
-      return new Promise((resolve, reject) => {
-
-        if (!x || x%4) {
-          setTimeout(() => { s2$.next(x+1) }, 10)
-          resolve({x: x})
-        }
-        else {
-          end$.next('');
-          log('m$ Completed')
-        }
-      })
-    });
-
-  m$.takeUntil(end$)
-    .subscribe({ complete: () => console.log('m$ got a complete notification') });
-
-  return m$
-}
-
-export const run = () => {
-  execute()
-  s1$.next('kick off')
-}
-
-run()
+//Create an observable that emits a value every second
+const myInterval = Rx.Observable.interval(500);
+//Create an observable that emits every time document is clicked
+const bufferBy = Rx.Observable.interval(1000)
+/*
+Collect all values emitted by our interval observable until we click document. This will cause the bufferBy Observable to emit a value, satisfying the buffer. Pass us all collected values since last buffer as an array.
+*/
+const myBufferedInterval = myInterval.buffer(bufferBy);
+//Print values to console
+//ex. output: [1,2,3] ... [4,5,6,7,8]
+const subscribe = myBufferedInterval.subscribe(val => console.log(' Buffered Values:', val));
