@@ -13,7 +13,7 @@ import {
 
 import graphqlHTTP from 'express-graphql';
 
-import { queryFiles } from '../../lib/google/drive';
+import { queryFiles } from '../../lib/g-drive/files';
 
 var FileType = new GraphQLObjectType(
 {
@@ -47,7 +47,7 @@ var queryType = new GraphQLObjectType(
       files: {
         type: new GraphQLList(FileType),
         resolve: function () {
-          return queryFiles("'0B4gB3nV9reGKWURSdDdWeGdBU1k' in parents and trashed = false and name contains '*.md'");
+          return getQueryFiles("'0B4gB3nV9reGKWURSdDdWeGdBU1k' in parents and trashed = false and name contains '*.md'").toPromise();
         }
       }
     }
