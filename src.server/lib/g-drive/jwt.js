@@ -2,11 +2,16 @@ import _debug from 'debug';
 import { requestWithJWT } from 'google-oauth-jwt';
 import upquire from 'upquire';
 
+import requestDebug from 'request-debug';
+import globToRegExp from 'glob-to-regexp';
+
 const debug = _debug('lib:g-drive:jwt');
 
-export const makeJwtRequest = (jwt) =>
+export const makeJwtRequest = (jwt, request_debug=false) =>
 {
   let request = requestWithJWT();
+
+  if (request_debug) requestDebug(request)
 
   return (params={}) =>
   {
@@ -43,4 +48,5 @@ export const jwtRequest = makeJwtRequest({
   email: GSA.client_email,
   key: GSA.private_key,
   scopes: ['https://www.googleapis.com/auth/drive.readonly']
-});
+}, globToRegExp(process.env.DEBUG || '').test('jwt-request'));
+

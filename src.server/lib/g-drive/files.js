@@ -5,7 +5,7 @@ import storage from '../storage';
 import * as utils from '../utils';
 import { jwtRequest } from './jwt';
 import {
-  newStartPageToken as changesNewStartPageToken,
+  primeStartPageToken as changesPrimeStartPageToken,
   getChanges$
 } from './changes';
 
@@ -37,7 +37,7 @@ export const getQueryFiles$ = (query="trashed = false") =>
 
   const reqFiles$ = nextPageToken$
     .takeUntil(stop$) // Cancel if data on storedFiles first or when `stop$.next()`
-    .do(changesNewStartPageToken()) // Save current token snapshot page
+    .do(changesPrimeStartPageToken()) // Prime next changes request
     .switchMap(pageToken => {
       return jwtRequest({
         url: 'https://www.googleapis.com/drive/v3/files',

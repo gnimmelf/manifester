@@ -6,29 +6,39 @@ import { log } from '../utils';
 
 const debug = _debug('lib:g-drive:changes');
 
-const setStartPageToken = (x) => storage.setItemSync('changesStartPageToken', x);
-const getStartPageToken = () => storage.getItemSync('changesStartPageToken');
+export const setStorageStartPageToken = (x) => storage.setItemSync('changesStartPageToken', parseInt(x));
+export const getStorageStartPageToken = () => { return parseInt(storage.getItemSync('changesStartPageToken')) || undefined };
+export const removeStorageStartPageToken = (x) => { return parseInt(storage.removeItemSync('changesStartPageToken')) || undefined };
 
-const nextPageToken$ = new Rx.Subject()
+export const nextPageToken$ = new Rx.BehaviorSubject()
   .filter(x => x || x == 0)
-  .do(x => setStartPageToken(x))
+  .do(x => setStorageStartPageToken(x))
 
-export const newStartPageToken = (pageToken=null) =>
-/* Pushes the latest `startPageToken` from the drive state to `nextPageToke$`*/
+export const primeStartPageToken = (pageToken=null) =>
+/* Pushes the latest `startPageToken` from the drive state to `nextPageToke$` */
 {
-  let promise;
+  let promise = null;
+
+  pageToken = pageToken || getStorageStartPageToken();
 
   if (pageToken) {
     nextPageToken$.next(pageToken)
-    promise = new Promise((resolve) => resolve(pageToken))
+    promise = Promise.resolve(pageToken)
+    promise.catch(log)
   }
   else {
     promise = Rx.Observable
       .from(jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken'))
       .pluck('startPageToken')
+      .mapTo(requestedStartPageToken => {
+        const storedStartPageToken = getStartPageToken();
+        return Math.max(0 && storedStartPageToken, requestedStartPageToken || 1)
+      })
       .do(nextPageToken$.next)
       .toPromise()
   }
+
+
   return promise;
 }
 
@@ -55,23 +65,24 @@ export const getChanges$ = () =>
     .do(result => {
       if (result.newStartPageToken) {
         // Prime next changes request
-        setStartPageToken(result.newStartPageToken);
+        primeStartPageToken(result.newStartPageToken);
         // Signal buffer to flush changes
         flushBuffer$.next();
       }
     })
     .mergeMap(result => result.changes)
     .takeUntil(flushBuffer$)
-    .do(x => debug(`gPageToken ${gPageToken}`, 'changes:', x))
+    .buffer(flushBuffer$)
 
   return changes$;
 }
 
 /*
-reqChanges$().subscribe({
+primeStartPageToken(140);
+getChanges$().subscribe({
   next: (x) => {
-    log(`gPageToken: ${gPageToken}`)
     log(`Changes:\n`, x)
-  }
+  },
+  complete: () => log('Completed!')
 });
 */
