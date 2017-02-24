@@ -7,7 +7,7 @@
     "start": "node ./bin/www",
     "build": "gulp build",
     "watch": "gulp watch:client",
-    "test": "mocha dist.server/_test/g-drive.spec.js"
+    "test": "mocha dist.server/_test/_spec.js"
   },
   "dependencies": {
     "babel-polyfill": "^6.22.0",
@@ -42,7 +42,6 @@
     "babel-preset-es2015-rollup": "^3.0.0",
     "chai": "*",
     "chai-as-promised": "*",
-    "chai-rx": "0.0.2",
     "glob-to-regexp": "^0.3.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -52,9 +51,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-riot": "^1.0.6",
     "gulp-sourcemaps": "^1.11.0",
-    "install": "^0.8.4",
     "main-bower-files": "^2.11.1",
-    "npm": "^4.1.1",
     "postcss": "^5.2.11",
     "postcss-cssnext": "^2.9.0",
     "request-debug": "^0.2.0",

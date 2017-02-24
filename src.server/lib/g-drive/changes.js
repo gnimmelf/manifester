@@ -10,9 +10,11 @@ export const setStorageStartPageToken = (x) => storage.setItemSync('changesStart
 export const getStorageStartPageToken = () => { return parseInt(storage.getItemSync('changesStartPageToken')) || undefined };
 export const removeStorageStartPageToken = (x) => { return parseInt(storage.removeItemSync('changesStartPageToken')) || undefined };
 
+
 export const nextPageToken$ = new Rx.BehaviorSubject()
   .filter(x => x || x == 0)
   .do(x => setStorageStartPageToken(x))
+
 
 export const primeStartPageToken = (pageToken=null) =>
 /* Pushes the latest `startPageToken` from the drive state to `nextPageToke$` */
@@ -42,17 +44,19 @@ export const primeStartPageToken = (pageToken=null) =>
   return promise;
 }
 
+
 export const getChanges$ = () =>
 {
-  const flushBuffer$ = new Rx.Subject();
+  const cancel$ = new Rx.Subject();
+  const stop$ = Rx.Observable.merge(cancel$);
 
-  const changes$ = nextPageToken$
+  const changes$ = Rx.Observable.from(nextPageToken$)
     .switchMap(pageToken => {
       return jwtRequest({
         url: 'https://www.googleapis.com/drive/v3/changes',
         qs: {
           pageToken: pageToken,
-          pageSize: 5,
+          pageSize: storage.getItem('pageSize') || 50,
         }
       }, {raw_body: true})
     })
@@ -67,12 +71,12 @@ export const getChanges$ = () =>
         // Prime next changes request
         primeStartPageToken(result.newStartPageToken);
         // Signal buffer to flush changes
-        flushBuffer$.next();
+        cancel$.next();
       }
     })
     .mergeMap(result => result.changes)
-    .takeUntil(flushBuffer$)
-    .buffer(flushBuffer$)
+    .takeUntil(stop$)
+    .buffer(stop$)
 
   return changes$;
 }

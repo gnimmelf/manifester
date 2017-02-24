@@ -2,7 +2,7 @@ import _debug from 'debug';
 import Rx from 'rxjs/Rx';
 import { normalize } from 'path';
 import storage from '../storage';
-import * as utils from '../utils';
+import { log } from '../utils';
 import { jwtRequest } from './jwt';
 import {
   primeStartPageToken as changesPrimeStartPageToken,
@@ -11,40 +11,50 @@ import {
 
 const debug = _debug('lib:g-drive:files');
 
-export const getQueryFiles$ = (query="trashed = false") =>
-{
-  if (storage.getItemSync('query') !== query) {
-    // New query, invalidate files, update query
-    storage.removeItemSync('files');
-    storage.setItemSync('query', query);
-  }
+export const setStorageFiles = (x) => storage.setItemSync('files', (x && x.length ? x : undefined));
+export const getStorageFiles = () => { return storage.getItemSync('files') || undefined };
+export const removeStorageFiles = (x) => { return storage.removeItemSync('changesStartPageToken') || undefined };
 
 
-  const storedFiles$ = Rx.Observable
-    .from(storage.getItem('files'))
-    .filter(files => files && files.length)
-    .mergeMap(getChanges$()) // <-- Not the right operator...!
-    // TODO! Update files with changes
+export const storedFiles$ = new Rx.BehaviorSubject()
+  .map(getStorageFiles)
+  .filter(files => files && files.length)
 
 
-  const nextPageToken$ = new Rx.Subject()
+export const getNextPageToken$ = () => {
+  const subject$ = new Rx.BehaviorSubject();
+
+  const composed$ = subject$
     .startWith('')
-    .do(x => debug('nextPageToken$', x))
+    .filter(x => x || x === '')
+
+  // Dogy magic:
+  composed$.next = subject$.next.bind(subject$)
+
+  return composed$;
+}
 
 
-  const stop$ = new Rx.Subject().merge(storedFiles$)
+export const getRequestFiles$ = (query="trashed = false") =>
+{
+  const nextPageToken$ = getNextPageToken$();
 
+  const cancel$ = new Rx.Subject()
+  const stop$ = Rx.Observable.merge(cancel$, storedFiles$);
 
-  const reqFiles$ = nextPageToken$
-    .takeUntil(stop$) // Cancel if data on storedFiles first or when `stop$.next()`
-    .do(changesPrimeStartPageToken()) // Prime next changes request
+  stop$.subscribe({
+    next: x => log('stop$.next', x),
+    complete: () => log('stop$.complete')
+  })
+
+  const reqFiles$ = Rx.Observable.from(nextPageToken$)
     .switchMap(pageToken => {
       return jwtRequest({
         url: 'https://www.googleapis.com/drive/v3/files',
         qs: {
           q: query,
+          pageToken: pageToken,
           pageSize: 5,
-          pageToken: pageToken
         }
       })
     })
@@ -55,19 +65,35 @@ export const getQueryFiles$ = (query="trashed = false") =>
       }
     })
     .do(result => {
-      if (result.nextPageToken) {
+      if (!result.nextPageToken) {
         // Signal to complete
-        stop$.next();
+        cancel$.next();
       }
     })
     .mergeMap(result => result.files)
+    .takeUntil(stop$)
+    .do(x => log('AAA', x)) // <-- On subscribe: This doesn't
+    .buffer(stop$) // TODO! Something fishy happens here! `stop$` gets a buffered value from `storedfile$`...
+    .do(x => log('BBB', x)) // <-- On subscribe: This does
     .do(files => {
-      debug('files', files)
       // Save files
+      log('CCC', files)
       storage.setItemSync('files', files);
     })
 
-  const files$ = Rx.Observable.merge(storedFiles$, reqFiles$)
+
+    return reqFiles$;
+}
+
+export const getFiles$ = (query) =>
+{
+  if (storage.getItemSync('query') !== query) {
+    // New query, invalidate files, update query
+    storage.removeItemSync('files');
+    storage.setItemSync('query', query);
+  }
+
+  const files$ = Rx.Observable.merge(storedFiles$, getReqFiles$(query))
     // Check for `changes$` -> update stored files (remove, add, update content)
     // Return a promise for all files
 

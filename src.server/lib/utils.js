@@ -10,7 +10,8 @@ export const ensureObservable = (action) =>
 export const log = console.log.bind(console);
 export const error = console.error.bind(console);
 
-export const httpGet = function(url) {
+export const httpGet = (url) =>
+{
   // https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/
   // return new pending promise
   return new Promise((resolve, reject) => {
@@ -32,3 +33,39 @@ export const httpGet = function(url) {
     request.on('error', (err) => reject(err))
     })
 };
+
+
+export const composedSubjectBindNext = (subject$, composed$) =>
+{
+  composed$.next = subject$.next.bind(composed$)
+  return op$
+}
+
+
+export const flushObservable = (observable) =>
+{
+  observable.subscribe().unsubscribe();
+}
+
+
+export const eqSet = (set_a, set_b) =>
+{
+  set_a instanceof Set ? null : set_a = new Set(set_a);
+  set_b instanceof Set ? null : set_b = new Set(set_b);
+  return set_a.size === set_b.size && all(isIn(set_b), set_a);
+}
+
+
+export const all = (pred, set_a) =>
+{
+  for (var a of set_a) if (!pred(a)) return false;
+  return true;
+}
+
+
+export const isIn = (set_a) =>
+{
+  return function (a) {
+    return set_a.has(a);
+  };
+}
