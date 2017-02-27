@@ -17,11 +17,12 @@ export const makeJwtRequest = (jwt, request_debug=false) =>
   {
     // Ensure params is object
     if (typeof params == 'string') params = { url: params }
+
     params.jwt = jwt;
     params.json = (params.json ? params.json
                                : true);
 
-    debug('Requesting %s', params.url, params.json)
+    debug('Requesting %s', params.url, params)
 
     return new Promise((resolve, reject) =>
     {

@@ -32,13 +32,14 @@ describe('files', function() {
     done();
   });
 
-  describe('storedFiles$', function() {
+/*
+  describe('getStoredFiles$', function() {
 
-    it('should emit files from storage', function(done) {
+    it('should emit files from storage if stored', function(done) {
       const list = [1,2,4,5]
       files.setStorageFiles(list)
 
-      files.storedFiles$
+      files.getStoredFiles$()
         .subscribe(x => {
           eqSet(list, x) ?
             done() :
@@ -47,7 +48,38 @@ describe('files', function() {
 
     })
 
+    after(function() {
+      files.removeStorageFiles()
+    })
+
   })
+*/
+
+  describe('storageFiles$', function() {
+
+    it('should emit files from storage if stored', function(done) {
+      const list = [1,2,4,5]
+      files.setStorageFiles(list)
+
+      files.storageFiles$
+        .subscribe(x => {
+          log(x)
+          if (eqSet(list, x)) {
+            done();
+          }
+          else {
+            done(false);
+          }
+        });
+
+    })
+
+    after(function() {
+      files.removeStorageFiles()
+    })
+
+  })
+
 
   describe('getNextPageToken$', function() {
 
@@ -89,27 +121,71 @@ describe('files', function() {
   })
 
 
-  describe('getRequestFiles$', function(done) {
+  describe('getting files', function(done) {
 
-    files.removeStorageFiles()
-    const obs$ = files.getRequestFiles$();
+    let requested_files = null;
 
-    it('should be an Observable', function() {
-      return obs$ instanceof Rx.Observable;
+
+    describe('reqFiles$', function(done) {
+
+      const obs$ = files.getRequestFiles$();
+
+      it('should be an Observable', function() {
+        return obs$ instanceof Rx.Observable;
+      })
+
+      it('should request files', function(done) {
+        this.timeout(5000);
+
+        obs$
+          .subscribe({
+            next: files => {
+              if (files && files.length) {
+                requested_files = files.map(x => files.id);
+                done()
+              }
+              else {
+                done(false);
+              }
+            }
+          })
+      });
+
     })
 
-    it('should request files', function(done) {
-      this.timeout(10000);
+    describe('getFiles$', function() {
 
-      obs$
-        .subscribe({
-          next: x => log('should request files.next:', x),
-          complete: function() {
-            log('Completed!')
-            done()
-          }
-        })
-    });
+      it('should prioritise stored files', function(done) {
+        const list = [1,2,4,5]
+        files.setStorageFiles(list)
+
+        const subs = files.getFiles$()
+          .subscribe(x => {
+            eqSet(list, x) ?
+              done() :
+              done(false)
+          });
+
+      })
+
+
+
+      it('should request files if no files in storage', function(done) {
+        this.timeout(5000);
+
+        files.removeStorageFiles()
+
+        files.getFiles$()
+          .subscribe(x => {
+            x.map((file => {
+              log('file:', file)
+            }))
+          });
+
+      });
+
+
+    })
 
   })
 

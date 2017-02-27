@@ -2,8 +2,11 @@ import _debug from 'debug';
 import Rx from 'rxjs/Rx';
 import { normalize } from 'path';
 import storage from '../storage';
-import { log } from '../utils';
 import { jwtRequest } from './jwt';
+import {
+  log,
+  composedSubjectBindNext
+} from '../utils';
 import {
   primeStartPageToken as changesPrimeStartPageToken,
   getChanges$
@@ -11,15 +14,14 @@ import {
 
 const debug = _debug('lib:g-drive:files');
 
-export const setStorageFiles = (x) => storage.setItemSync('files', (x && x.length ? x : undefined));
-export const getStorageFiles = () => { return storage.getItemSync('files') || undefined };
-export const removeStorageFiles = (x) => { return storage.removeItemSync('changesStartPageToken') || undefined };
+const storage_key = 'files';
+export const setStorageFiles = (x) => storage.setItemSync(storage_key, (x && x.length ? x : undefined));
+export const getStorageFiles = () => storage.getItemSync(storage_key);
+export const removeStorageFiles = () => storage.removeItemSync(storage_key);
 
-
-export const storedFiles$ = new Rx.BehaviorSubject()
+export const storageFiles$ = new Rx.BehaviorSubject()
   .map(getStorageFiles)
-  .filter(files => files && files.length)
-
+  .filter(x => x && x.length)
 
 export const getNextPageToken$ = () => {
   const subject$ = new Rx.BehaviorSubject();
@@ -40,12 +42,7 @@ export const getRequestFiles$ = (query="trashed = false") =>
   const nextPageToken$ = getNextPageToken$();
 
   const cancel$ = new Rx.Subject()
-  const stop$ = Rx.Observable.merge(cancel$, storedFiles$);
-
-  stop$.subscribe({
-    next: x => log('stop$.next', x),
-    complete: () => log('stop$.complete')
-  })
+  const stop$ = Rx.Observable.merge(cancel$, storageFiles$);
 
   const reqFiles$ = Rx.Observable.from(nextPageToken$)
     .switchMap(pageToken => {
@@ -72,30 +69,51 @@ export const getRequestFiles$ = (query="trashed = false") =>
     })
     .mergeMap(result => result.files)
     .takeUntil(stop$)
-    .do(x => log('AAA', x)) // <-- On subscribe: This doesn't
-    .buffer(stop$) // TODO! Something fishy happens here! `stop$` gets a buffered value from `storedfile$`...
-    .do(x => log('BBB', x)) // <-- On subscribe: This does
+    .buffer(stop$)
     .do(files => {
       // Save files
-      log('CCC', files)
       storage.setItemSync('files', files);
-    })
-
+      // Prime changes StartPageToken
+      changesPrimeStartPageToken();
+    });
 
     return reqFiles$;
 }
 
 export const getFiles$ = (query) =>
 {
-  if (storage.getItemSync('query') !== query) {
-    // New query, invalidate files, update query
-    storage.removeItemSync('files');
-    storage.setItemSync('query', query);
-  }
 
-  const files$ = Rx.Observable.merge(storedFiles$, getReqFiles$(query))
-    // Check for `changes$` -> update stored files (remove, add, update content)
-    // Return a promise for all files
+  const files$ = Rx.Observable.defer(function () {
+    if (storage.getItemSync('query') !== query) {
+      // New query, invalidate files, update query, request fresh files
+      storage.removeItemSync('files');
+      storage.setItemSync('query', query);
+
+      return getRequestFiles$(query);
+    }
+    else {
+      // Files exist in storage, request changes then update stored files (remove, add, update content)
+      const files = getStorageFiles().reduce(function(acc, cur, i) {
+        acc[i] = cur;
+        return acc;
+      }, {});
+
+      const stop$ = new Rx.Subject();
+
+      const files$ = new Rx.Subject()
+        .takeUntil(stop$)
+        .buffer(stop$)
+
+      changes$
+        .subscribe(changes => {
+          for (var change of changes) {
+            log('change', change)
+          }
+        })
+
+      return files$;
+    }
+  });
 
 }
 

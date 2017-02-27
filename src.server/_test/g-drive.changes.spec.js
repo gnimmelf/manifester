@@ -4,6 +4,7 @@ import chaiAsPromised from 'chai-as-promised';
 
 import Rx from 'rxjs/Rx';
 import { flushObservable } from '../lib/utils';
+import { jwtRequest } from '../lib/g-drive/jwt';
 
 import * as changes from '../lib/g-drive/changes';
 
@@ -18,26 +19,24 @@ let res;
 
 describe('changes', function() {
 
+  let orig_pageToken = undefined;
+
+  before(function(done) {
+    orig_pageToken = changes.removeStorageStartPageToken()
+    done();
+  });
+
+  after(function(done) {
+    if (orig_pageToken) {
+      changes.setStorageStartPageToken(orig_pageToken);
+      console.log('changes: restored stored startPageToken', orig_pageToken)
+    }
+    // Flush the queue
+    flushObservable(changes.nextPageToken$)
+    done();
+  });
+
   describe('primeStartPageToken', function() {
-
-    let orig_pageToken = undefined;
-
-    before(function(done) {
-      orig_pageToken = changes.removeStorageStartPageToken()
-      done();
-    });
-
-
-    after(function(done) {
-      if (orig_pageToken) {
-        changes.setStorageStartPageToken(orig_pageToken);
-        console.log('changes: restored stored startPageToken', orig_pageToken)
-      }
-      // Flush the queue
-      flushObservable(changes.nextPageToken$)
-      done();
-    });
-
 
     describe('called with 42 as an argument', function() {
       flushObservable(changes.nextPageToken$)
@@ -105,8 +104,19 @@ describe('changes', function() {
     })
 
     it('should request changes', function(done) {
-      changes.primeStartPageToken(150);
-      obs$.toPromise().should.eventually.be.an('array').notify(done);
+      jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken')
+      .then((res) => {
+        // Prime with less than startPageToken to only get some changes
+        changes.primeStartPageToken(parseInt(res.startPageToken) - 40)
+        .then(pageToken => {
+          obs$.toPromise().then(res => {
+            //log(res, 'FLEMMING', pageToken)
+            expect(res).to.be.an('array').and.not.be.empty ?
+              done() :
+              done(false);
+          })
+        })
+      })
     });
 
   })

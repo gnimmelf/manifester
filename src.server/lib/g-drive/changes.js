@@ -6,9 +6,10 @@ import { log } from '../utils';
 
 const debug = _debug('lib:g-drive:changes');
 
-export const setStorageStartPageToken = (x) => storage.setItemSync('changesStartPageToken', parseInt(x));
-export const getStorageStartPageToken = () => { return parseInt(storage.getItemSync('changesStartPageToken')) || undefined };
-export const removeStorageStartPageToken = (x) => { return parseInt(storage.removeItemSync('changesStartPageToken')) || undefined };
+const storage_key = 'changesStartPageToken';
+export const setStorageStartPageToken = (x) => storage.setItemSync(storage_key, parseInt(x));
+export const getStorageStartPageToken = () => parseInt(storage.getItemSync(storage_key)) || undefined;
+export const removeStorageStartPageToken = () => parseInt(storage.removeItemSync(storage_key)) || undefined;
 
 
 export const nextPageToken$ = new Rx.BehaviorSubject()
@@ -40,23 +41,22 @@ export const primeStartPageToken = (pageToken=null) =>
       .toPromise()
   }
 
-
   return promise;
 }
 
 
 export const getChanges$ = () =>
 {
-  const cancel$ = new Rx.Subject();
-  const stop$ = Rx.Observable.merge(cancel$);
+  const stop$ = new Rx.Subject();
 
   const changes$ = Rx.Observable.from(nextPageToken$)
+    .do(x => log('nextPageToken', x))
     .switchMap(pageToken => {
       return jwtRequest({
         url: 'https://www.googleapis.com/drive/v3/changes',
         qs: {
           pageToken: pageToken,
-          pageSize: storage.getItem('pageSize') || 50,
+          pageSize: storage.getItemSync('pageSize') || 5,
         }
       }, {raw_body: true})
     })
@@ -71,7 +71,7 @@ export const getChanges$ = () =>
         // Prime next changes request
         primeStartPageToken(result.newStartPageToken);
         // Signal buffer to flush changes
-        cancel$.next();
+        stop$.next();
       }
     })
     .mergeMap(result => result.changes)
@@ -81,8 +81,18 @@ export const getChanges$ = () =>
   return changes$;
 }
 
+
 /*
 primeStartPageToken(140);
+
+// DO
+
+getChanges$().toPromise().then(res => {
+  log(res, 'FLEMMING')
+})
+
+// OR
+
 getChanges$().subscribe({
   next: (x) => {
     log(`Changes:\n`, x)
