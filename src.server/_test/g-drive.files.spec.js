@@ -13,6 +13,7 @@ import {
 } from '../lib/utils';
 
 import * as files from '../lib/g-drive/files';
+import * as changes from '../lib/g-drive/changes';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -27,33 +28,13 @@ describe('files', function() {
 
   let orig_files = undefined;
 
-  before(function(done) {
-    orig_files = files.removeStorageFiles();
-    done();
+  before(function() {
+    files.removeStorageFiles();
   });
 
-/*
-  describe('getStoredFiles$', function() {
-
-    it('should emit files from storage if stored', function(done) {
-      const list = [1,2,4,5]
-      files.setStorageFiles(list)
-
-      files.getStoredFiles$()
-        .subscribe(x => {
-          eqSet(list, x) ?
-            done() :
-            done(false)
-        });
-
-    })
-
-    after(function() {
-      files.removeStorageFiles()
-    })
-
+  after(function() {
+    files.removeStorageFiles()
   })
-*/
 
   describe('storageFiles$', function() {
 
@@ -63,7 +44,6 @@ describe('files', function() {
 
       files.storageFiles$
         .subscribe(x => {
-          log(x)
           if (eqSet(list, x)) {
             done();
           }
@@ -155,7 +135,9 @@ describe('files', function() {
 
     describe('getFiles$', function() {
 
-      it('should prioritise stored files', function(done) {
+/*
+
+      it('should prioritize stored files', function(done) {
         const list = [1,2,4,5]
         files.setStorageFiles(list)
 
@@ -167,7 +149,7 @@ describe('files', function() {
           });
 
       })
-
+*/
 
 
       it('should request files if no files in storage', function(done) {
@@ -177,13 +159,10 @@ describe('files', function() {
 
         files.getFiles$()
           .subscribe(x => {
-            x.map((file => {
-              log('file:', file)
-            }))
+            done()
           });
 
       });
-
 
     })
 

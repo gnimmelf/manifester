@@ -7,7 +7,8 @@
     "start": "node ./bin/www",
     "build": "gulp build",
     "watch": "gulp watch:client",
-    "test": "mocha dist.server/_test/_spec.js"
+    "test": "mocha dist.server/_test/_spec.js",
+    "dev-test": "mocha dist.server/_test/_spec.js --grep getFiles"
   },
   "dependencies": {
     "babel-polyfill": "^6.22.0",

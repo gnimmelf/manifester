@@ -7,21 +7,28 @@ import {
   log,
   composedSubjectBindNext
 } from '../utils';
-import {
-  primeStartPageToken as changesPrimeStartPageToken,
-  getChanges$
-} from './changes';
+import * as changes from './changes';
+
 
 const debug = _debug('lib:g-drive:files');
 
+
 const storage_key = 'files';
-export const setStorageFiles = (x) => storage.setItemSync(storage_key, (x && x.length ? x : undefined));
+export const setStorageFiles = (x) => storage.setItemSync(storage_key, x);
 export const getStorageFiles = () => storage.getItemSync(storage_key);
 export const removeStorageFiles = () => storage.removeItemSync(storage_key);
+export const hasStorageFiles = () => {
+  const files = getStorageFiles();
+  return files ?
+    (files.length ? true : false) :
+    false;
+}
+
 
 export const storageFiles$ = new Rx.BehaviorSubject()
   .map(getStorageFiles)
   .filter(x => x && x.length)
+
 
 export const getNextPageToken$ = () => {
   const subject$ = new Rx.BehaviorSubject();
@@ -70,51 +77,83 @@ export const getRequestFiles$ = (query="trashed = false") =>
     .mergeMap(result => result.files)
     .takeUntil(stop$)
     .buffer(stop$)
-    .do(files => {
-      // Save files
-      storage.setItemSync('files', files);
-      // Prime changes StartPageToken
-      changesPrimeStartPageToken();
-    });
 
     return reqFiles$;
 }
 
 export const getFiles$ = (query) =>
 {
+  let files$ = null;
 
-  const files$ = Rx.Observable.defer(function () {
+  const deferred$ = Rx.Observable.defer(() => {
+
     if (storage.getItemSync('query') !== query) {
-      // New query, invalidate files, update query, request fresh files
-      storage.removeItemSync('files');
+      // New query, invalidate files, update query
+      storage.removeStorageFiles();
       storage.setItemSync('query', query);
-
-      return getRequestFiles$(query);
     }
-    else {
+
+    if (hasStorageFiles()) {
+
+      log("stored files!")
       // Files exist in storage, request changes then update stored files (remove, add, update content)
-      const files = getStorageFiles().reduce(function(acc, cur, i) {
-        acc[i] = cur;
+      const stored_files = getStorageFiles();
+
+      // TODO! Need more logic to figure out when to request changes, and when to apply them.
+
+      const files = stored_files.reduce(function(acc, cur) {
+        acc[cur.id] = cur;
         return acc;
       }, {});
 
       const stop$ = new Rx.Subject();
 
-      const files$ = new Rx.Subject()
+      files$ = new Rx.Subject()
         .takeUntil(stop$)
         .buffer(stop$)
 
-      changes$
+      changes.getRequestChanges$()
+        .do(() => log('Changes requested!'))
         .subscribe(changes => {
           for (var change of changes) {
             log('change', change)
+            // Change is new file?
+            // Change is removed file?
+            // Change is updated file (content, title, [...])?
+
+            //files_buffer$.next(fresh_file)
           }
         })
 
-      return files$;
+      return files$
     }
+    else {
+
+      log("request files!")
+
+
+      // Request new files
+      return getRequestFiles$(query)
+        .do(() => {
+          // Prime new startPageToken for next set of changes:
+          log('changesPrimeStartPageToken!');
+          changes.primeStartPageToken();
+        })
+
+    }
+
+
   });
 
+  // Save files to storage, they're either requested or updated
+  deferred$
+    .do(files => {
+      log('Storing files')
+      // Save files
+      storage.setItemSync('files', files);
+    })
+
+  return deferred$;
 }
 
 

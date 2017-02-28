@@ -7,6 +7,7 @@ import { flushObservable } from '../lib/utils';
 import { jwtRequest } from '../lib/g-drive/jwt';
 
 import * as changes from '../lib/g-drive/changes';
+import * as files from '../lib/g-drive/files';
 
 chai.use(chaiAsPromised);
 chai.should();
@@ -21,20 +22,35 @@ describe('changes', function() {
 
   let orig_pageToken = undefined;
 
-  before(function(done) {
-    orig_pageToken = changes.removeStorageStartPageToken()
-    done();
+  before(function() {
+    changes.removeStorageStartPageToken()
+    files.removeStorageFiles()
   });
 
-  after(function(done) {
-    if (orig_pageToken) {
-      changes.setStorageStartPageToken(orig_pageToken);
-      console.log('changes: restored stored startPageToken', orig_pageToken)
-    }
-    // Flush the queue
-    flushObservable(changes.nextPageToken$)
-    done();
-  });
+  after(function() {
+    changes.removeStorageStartPageToken()
+    files.removeStorageFiles()
+  })
+
+  describe('getReqStartPageToken$', function() {
+
+    const obs$ = changes.getReqStartPageToken$();
+
+    it('should be an observable', function() {
+      return obs$ instanceof Rx.Observable;
+    })
+
+    it('should be a number', function(done) {
+      obs$
+        .subscribe(pageToken => {
+            expect(parseInt(pageToken)).to.be.a('number') ?
+            done() :
+            done(false);
+        })
+    })
+
+  })
+
 
   describe('primeStartPageToken', function() {
 
@@ -95,9 +111,9 @@ describe('changes', function() {
 
   })
 
-  describe('getChanges$', function() {
+  describe('getRequestChanges$', function() {
 
-    let obs$ = changes.getChanges$();
+    let obs$ = changes.getRequestChanges$();
 
     it('should be an Observable', function() {
       return obs$ instanceof Rx.Observable;

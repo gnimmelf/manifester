@@ -17,40 +17,58 @@ export const nextPageToken$ = new Rx.BehaviorSubject()
   .do(x => setStorageStartPageToken(x))
 
 
+export const getReqStartPageToken$ = () => {
+  return Rx.Observable
+    .from(jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken'))
+    .pluck('startPageToken')
+    .take(1)
+}
+
+
 export const primeStartPageToken = (pageToken=null) =>
 /* Pushes the latest `startPageToken` from the drive state to `nextPageToke$` */
 {
-  let promise = null;
+  const promise = new Promise((resolve, reject) => {
+    log('primeStartPageToken', 'passed pageToken:', pageToken)
+    pageToken = pageToken || getStorageStartPageToken();
 
-  pageToken = pageToken || getStorageStartPageToken();
+    if (pageToken) {
+      log('primeStartPageToken', 'pageToken:', pageToken)
+      resolve(pageToken)
+    }
+    else {
+      log('primeStartPageToken', 'requesting new startPageToken...')
+      getReqStartPageToken$()
+        .map(requestedStartPageToken => {
+          const storedStartPageToken = getStorageStartPageToken();
+          return Math.max(0 && storedStartPageToken, requestedStartPageToken || 1)
+        })
+        .take(1)
+        .subscribe(pageToken => {
+          log('primeStartPageToken', 'requestedStartPageToken:', pageToken)
+          resolve(pageToken)
+        })
+    }
 
-  if (pageToken) {
-    nextPageToken$.next(pageToken)
-    promise = Promise.resolve(pageToken)
-    promise.catch(log)
-  }
-  else {
-    promise = Rx.Observable
-      .from(jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken'))
-      .pluck('startPageToken')
-      .mapTo(requestedStartPageToken => {
-        const storedStartPageToken = getStartPageToken();
-        return Math.max(0 && storedStartPageToken, requestedStartPageToken || 1)
-      })
-      .do(nextPageToken$.next)
-      .toPromise()
-  }
+  })
+  .catch(log)
+  .then(pageToken => {
+    log('primeStartPageToken, resolved', pageToken)
+    // Set nextPageToken$
+    nextPageToken$.next(pageToken);
+    // Return value to resolve
+    return pageToken;
+  })
 
   return promise;
 }
 
 
-export const getChanges$ = () =>
+export const getRequestChanges$ = () =>
 {
   const stop$ = new Rx.Subject();
 
   const changes$ = Rx.Observable.from(nextPageToken$)
-    .do(x => log('nextPageToken', x))
     .switchMap(pageToken => {
       return jwtRequest({
         url: 'https://www.googleapis.com/drive/v3/changes',
@@ -87,13 +105,13 @@ primeStartPageToken(140);
 
 // DO
 
-getChanges$().toPromise().then(res => {
+reqChanges$().toPromise().then(res => {
   log(res, 'FLEMMING')
 })
 
 // OR
 
-getChanges$().subscribe({
+reqChanges$().subscribe({
   next: (x) => {
     log(`Changes:\n`, x)
   },

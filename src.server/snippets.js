@@ -1,8 +1,9 @@
 import Rx from 'rxjs/Rx';
 import { log } from './lib/utils'
 
+import * as files from './lib/g-drive/files'
+import * as changes from './lib/g-drive/changes'
 
-const changes$ = Rx.Observable.from(['a'])
+import storage from './lib/storage';
 
-Rx.Observable.from([1,2,3,4]).withLatestFrom(changes$)
-  .subscribe(x => { log('x', x) })
+log(changes.removeStorageStartPageToken())
