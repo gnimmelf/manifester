@@ -123,7 +123,7 @@ export const getFiles$ = (query) =>
 
     if (storage.getItemSync('query') !== query)
     {
-      // New query, invalidate files, update query
+      // New query, invalidate files, update stored query
       storage.removeStorageFiles();
       storage.setItemSync('query', query);
     }

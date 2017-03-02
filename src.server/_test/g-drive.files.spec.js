@@ -83,11 +83,11 @@ describe('files', function() {
   })
 
 
-  describe('getting files', function(done) {
+  describe('getting files', function() {
 
     let requested_files = null;
 
-    describe('reqFiles$', function(done) {
+    describe('reqFiles$', function() {
 
       const obs$ = files.getRequestFiles$();
 
@@ -98,55 +98,54 @@ describe('files', function() {
       it('should request files', function(done) {
         this.timeout(5000);
 
-        obs$
-          .subscribe({
-            next: files => {
-              if (files && files.length) {
-                requested_files = files.map(x => files.id);
-                done()
-              }
-              else {
-                done(false);
-              }
-            }
+        utils.promise(obs$)
+          .then(files => {
+            requested_files = files;
+            return files
           })
+          .should.eventually.be.an('array').and.not.be.empty
+          .notify(done)
+
       });
 
     })
 
     describe('getFiles$', function() {
 
+      const obs$ = files.getFiles$();
 
+      it('should be an Observable', function() {
+        return obs$ instanceof Rx.Observable;
+      })
+
+      it('should prioritize stored files', function(done) {
+        const fake_files = [1,2,4,5]
+
+        files.setStorageFiles(fake_files)
+
+        utils.promise(obs$)
+          .then(files => {
+            log('A', files)
+            files.removeStorageFiles()
+            return files
+          })
+          .should.eventually.be.an('array').and.not.be.equalTo(fake_files)
+          .notify(done)
+
+      })
+
+/*
       it('should request files if no files in storage', function(done) {
         this.timeout(5000);
 
         files.removeStorageFiles()
 
-        files.getFiles$()
-          .subscribe(files => {
-            files && files.length ?
-              done() :
-              done(false)
-          });
+        utils.promise(obs$)
+          .should.eventually.be.an('array').and.be.equalTo(requested_files)
+          .notify(done)
 
       });
-
-/*
-
-      it('should prioritize stored files', function(done) {
-        const list = [1,2,4,5]
-        files.setStorageFiles(list)
-
-        const subs = files.getFiles$()
-          .subscribe(x => {
-            eqSet(list, x) ?
-              done() :
-              done(false)
-          });
-
-      })
 */
-
     })
 
   })
