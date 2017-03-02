@@ -1,9 +1,31 @@
+import chai from 'chai';
+import { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+import assertArrays from 'chai-arrays';
+
 import Rx from 'rxjs/Rx';
-import { log } from './lib/utils'
+import * as utils from './lib/utils';
 
-import * as files from './lib/g-drive/files'
-import * as changes from './lib/g-drive/changes'
+const log = console.log.bind(console);
 
-import storage from './lib/storage';
+chai.use(assertArrays);
+chai.use(chaiAsPromised);
+chai.should();
 
-log(changes.removeStorageStartPageToken())
+describe('A', function() {
+
+  it('should work', function(done) {
+
+    const list = ['a', 'b', 'c'];
+
+    const obs$ = new Rx.Observable.from(list)
+      .take(list.length)
+      .bufferCount(list.length)
+
+    utils.promise(obs$)
+      .should.eventually.be.equalTo(list)
+      .notify(done)
+
+  })
+
+})

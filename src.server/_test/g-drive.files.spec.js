@@ -5,22 +5,19 @@
 import chai from 'chai';
 import { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import assertArrays from 'chai-arrays';
 
 import Rx from 'rxjs/Rx';
-import {
-  flushObservable,
-  eqSet
-} from '../lib/utils';
 
+import * as utils from '../lib/utils';
 import * as files from '../lib/g-drive/files';
 import * as changes from '../lib/g-drive/changes';
 
+chai.use(assertArrays);
 chai.use(chaiAsPromised);
 chai.should();
 
 const log = console.log.bind(console);
-
-let res;
 
 // ------- lib/g-drive/files -------
 
@@ -42,15 +39,9 @@ describe('files', function() {
       const list = [1,2,4,5]
       files.setStorageFiles(list)
 
-      files.storageFiles$
-        .subscribe(x => {
-          if (eqSet(list, x)) {
-            done();
-          }
-          else {
-            done(false);
-          }
-        });
+      utils.promise(files.storageFiles$)
+        .should.eventually.be.equalTo(list)
+        .notify(done)
 
     })
 
@@ -70,32 +61,23 @@ describe('files', function() {
     })
 
     it('should implement a next() method', function() {
-      return obs$.next instanceof Function;
+      obs$.next.should.be.a('function');
     })
 
     it('should pass through next value', function(done) {
-      const source = ['a', 'b', 'c'];
-      const target = [];
 
-      obs$
-        .subscribe(x => {
-          let idx = source.indexOf(x)
-          idx < 0 ? '' : target.push(source[idx])
-        })
+      const list = ['a', 'b', 'c']
+      const count = list.length + 1 // Starts with ''...
 
-      Rx.Observable.from(source)
-        .do(x => obs$.next(x))
-        .subscribe({
-          complete: function() {
-            const complete = eqSet(source, target);
-            if (complete) {
-              done();
-            }
-            else {
-              done(false)
-            }
-          }
-        })
+      const buffer$ = obs$
+        .take(count)
+        .bufferCount(count)
+
+      utils.promise(buffer$)
+        .should.eventually.be.containingAllOf(list).and.to.be.ofSize(count)
+        .notify(done)
+
+      list.forEach(obs$.next)
     })
 
   })
@@ -104,7 +86,6 @@ describe('files', function() {
   describe('getting files', function(done) {
 
     let requested_files = null;
-
 
     describe('reqFiles$', function(done) {
 
@@ -135,6 +116,21 @@ describe('files', function() {
 
     describe('getFiles$', function() {
 
+
+      it('should request files if no files in storage', function(done) {
+        this.timeout(5000);
+
+        files.removeStorageFiles()
+
+        files.getFiles$()
+          .subscribe(files => {
+            files && files.length ?
+              done() :
+              done(false)
+          });
+
+      });
+
 /*
 
       it('should prioritize stored files', function(done) {
@@ -150,19 +146,6 @@ describe('files', function() {
 
       })
 */
-
-
-      it('should request files if no files in storage', function(done) {
-        this.timeout(5000);
-
-        files.removeStorageFiles()
-
-        files.getFiles$()
-          .subscribe(x => {
-            done()
-          });
-
-      });
 
     })
 

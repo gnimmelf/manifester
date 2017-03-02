@@ -48,6 +48,15 @@ export const flushObservable = (observable) =>
 }
 
 
+export const promise = (obs$) =>
+// Make a promise of an observable and `take(1)`
+// Intended for chai-testing until I figure s.th. better out...
+{
+  return obs$
+    .take(1)
+    .toPromise()
+}
+
 export const eqSet = (set_a, set_b) =>
 {
   set_a instanceof Set ? null : set_a = new Set(set_a);

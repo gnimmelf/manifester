@@ -81,67 +81,81 @@ export const getRequestFiles$ = (query="trashed = false") =>
     return reqFiles$;
 }
 
+
+export const getStoredUpdatedFiles$ = () =>
+{
+  // Files exist in storage, request changes then update stored files (remove, add, update content)
+  const stored_files = getStorageFiles();
+
+  // TODO! Need more logic to figure out when to request changes, and when to apply them.
+
+  const files = stored_files.reduce(function(acc, cur) {
+    acc[cur.id] = cur;
+    return acc;
+  }, {});
+
+  const stop$ = new Rx.Subject();
+
+  const files$ = new Rx.Subject()
+    .takeUntil(stop$)
+    .buffer(stop$)
+
+  changes.getRequestChanges$()
+    .do(() => log('Changes requested!'))
+    .subscribe(changes => {
+      for (var change of changes) {
+        log('change', change)
+        // Change is new file?
+        // Change is removed file?
+        // Change is updated file (content, title, [...])?
+
+        //files_buffer$.next(fresh_file)
+      }
+    })
+
+  return files$
+}
+
+
 export const getFiles$ = (query) =>
 {
-  let files$ = null;
-
   const deferred$ = Rx.Observable.defer(() => {
 
-    if (storage.getItemSync('query') !== query) {
+    if (storage.getItemSync('query') !== query)
+    {
       // New query, invalidate files, update query
       storage.removeStorageFiles();
       storage.setItemSync('query', query);
     }
 
-    if (hasStorageFiles()) {
-
-      log("stored files!")
-      // Files exist in storage, request changes then update stored files (remove, add, update content)
-      const stored_files = getStorageFiles();
-
-      // TODO! Need more logic to figure out when to request changes, and when to apply them.
-
-      const files = stored_files.reduce(function(acc, cur) {
-        acc[cur.id] = cur;
-        return acc;
-      }, {});
+    if (hasStorageFiles())
+    {
+      debug('getFiles$', 'from storage and updated')
+      const files$ = getStoredUpdatedFiles$();
+      return files$;
+    }
+    else
+    {
+      debug('getFiles$', 'requesting and priming for getting next changes')
 
       const stop$ = new Rx.Subject();
 
-      files$ = new Rx.Subject()
+      const files$ = getRequestFiles$(query)
+        .do(() => {
+          // Prime new startPageToken for next set of changes:
+          changes.primeStartPageToken()
+            .catch(log)
+            .then((pageToken) => {
+              // Wait for priming to finnish...
+              debug('getFiles$', 'changesPrimeStartPageToken', pageToken);
+              stop$.next()
+            })
+        })
         .takeUntil(stop$)
         .buffer(stop$)
 
-      changes.getRequestChanges$()
-        .do(() => log('Changes requested!'))
-        .subscribe(changes => {
-          for (var change of changes) {
-            log('change', change)
-            // Change is new file?
-            // Change is removed file?
-            // Change is updated file (content, title, [...])?
-
-            //files_buffer$.next(fresh_file)
-          }
-        })
-
-      return files$
+      return files$;
     }
-    else {
-
-      log("request files!")
-
-
-      // Request new files
-      return getRequestFiles$(query)
-        .do(() => {
-          // Prime new startPageToken for next set of changes:
-          log('changesPrimeStartPageToken!');
-          changes.primeStartPageToken();
-        })
-
-    }
-
 
   });
 

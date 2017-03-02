@@ -11,51 +11,57 @@ export const setStorageStartPageToken = (x) => storage.setItemSync(storage_key, 
 export const getStorageStartPageToken = () => parseInt(storage.getItemSync(storage_key)) || undefined;
 export const removeStorageStartPageToken = () => parseInt(storage.removeItemSync(storage_key)) || undefined;
 
+export const setNextPageToken = (pageToken) => {
+  debug('setNextPageToken', 'pageToken:', pageToken)
+  setStorageStartPageToken(pageToken);
+  nextPageToken$.next(pageToken);
+}
 
 export const nextPageToken$ = new Rx.BehaviorSubject()
   .filter(x => x || x == 0)
-  .do(x => setStorageStartPageToken(x))
 
 
 export const getReqStartPageToken$ = () => {
   return Rx.Observable
     .from(jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken'))
     .pluck('startPageToken')
+    .map(x => parseInt(x))
     .take(1)
 }
-
 
 export const primeStartPageToken = (pageToken=null) =>
 /* Pushes the latest `startPageToken` from the drive state to `nextPageToke$` */
 {
   const promise = new Promise((resolve, reject) => {
-    log('primeStartPageToken', 'passed pageToken:', pageToken)
-    pageToken = pageToken || getStorageStartPageToken();
 
     if (pageToken) {
-      log('primeStartPageToken', 'pageToken:', pageToken)
+      debug('primeStartPageToken', 'passed pageToken:', pageToken)
       resolve(pageToken)
     }
     else {
-      log('primeStartPageToken', 'requesting new startPageToken...')
-      getReqStartPageToken$()
-        .map(requestedStartPageToken => {
-          const storedStartPageToken = getStorageStartPageToken();
-          return Math.max(0 && storedStartPageToken, requestedStartPageToken || 1)
+      debug('primeStartPageToken', 'requesting new startPageToken...')
+
+      const storedPageToken = getStorageStartPageToken();
+
+      const source$ = getReqStartPageToken$()
+        .map(requestedPageToken => {
+
+          debug('primeStartPageToken', 'stored PageToken:', storedPageToken, ', requested PageToken:', requestedPageToken)
+
+          return Math.max((parseInt(storedPageToken) ? storedPageToken : 0), (requestedPageToken ? requestedPageToken : 1))
         })
-        .take(1)
-        .subscribe(pageToken => {
-          log('primeStartPageToken', 'requestedStartPageToken:', pageToken)
-          resolve(pageToken)
-        })
+
+      source$.subscribe(pageToken => {
+        debug('primeStartPageToken', 'requestedPageToken:', pageToken)
+        resolve(pageToken)
+      })
     }
 
   })
   .catch(log)
   .then(pageToken => {
-    log('primeStartPageToken, resolved', pageToken)
-    // Set nextPageToken$
-    nextPageToken$.next(pageToken);
+    debug('primeStartPageToken, resolved and setting next', pageToken)
+    setNextPageToken(pageToken);
     // Return value to resolve
     return pageToken;
   })
@@ -81,7 +87,7 @@ export const getRequestChanges$ = () =>
     .do(result => {
       if (result.nextPageToken) {
         // Request next page of changes
-        nextPageToken$.next(result.nextPageToken)
+        setNextPageToken(result.nextPageToken)
       }
     })
     .do(result => {

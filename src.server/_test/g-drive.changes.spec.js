@@ -6,6 +6,8 @@ import Rx from 'rxjs/Rx';
 import { flushObservable } from '../lib/utils';
 import { jwtRequest } from '../lib/g-drive/jwt';
 
+import * as utils from '../lib/utils';
+
 import * as changes from '../lib/g-drive/changes';
 import * as files from '../lib/g-drive/files';
 
@@ -13,8 +15,6 @@ chai.use(chaiAsPromised);
 chai.should();
 
 const log = console.log.bind(console);
-
-let res;
 
 // ------- lib/g-drive/changes -------
 
@@ -41,12 +41,10 @@ describe('changes', function() {
     })
 
     it('should be a number', function(done) {
-      obs$
-        .subscribe(pageToken => {
-            expect(parseInt(pageToken)).to.be.a('number') ?
-            done() :
-            done(false);
-        })
+
+      utils.promise(obs$.map(parseInt))
+        .should.eventually.be.a('number')
+        .notify(done)
     })
 
   })
@@ -68,18 +66,24 @@ describe('changes', function() {
     })
 
 
-    describe('with a storage value of 43, and called without arguments', function() {
+    describe('with a storage value of 9999, and called without arguments', function() {
       flushObservable(changes.nextPageToken$)
-      changes.setStorageStartPageToken(43)
+      changes.setStorageStartPageToken(9999)
+
       let res = changes.primeStartPageToken();
 
       it('should be a promise', function() {
         return res.should.be.a('promise')
       })
 
-      it('should promise the storage pageToken equal to 43', function(done) {
-        res.should.eventually.equal(43).notify(done)
+      it('should promise the storage pageToken equal to 9999', function(done) {
+        res.should.eventually.equal(9999).notify(done)
       })
+
+       after(function() {
+        changes.removeStorageStartPageToken()
+          files.removeStorageFiles()
+        })
     })
 
 
@@ -99,6 +103,7 @@ describe('changes', function() {
 
   })
 
+
   describe('nextPageToken$', function() {
 
     it('should be an Observable', function() {
@@ -111,7 +116,35 @@ describe('changes', function() {
 
   })
 
+
+  describe('setNextPageToken', function() {
+
+    it('should store the pageToken and emit it from nextPageToken$', function(done) {
+
+      flushObservable(changes.nextPageToken$)
+      changes.removeStorageStartPageToken
+
+      let stored_page_token;
+      const obs$ = changes.nextPageToken$
+        .do(() => {
+          stored_page_token = changes.getStorageStartPageToken()
+        })
+
+      changes.setNextPageToken(44)
+
+      utils.promise(obs$)
+        .should.eventually.be.equal(44).and.be.equal(stored_page_token)
+        .notify(done)
+
+    })
+
+  })
+
+
   describe('getRequestChanges$', function() {
+
+    flushObservable(changes.nextPageToken$)
+    changes.removeStorageStartPageToken
 
     let obs$ = changes.getRequestChanges$();
 
@@ -120,19 +153,19 @@ describe('changes', function() {
     })
 
     it('should request changes', function(done) {
-      jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken')
-      .then((res) => {
-        // Prime with less than startPageToken to only get some changes
-        changes.primeStartPageToken(parseInt(res.startPageToken) - 40)
+      this.timeout(5000);
+
+      utils.promise(changes.getReqStartPageToken$())
         .then(pageToken => {
-          obs$.toPromise().then(res => {
-            //log(res, 'FLEMMING', pageToken)
-            expect(res).to.be.an('array').and.not.be.empty ?
-              done() :
-              done(false);
-          })
+          // Prime with less than startPageToken to only get some changes
+          return changes.primeStartPageToken(parseInt(pageToken) - 40)
         })
-      })
+        .then(pageToken => {
+          utils.promise(obs$)
+            .should.eventually.be.an('array').and.not.be.empty
+            .notify(done)
+        })
+
     });
 
   })
