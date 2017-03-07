@@ -85,7 +85,7 @@ describe('files', function() {
 
   describe('getting files', function() {
 
-    let requested_files = null;
+    let directly_requested_files = null;
 
     describe('reqFiles$', function() {
 
@@ -100,7 +100,7 @@ describe('files', function() {
 
         utils.promise(obs$)
           .then(files => {
-            requested_files = files;
+            directly_requested_files = files;
             return files
           })
           .should.eventually.be.an('array').and.not.be.empty
@@ -112,18 +112,23 @@ describe('files', function() {
 
     describe('getFiles$', function() {
 
-      const obs$ = files.getFiles$();
 
+/*
       it('should be an Observable', function() {
+        const obs$ = files.getFiles$();
         return obs$ instanceof Rx.Observable;
       })
 
       it('should prioritize stored files', function(done) {
-        const fake_files = [1,2,4,5]
+        this.timeout(5000);
+
+        const fake_files = requested_files;
 
         files.setStorageFiles(fake_files)
 
-        utils.promise(obs$)
+        const obs$ = files.getFiles$();
+
+        const p = utils.promise(obs$)
           .then(files => {
             log('A', files)
             files.removeStorageFiles()
@@ -132,20 +137,38 @@ describe('files', function() {
           .should.eventually.be.an('array').and.not.be.equalTo(fake_files)
           .notify(done)
 
-      })
+          log(p)
 
-/*
+      })
+*/
+
+
       it('should request files if no files in storage', function(done) {
         this.timeout(5000);
 
         files.removeStorageFiles()
+        changes.removeStorageStartPageToken()
+
+        const obs$ = files.getFiles$();
 
         utils.promise(obs$)
-          .should.eventually.be.an('array').and.be.equalTo(requested_files)
+          .then(files => {
+            for(let i=0; i<files.length; i++)
+            {
+              // log(files[i])
+              try {
+                 chai.expect(files[i]).to.deep.equal(directly_requested_files[i])
+              }
+              catch(err) {
+                log(i, err)
+              }
+            }
+            return files;
+          })
+          .should.eventually.be.an('array').and.to.deep.have.members(directly_requested_files)
           .notify(done)
 
       });
-*/
     })
 
   })

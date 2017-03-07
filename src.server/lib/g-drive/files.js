@@ -130,9 +130,9 @@ export const getFiles$ = (query) =>
 
     if (hasStorageFiles())
     {
-      debug('getFiles$', 'from storage and updated')
-      const files$ = getStoredUpdatedFiles$();
-      return files$;
+      debug('getFiles$', 'from storage and update')
+      return getStoredUpdatedFiles$();
+
     }
     else
     {
@@ -140,34 +140,32 @@ export const getFiles$ = (query) =>
 
       const stop$ = new Rx.Subject();
 
-      const files$ = getRequestFiles$(query)
-        .do(() => {
+      return getRequestFiles$(query)
+        .do(files => {
+          log('Requested files:', files && files.length)
           // Prime new startPageToken for next set of changes:
           changes.primeStartPageToken()
             .catch(log)
             .then((pageToken) => {
               // Wait for priming to finnish...
               debug('getFiles$', 'changesPrimeStartPageToken', pageToken);
+              log('STOP')
               stop$.next()
             })
         })
         .takeUntil(stop$)
-        .buffer(stop$)
 
-      return files$;
     }
 
   });
 
   // Save files to storage, they're either requested or updated
-  deferred$
+  return deferred$
     .do(files => {
-      log('Storing files')
+      debug('Storing files')
       // Save files
       storage.setItemSync('files', files);
     })
-
-  return deferred$;
 }
 
 

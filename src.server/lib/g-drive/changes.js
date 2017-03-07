@@ -24,6 +24,7 @@ export const nextPageToken$ = new Rx.BehaviorSubject()
 export const getReqStartPageToken$ = () => {
   return Rx.Observable
     .from(jwtRequest('https://www.googleapis.com/drive/v3/changes/startPageToken'))
+    .do(x => debug('getReqStartPageToken$', x))
     .pluck('startPageToken')
     .map(x => parseInt(x))
     .take(1)
@@ -32,6 +33,8 @@ export const getReqStartPageToken$ = () => {
 export const primeStartPageToken = (pageToken=null) =>
 /* Pushes the latest `startPageToken` from the drive state to `nextPageToke$` */
 {
+  const debug = _debug('lib:g-drive:changes:primeStartPageToken');
+
   const promise = new Promise((resolve, reject) => {
 
     if (pageToken) {
@@ -39,20 +42,16 @@ export const primeStartPageToken = (pageToken=null) =>
       resolve(pageToken)
     }
     else {
-      debug('primeStartPageToken', 'requesting new startPageToken...')
-
       const storedPageToken = getStorageStartPageToken();
 
-      const source$ = getReqStartPageToken$()
-        .map(requestedPageToken => {
+      debug('primeStartPageToken', 'stored PageToken:', storedPageToken)
+      debug('primeStartPageToken', 'requesting new startPageToken...')
 
-          debug('primeStartPageToken', 'stored PageToken:', storedPageToken, ', requested PageToken:', requestedPageToken)
+      getReqStartPageToken$().subscribe(requestedPageToken => {
+        debug('primeStartPageToken', '(max) stored/requested pageToken:', storedPageToken, requestedPageToken)
 
-          return Math.max((parseInt(storedPageToken) ? storedPageToken : 0), (requestedPageToken ? requestedPageToken : 1))
-        })
+        const pageToken = Math.max((parseInt(storedPageToken) ? storedPageToken : 0), (requestedPageToken ? requestedPageToken : 1))
 
-      source$.subscribe(pageToken => {
-        debug('primeStartPageToken', 'requestedPageToken:', pageToken)
         resolve(pageToken)
       })
     }

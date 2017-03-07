@@ -52,6 +52,7 @@ describe('changes', function() {
 
   describe('primeStartPageToken', function() {
 
+
     describe('called with 42 as an argument', function() {
       flushObservable(changes.nextPageToken$)
       let res = changes.primeStartPageToken(42);
@@ -80,10 +81,9 @@ describe('changes', function() {
         res.should.eventually.equal(9999).notify(done)
       })
 
-       after(function() {
+      after(function() {
         changes.removeStorageStartPageToken()
-          files.removeStorageFiles()
-        })
+      })
     })
 
 
