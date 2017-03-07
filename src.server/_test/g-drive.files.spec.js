@@ -1,11 +1,10 @@
 /**
  * NOTE!
- * Tests (`it`) Cannot accept `done` argument as a param if returning a promise!!
+ * `it`-tests cannot accept `done` argument as a param if returning a promise!!
  */
 import chai from 'chai';
 import { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import assertArrays from 'chai-arrays';
 
 import Rx from 'rxjs/Rx';
 
@@ -13,7 +12,6 @@ import * as utils from '../lib/utils';
 import * as files from '../lib/g-drive/files';
 import * as changes from '../lib/g-drive/changes';
 
-chai.use(assertArrays);
 chai.use(chaiAsPromised);
 chai.should();
 
@@ -40,7 +38,7 @@ describe('files', function() {
       files.setStorageFiles(list)
 
       utils.promise(files.storageFiles$)
-        .should.eventually.be.equalTo(list)
+        .should.eventually.be.eql(list)
         .notify(done)
 
     })
@@ -67,14 +65,14 @@ describe('files', function() {
     it('should pass through next value', function(done) {
 
       const list = ['a', 'b', 'c']
-      const count = list.length + 1 // Starts with ''...
+      const count = list.length + 1 // Starts emitting a blank
 
       const buffer$ = obs$
         .take(count)
         .bufferCount(count)
 
       utils.promise(buffer$)
-        .should.eventually.be.containingAllOf(list).and.to.be.ofSize(count)
+        .should.eventually.include.members(list).and.have.lengthOf(count)
         .notify(done)
 
       list.forEach(obs$.next)
@@ -152,19 +150,6 @@ describe('files', function() {
         const obs$ = files.getFiles$();
 
         utils.promise(obs$)
-          .then(files => {
-            for(let i=0; i<files.length; i++)
-            {
-              // log(files[i])
-              try {
-                 chai.expect(files[i]).to.deep.equal(directly_requested_files[i])
-              }
-              catch(err) {
-                log(i, err)
-              }
-            }
-            return files;
-          })
           .should.eventually.be.an('array').and.to.deep.have.members(directly_requested_files)
           .notify(done)
 

@@ -147,18 +147,20 @@ describe('changes', function() {
     changes.removeStorageStartPageToken
 
     let obs$ = changes.getRequestChanges$();
+    let retries = 8;
 
     it('should be an Observable', function() {
       return obs$ instanceof Rx.Observable;
     })
 
     it('should request changes', function(done) {
+      this.retries(retries);
       this.timeout(5000);
 
       utils.promise(changes.getReqStartPageToken$())
         .then(pageToken => {
           // Prime with less than startPageToken to only get some changes
-          return changes.primeStartPageToken(parseInt(pageToken) - 40)
+          return changes.primeStartPageToken(parseInt(pageToken) - parseInt(pageToken / retries--))
         })
         .then(pageToken => {
           utils.promise(obs$)

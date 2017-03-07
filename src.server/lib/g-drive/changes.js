@@ -38,17 +38,17 @@ export const primeStartPageToken = (pageToken=null) =>
   const promise = new Promise((resolve, reject) => {
 
     if (pageToken) {
-      debug('primeStartPageToken', 'passed pageToken:', pageToken)
+      debug('passed pageToken', pageToken)
       resolve(pageToken)
     }
     else {
       const storedPageToken = getStorageStartPageToken();
 
-      debug('primeStartPageToken', 'stored PageToken:', storedPageToken)
-      debug('primeStartPageToken', 'requesting new startPageToken...')
+      debug('stored PageToken', storedPageToken)
+      debug('requesting new startPageToken...')
 
       getReqStartPageToken$().subscribe(requestedPageToken => {
-        debug('primeStartPageToken', '(max) stored/requested pageToken:', storedPageToken, requestedPageToken)
+        debug('(max) stored/requested pageToken', storedPageToken, requestedPageToken)
 
         const pageToken = Math.max((parseInt(storedPageToken) ? storedPageToken : 0), (requestedPageToken ? requestedPageToken : 1))
 
@@ -57,9 +57,9 @@ export const primeStartPageToken = (pageToken=null) =>
     }
 
   })
-  .catch(log)
+  //.catch(log)
   .then(pageToken => {
-    debug('primeStartPageToken, resolved and setting next', pageToken)
+    debug('setNextPageToken', pageToken)
     setNextPageToken(pageToken);
     // Return value to resolve
     return pageToken;
@@ -71,9 +71,12 @@ export const primeStartPageToken = (pageToken=null) =>
 
 export const getRequestChanges$ = () =>
 {
+  const debug = _debug('lib:g-drive:changes:getRequestChanges');
+
   const stop$ = new Rx.Subject();
 
   const changes$ = Rx.Observable.from(nextPageToken$)
+    .do(x => debug('requesting changes', 'pageToken:', x))
     .switchMap(pageToken => {
       return jwtRequest({
         url: 'https://www.googleapis.com/drive/v3/changes',
@@ -103,23 +106,3 @@ export const getRequestChanges$ = () =>
 
   return changes$;
 }
-
-
-/*
-primeStartPageToken(140);
-
-// DO
-
-reqChanges$().toPromise().then(res => {
-  log(res, 'FLEMMING')
-})
-
-// OR
-
-reqChanges$().subscribe({
-  next: (x) => {
-    log(`Changes:\n`, x)
-  },
-  complete: () => log('Completed!')
-});
-*/
