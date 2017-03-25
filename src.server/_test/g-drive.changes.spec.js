@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 import Rx from 'rxjs/Rx';
-import { flushObservable } from '../lib/utils';
 import { jwtRequest } from '../lib/g-drive/jwt';
 
 import * as utils from '../lib/utils';
@@ -32,17 +31,16 @@ describe('changes', function() {
     files.removeStorageFiles()
   })
 
-  describe('getReqStartPageToken$', function() {
+  describe('requestStartPageToken', function() {
 
-    const obs$ = changes.getReqStartPageToken$();
+    const promise = changes.requestStartPageToken();
 
-    it('should be an observable', function() {
-      return obs$ instanceof Rx.Observable;
+    it('should be a promise', function() {
+      return promise.should.be.a('promise')
     })
 
-    it('should be a number', function(done) {
-
-      utils.promise(obs$.map(parseInt))
+    it('should return a number', function(done) {
+      promise
         .should.eventually.be.a('number')
         .notify(done)
     })
@@ -54,7 +52,7 @@ describe('changes', function() {
 
 
     describe('called with 42 as an argument', function() {
-      flushObservable(changes.nextPageToken$)
+      utils.flushObservable(changes.nextPageToken$)
       let res = changes.primeStartPageToken(42);
 
       it('should be a promise', function() {
@@ -68,7 +66,7 @@ describe('changes', function() {
 
 
     describe('with a storage value of 9999, and called without arguments', function() {
-      flushObservable(changes.nextPageToken$)
+      utils.flushObservable(changes.nextPageToken$)
       changes.setStorageStartPageToken(9999)
 
       let res = changes.primeStartPageToken();
@@ -88,7 +86,7 @@ describe('changes', function() {
 
 
     describe('without storage value, and called without arguments', function() {
-      flushObservable(changes.nextPageToken$)
+      utils.flushObservable(changes.nextPageToken$)
       changes.removeStorageStartPageToken
       let res = changes.primeStartPageToken();
 
@@ -121,7 +119,7 @@ describe('changes', function() {
 
     it('should store the pageToken and emit it from nextPageToken$', function(done) {
 
-      flushObservable(changes.nextPageToken$)
+      utils.flushObservable(changes.nextPageToken$)
       changes.removeStorageStartPageToken
 
       let stored_page_token;
@@ -143,11 +141,11 @@ describe('changes', function() {
 
   describe('getRequestChanges$', function() {
 
-    flushObservable(changes.nextPageToken$)
-    changes.removeStorageStartPageToken
+    utils.flushObservable(changes.nextPageToken$)
+    changes.removeStorageStartPageToken()
 
     let obs$ = changes.getRequestChanges$();
-    let retries = 8;
+    let retries = 4;
 
     it('should be an Observable', function() {
       return obs$ instanceof Rx.Observable;
@@ -157,10 +155,13 @@ describe('changes', function() {
       this.retries(retries);
       this.timeout(5000);
 
-      utils.promise(changes.getReqStartPageToken$())
+      changes.requestStartPageToken()
         .then(pageToken => {
           // Prime with less than startPageToken to only get some changes
-          return changes.primeStartPageToken(parseInt(pageToken) - parseInt(pageToken / retries--))
+
+          pageToken = parseInt(pageToken) - parseInt(pageToken / (retries-- || 1));
+
+          return changes.primeStartPageToken(pageToken)
         })
         .then(pageToken => {
           utils.promise(obs$)

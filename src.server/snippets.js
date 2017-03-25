@@ -1,31 +1,56 @@
+import _debug from 'debug';
 import chai from 'chai';
 import { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import assertArrays from 'chai-arrays';
 
 import Rx from 'rxjs/Rx';
+import { jwtRequest } from './lib/g-drive/jwt';
+
 import * as utils from './lib/utils';
 
-const log = console.log.bind(console);
+import * as changes from './lib/g-drive/changes';
+import * as files from './lib/g-drive/files';
 
-chai.use(assertArrays);
 chai.use(chaiAsPromised);
 chai.should();
 
-describe('A', function() {
+const debug = _debug('lib:snippets');
+
+const log = console.log.bind(console)
+
+const query = "'0B4gB3nV9reGKWURSdDdWeGdBU1k' in parents"
+
+files.removeStorageFiles()
+
+describe('snippet', function() {
+  this.timeout(10000);
 
   it('should work', function(done) {
 
-    const list = ['a', 'b', 'c'];
+    const file$ = files.default(query)
+    // <-- START HERE! What goes here to collect all emmissions into an array?
 
-    const obs$ = new Rx.Observable.from(list)
-      .take(list.length)
-      .bufferCount(list.length)
 
-    utils.promise(obs$)
-      .should.eventually.be.equalTo(list)
-      .notify(done)
+    // log(file$)
+
+    file$
+      .subscribe({
+        next: x => {
+          log('RESULT')
+          log('x', x)
+        },
+        error: log,
+        complete: () => {
+          log('COMPLETE')
+          done();
+        }
+      })
 
   })
 
 })
+
+// changes.getRequestChanges$()
+//   .subscribe(log)
+
+// changes.setNextPageToken(100);

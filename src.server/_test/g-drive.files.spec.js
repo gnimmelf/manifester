@@ -38,7 +38,7 @@ describe('files', function() {
       files.setStorageFiles(list)
 
       utils.promise(files.storageFiles$)
-        .should.eventually.be.eql(list)
+        .should.eventually.be.deep.equal(list)
         .notify(done)
 
     })
@@ -83,11 +83,13 @@ describe('files', function() {
 
   describe('getting files', function() {
 
+    const query = "'0B4gB3nV9reGKWURSdDdWeGdBU1k' in parents and trashed = false and name contains '*.md'"
+
     let directly_requested_files = null;
 
-    describe('reqFiles$', function() {
+    describe('getRequestFiles$', function() {
 
-      const obs$ = files.getRequestFiles$();
+      const obs$ = files.getRequestFiles$(query);
 
       it('should be an Observable', function() {
         return obs$ instanceof Rx.Observable;
@@ -110,32 +112,32 @@ describe('files', function() {
 
     describe('getFiles$', function() {
 
-
-/*
       it('should be an Observable', function() {
         const obs$ = files.getFiles$();
         return obs$ instanceof Rx.Observable;
       })
 
+/*
       it('should prioritize stored files', function(done) {
         this.timeout(5000);
 
-        const fake_files = requested_files;
-
-        files.setStorageFiles(fake_files)
+        files.setStorageFiles(directly_requested_files)
 
         const obs$ = files.getFiles$();
 
         const p = utils.promise(obs$)
           .then(files => {
             log('A', files)
-            files.removeStorageFiles()
             return files
           })
-          .should.eventually.be.an('array').and.not.be.equalTo(fake_files)
+          .should.eventually.be.an('array').and.not.be.deep.equal(fake_files)
           .notify(done)
 
           log(p)
+
+        after(function() {
+          files.removeStorageFiles()
+        })
 
       })
 */

@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 export const isObservable = obs => obs instanceof Observable;
 
@@ -38,7 +39,7 @@ export const httpGet = (url) =>
 export const composedSubjectBindNext = (subject$, composed$) =>
 {
   composed$.next = subject$.next.bind(composed$)
-  return op$
+  return composed$
 }
 
 
@@ -46,6 +47,14 @@ export const flushObservable = (observable) =>
 {
   observable.subscribe().unsubscribe();
 }
+
+
+export const getStop$ = (delay=10) =>
+{
+  return new Subject().take(1).delay(delay);
+}
+
+
 
 
 export const promise = (obs$) =>

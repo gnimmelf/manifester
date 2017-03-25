@@ -26,8 +26,7 @@ export const makeJwtRequest = (jwt, request_debug=false) =>
 
     return new Promise((resolve, reject) =>
     {
-      request(params,
-        (err, res, body) =>
+      request(params, (err, res, body) =>
         {
           if(err) {
             reject(err)
