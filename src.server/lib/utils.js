@@ -1,5 +1,7 @@
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import dotProp from 'dot-prop';
+import upquire from 'upquire';
 
 export const isObservable = obs => obs instanceof Observable;
 
@@ -10,6 +12,10 @@ export const ensureObservable = (action) =>
 
 export const log = console.log.bind(console);
 export const error = console.error.bind(console);
+
+export const upquirePath = function(some_path) {
+  return upquire(some_path, { pathOnly: true, dirnameOnly: true })
+}
 
 export const httpGet = (url) =>
 {
@@ -49,13 +55,41 @@ export const flushObservable = (observable) =>
 }
 
 
-export const getStop$ = (delay=10) =>
+export const getStop$ = (debug) =>
 {
-  return new Subject().take(1).delay(delay);
+  let is_stopped = false;
+
+  const subject$ = new Subject();
+
+  Object.defineProperty(subject$, 'isStopped', {
+    get: function() {
+      return is_stopped;
+    }
+  });
+
+  subject$.subscribe(() => {
+    is_stopped = true;
+    subject$.unsubscribe();
+    debug && debug('STOPPED!')
+  })
+
+  return subject$
 }
 
+const interpolation_re = /{([^}]+)}/g;
+const interpolate = (string, data, missing='MISSING DATA') => {
 
+  const matches = string.match(re)
 
+  matches.map((match => {
+    let dot_path = match.replace(/\s|\{|\}/g, '');
+    let value = dotProp.get(data, dot_path);
+    console.log(match, value)
+    string = string.replace(match, value, missing)
+  }));
+
+  return string
+}
 
 export const promise = (obs$) =>
 // Make a promise of an observable and `take(1)`

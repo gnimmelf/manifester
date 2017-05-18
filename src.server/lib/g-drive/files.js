@@ -11,44 +11,24 @@ import * as utils from '../utils';
 const debug = _debug('lib:g-drive:files');
 
 
-const storage_key = 'files';
-export const setStorageFiles = (files) => storage.setItemSync(storage_key, files);
-export const getStorageFiles = () => storage.getItemSync(storage_key) || [];
-export const removeStorageFiles = () => storage.removeItemSync(storage_key);
-export const hasStorageFiles = () => {
-  const files = getStorageFiles();
-  return files ?
-    (files.length ? true : false) :
-    false;
-}
-export const getStorageQuery = () => storage.getItemSync('query');
-
-export const getNextPageToken$ = () => {
-  const subject$ = new Rx.BehaviorSubject();
-
-  const composed$ = subject$
-    .startWith('')
-    .filter(x => x || x === '')
-
-  // Dogy magic:
-  composed$.next = subject$.next.bind(subject$)
-
-  return composed$;
-}
+export const getNextPageToken$ = () => new Rx.BehaviorSubject('');
 
 
-export const getRequestFiles$ = (query="trashed = false") =>
+export const isFetching$ = new Rx.BehaviorSubject(false);
+
+
+export const fetchFiles$ = (query="trashed = false") =>
 {
-  const debug = _debug('lib:g-drive:files:getRequestFiles');
+  const debug = _debug('lib:g-drive:files:getFetchFiles');
+
+  isFetching$.next(true);
 
   debug('Starting...')
   debug('Query', query || undefined)
 
-  removeStorageFiles();
-
   const nextPageToken$ = getNextPageToken$();
 
-  const stop$ = new Rx.Subject();
+  const stop$ = new Rx.Subject() //utils.getStop$(debug);
 
   const file$ = Rx.Observable.from(nextPageToken$)
     .takeUntil(stop$)
@@ -79,20 +59,49 @@ export const getRequestFiles$ = (query="trashed = false") =>
       }
     })
     .pluck('files')
-    .concatMap(files => files)
+    .concatMap(files => {
+      // Emit individual files
+      return files
+    })
     .map(file => {
+      // Download file content
       return jwtRequest({
         url: `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,
       })
       .then(content => {
         file.content = content;
+        // Return a promise
         return file;
       })
     })
-    .concatMap(promise => /* resolve */ promise)
+    .concatMap(promise => {
+      // Resolves jwtRequest-promise into file-data
+      return promise
+    })
 
   return file$
 }
 
 
-export default getRequestFiles$
+export const promisedFiles = (query) =>
+{
+  return new Promise((resolve, reject) => {
+
+    const fetched_files = [];
+
+    fetchFiles$(query || undefined)
+      .subscribe({
+        next: file => {
+          debug(file.name, Object.keys(file))
+          fetched_files.push(file)
+        },
+        complete: () => {
+          resolve(fetched_files)
+        },
+      })
+
+  })
+}
+
+
+export default promisedFiles
