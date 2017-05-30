@@ -4,7 +4,7 @@
   "private": true,
   "main": "dist.server/app.js",
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node ./bin/www || true",
     "build": "gulp build",
     "watch": "gulp watch:client",
     "test": "mocha dist.server/_test/_spec.js || true",
@@ -14,19 +14,23 @@
     "babel-polyfill": "^6.22.0",
     "body-parser": "~1.15.2",
     "cookie-parser": "~1.4.3",
+    "cors": "^2.8.3",
     "debug": "~2.2.0",
+    "dot-prop": "^4.1.1",
     "express": "~4.14.0",
     "express-graphql": "^0.6.2",
     "google-oauth-jwt": "^0.2.0",
     "googleapis": "^15.0.0",
     "graphql": "^0.9.1",
+    "gulp": "^3.9.1",
     "hbs": "~4.0.1",
+    "jsend": "^1.0.2",
     "morgan": "~1.7.0",
     "node-persist": "^2.0.7",
-    "rxjs": "^5.1.0",
+    "rxjs": "^5.4.0",
     "serve-favicon": "~2.3.0",
     "source-map-support": "^0.4.11",
-    "upquire": "0.0.12"
+    "upquire": "0.0.13"
   },
   "devDependencies": {
     "babel": "^6.5.2",
@@ -75,7 +79,7 @@
     "dir_dist_server": "dist.server",
     "dir_src_client": "src.client/riot",
     "dir_dist_client": "dist.client",
-    "url_src_client": "/src",
-    "url_dist_client": "/dist"
+    "url_src_client": "src",
+    "url_dist_client": "dist"
   }
 }

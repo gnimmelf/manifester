@@ -12,7 +12,7 @@ exports.streamOnError = function(err) {
 }
 
 exports.upquirePath = function(some_path) {
-  return upquire(some_path, { pathOnly: true, dirname: true })
+  return upquire(some_path, { pathOnly: true, dirnameOnly: true })
 }
 
 exports.makeOnwarn = function(supress_starts_with)

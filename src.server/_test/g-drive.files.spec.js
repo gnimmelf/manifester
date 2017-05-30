@@ -41,7 +41,7 @@ describe('files', function() {
         .take(count)
         .bufferCount(count)
 
-      utils.promise(buffer$)
+      utils.rx.promise(buffer$)
         .should.eventually.include.members(list).and.have.lengthOf(count)
         .notify(done)
 

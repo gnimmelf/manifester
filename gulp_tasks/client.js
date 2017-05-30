@@ -1,21 +1,22 @@
-var gulp = require('gulp');
 var gutil = require("gulp-util");
+var runSequence = require('run-sequence');
 
 // Helpers
-var utils = require('../utils');
+var utils = require('./utils');
 // Package settings
 var settings = require('upquire')('/package.json').settings;
 
-require('./webpack')(gulp);
-require('./rollup')(gulp);
 
 module.exports = function(gulp)
 {
+  const rollup = require('./utils/rollup')(gulp);
+
 
   gulp.task('client:clean' , (done) =>
   {
     utils.rmdir(settings.dir_dist_client, done);
   });
+
 
   gulp.task('client:postcss' , (done) =>
   {
@@ -31,11 +32,14 @@ module.exports = function(gulp)
         postcssNext(),
       ]))
       .on('error', utils.streamOnError)
-      //.pipe(gulp.dest(settings.dir_dist_client))
-      //.pipe(sourcemaps.write('.'))
       .pipe(concat('styles.css'))
       .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest(settings.dir_dist_client))
+  });
+
+
+  gulp.task('client:rollup', (done) => {
+    rollup('main', done);
   });
 
 }

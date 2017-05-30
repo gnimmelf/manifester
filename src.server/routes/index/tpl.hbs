@@ -1,8 +1,10 @@
 <!DOCTYPE html>
   <html lang="en">
   <head>
-    <title>{ title }</title>
-    { scripts.head }
+    <title>{{title}}</title>
+    {{#each scripts.vendors}}
+      <script type="text/javascript" src="{{this}}"></script>
+    {{/each}}
     <link rel="stylesheet" href="/vendor/bootstrap/dist/css/bootstrap.css" />
     <!-- App style -->
     <link rel="stylesheet" href="/dist/styles.css" />
@@ -12,8 +14,9 @@
       <app></app>
     </div>
     <!-- App bundle -->
-    { scripts.bundle }
-    DAAA
+    {{#each scripts.bundles}}
+      <script type="text/javascript" src="{{this}}"></script>
+    {{/each}}
   </body>
 </html>
 

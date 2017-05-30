@@ -1,6 +1,7 @@
 require('source-map-support').install();
 require('babel-polyfill');
 
+const debug = require('debug')('app')
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -9,19 +10,18 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const jsend = require('jsend');
-var riot = require('riot')
 
 const upquirePath = require('./lib/utils').upquirePath
 
 // Package settings
 const settings = require('../package.json').settings;
 
-// Routes
-const index = require('./routes/index');
-const documents = require('./routes/graphql/documents').default;
-
 // Express app
 const app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'hbs');
 
 // Allow cors for ALL domains!
 app.use(cors()); // TODO! Change for `prod`
@@ -32,17 +32,24 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(settings.url_dist_client, express.static(upquirePath(settings.dir_dist_client)));
-app.use(settings.url_src_client, express.static(upquirePath(settings.dir_src_client)));
+app.use(`/${settings.url_dist_client}`, express.static(upquirePath(settings.dir_dist_client)));
+app.use(`/${settings.url_src_client}`, express.static(upquirePath(settings.dir_src_client)));
 app.use(express.static(upquirePath(settings.dir_public)));
 
+debug('static', `/${settings.url_dist_client} =>`, upquirePath(settings.dir_dist_client))
+debug('static', `/${settings.url_src_client} =>`, upquirePath(settings.dir_src_client))
+debug('static', '/ =>', upquirePath(settings.dir_src_client))
 
 /**
  * Routes
  */
-app.use('/', index);
-app.use('/graphql', documents);
 
+const index = require('./routes/index');
+app.use('/', index);
+
+/**
+ * Errorhandling
+ */
 
 // Catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -51,10 +58,12 @@ app.use(function(req, res, next) {
   next(err);
 });
 
+
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   next(err);
 });
+
 
 // Error handlers
 app.use('/api', function(err, req, res, next) {
