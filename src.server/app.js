@@ -1,6 +1,3 @@
-require('source-map-support').install();
-require('babel-polyfill');
-
 const debug = require('debug')('app')
 const express = require('express');
 const path = require('path');

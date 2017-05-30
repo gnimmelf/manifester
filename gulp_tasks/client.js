@@ -9,7 +9,7 @@ var settings = require('upquire')('/package.json').settings;
 
 module.exports = function(gulp)
 {
-  const rollup = require('./utils/rollup')(gulp);
+  const rollup = require('./utils/rollup.buble.js')(gulp);
 
 
   gulp.task('client:clean' , (done) =>
