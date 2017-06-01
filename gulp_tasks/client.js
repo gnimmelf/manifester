@@ -1,11 +1,26 @@
-var gutil = require("gulp-util");
-var runSequence = require('run-sequence');
+const join = require('path').join;
+const upquire = require('upquire');
+const mkdirp = require('mkdirp').sync;
+const copy = require('cpx').copySync;
+
+const gutil = require("gulp-util");
+const runSequence = require('run-sequence');
 
 // Helpers
-var utils = require('./utils');
-// Package settings
-var settings = require('upquire')('/package.json').settings;
+const utils = require('./utils');
 
+// Package settings
+const settings = require('upquire')('/package.json').settings;
+
+
+const preBundle = () =>
+{
+  const dir_src_client = upquire(settings.dir_src_client, { pathOnly: true });
+  const dir_dist_client = upquire(settings.dir_dist_client, { pathOnly: true });
+
+  mkdirp(dir_dist_client);
+  copy(join(dir_src_client, 'pre.bundle.js'), join(dir_dist_client, 'pre.bundle.js'));
+}
 
 module.exports = function(gulp)
 {
@@ -20,11 +35,11 @@ module.exports = function(gulp)
 
   gulp.task('client:postcss' , (done) =>
   {
-    var postcss       = require('gulp-postcss');
-    var autoprefixer  = require('autoprefixer');
-    var postcssNext   = require('postcss-cssnext');
-    var concat        = require('gulp-concat');
-    var sourcemaps    = require('gulp-sourcemaps');
+    const postcss       = require('gulp-postcss');
+    const autoprefixer  = require('autoprefixer');
+    const postcssNext   = require('postcss-cssnext');
+    const concat        = require('gulp-concat');
+    const sourcemaps    = require('gulp-sourcemaps');
 
     return gulp.src(utils.join(settings.dir_src_client, '**', '*.css'))
       .pipe(sourcemaps.init())
@@ -32,13 +47,14 @@ module.exports = function(gulp)
         postcssNext(),
       ]))
       .on('error', utils.streamOnError)
-      .pipe(concat('styles.css'))
+      .pipe(concat('bundle.css'))
       .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest(settings.dir_dist_client))
   });
 
 
   gulp.task('client:rollup', (done) => {
+    preBundle();
     rollup('main', done);
   });
 

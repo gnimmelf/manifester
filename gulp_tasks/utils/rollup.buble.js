@@ -3,6 +3,7 @@ const riot = require('rollup-plugin-riot')
 const nodeResolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')
 const buble = require('rollup-plugin-buble')
+const debug = require('debug')('client:rollup:buble');
 
 // Helpers
 const utils = require('../utils');
@@ -15,8 +16,7 @@ const components = require('upquire')('/bower.json').components;
 
 const globals = utils.getBowerComponentsGlobals(components);
 
-console.log('rollup globals', globals)
-
+debug('rollup globals', globals)
 
 module.exports = (gulp) => {
 

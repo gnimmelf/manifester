@@ -10,7 +10,7 @@ const utils = upquire('/lib/utils');
 // Package settings
 const settings = require('upquire')('/package.json').settings;
 
-// Bower components (custom property)
+// Get resources from bower components (custom property)
 const resources = utils.getBowerComponentsResources(upquire('/bower.json').components, { url_prefix: '/vendor' });
 
 const router = express.Router();
@@ -20,12 +20,13 @@ const context = {
   styles: {
     'vendors': resources.styles,
     'bundles': [
-      '/dist/styles.css'
+      join(settings.url_dist_client, '/bundle.css'),
     ],
   },
   scripts: {
     vendors: resources.scripts,
     bundles: [
+      join(settings.url_src_client, '/pre.bundle.js'),
       join(settings.url_dist_client, '/main.bundle.js'),
     ]
   }
