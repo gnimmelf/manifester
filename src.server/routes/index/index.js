@@ -1,22 +1,30 @@
 const readFileSync = require('fs').readFileSync;
-const join = require('path').join;
+const path = require('path');
+const join = path.join;
 const express = require('express');
 
 const upquire = require('upquire');
-const interpolate = upquire('/lib/utils').interpolate;
-const settings = upquire('/package.json').settings;
+const utils = upquire('/lib/utils');
+
+
+// Package settings
+const settings = require('upquire')('/package.json').settings;
+
+// Bower components (custom property)
+const resources = utils.getBowerComponentsResources(upquire('/bower.json').components, { url_prefix: '/vendor' });
 
 const router = express.Router();
 
 const context = {
   title: 'Manifester loading...',
-  scripts: {
-    vendors: [
-      '/vendor/riot/riot.js',
-      '/vendor/rxjs/dist/rx.lite.js',
-      '/vendor/jquery/dist/jquery.js',
-      '/vendor/bootstrap/dist/js/bootstrap.js'
+  styles: {
+    'vendors': resources.styles,
+    'bundles': [
+      '/dist/styles.css'
     ],
+  },
+  scripts: {
+    vendors: resources.scripts,
     bundles: [
       join(settings.url_dist_client, '/main.bundle.js'),
     ]

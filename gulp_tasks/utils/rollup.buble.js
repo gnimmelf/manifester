@@ -8,7 +8,15 @@ const buble = require('rollup-plugin-buble')
 const utils = require('../utils');
 
 // Package settings
-var settings = require('upquire')('/package.json').settings;
+const settings = require('upquire')('/package.json').settings;
+
+// Bower components (custom property)
+const components = require('upquire')('/bower.json').components;
+
+const globals = utils.getBowerComponentsGlobals(components);
+
+console.log('rollup globals', globals)
+
 
 module.exports = (gulp) => {
 
@@ -31,24 +39,16 @@ module.exports = (gulp) => {
         commonjs(),
         buble()
       ],
-      external: [
-        'riot',
-        'jquery',
-        'rx'
-      ],
+      external: Object.keys(globals),
     })
     .then(function (bundle) {
       bundle.write({
-        globals: {
-          riot: 'riot',
-          jquery: '$',
-          rx: 'Rx',
-        },
+        globals: globals,
         format: "iife",
         dest: `${settings.dir_dist_client}/${js_main_name}.bundle.js`,
         // Note: The riot-compiler does not currently generate sourcemaps
         // so rollup will throw a warning about the sourcemap likely being incorrect
-        sourceMap: true
+        sourceMap: false
       });
     })
     .then(done)

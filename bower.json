@@ -20,6 +20,34 @@
     "jquery": "^3.1.1",
     "riot": "^3.0.7",
     "bootstrap": "^3.3.7",
-    "rxjs": "^4.1.0"
+    "rxjs": "^4.1.0",
+    "json-forms": "brutusin/json-forms#^1.6.3"
+  },
+  "components": {
+    "rxjs": {
+      "scripts": ["dist/rx.lite.js"],
+      "styles": [],
+      "rollup_external": {"rx": "Rx"}
+    },
+    "jquery": {
+      "scripts": ["dist/jquery.js"],
+      "styles": [],
+      "rollup_external": {"$": "jquery"}
+    },
+    "riot": {
+      "scripts": ["riot.js"],
+      "styles": [],
+      "rollup_external": {"riot": "riot"}
+    },
+    "bootstrap": {
+      "scripts": ["dist/js/bootstrap.js"],
+      "styles": ["dist/css/bootstrap.css"],
+      "rollup_external": false
+    },
+    "json-forms": {
+      "scripts": ["dist/js/brutusin-json-forms.min.js"],
+      "styles": ["dist/css/brutusin-json-forms.min.css"],
+      "rollup_external": false
+    }
   }
 }

@@ -1,3 +1,4 @@
+const join = require('path').join;
 const dotProp = require('dot-prop');
 const upquire = require('upquire');
 
@@ -5,6 +6,12 @@ const upquire = require('upquire');
 exports.upquirePath = (some_path) =>
 {
   return upquire(some_path, { pathOnly: true, dirnameOnly: true })
+}
+
+
+exports.readJsonFile = (upquire_path) =>
+{
+  JSON.parse(fs.readFileSync(upquire(upquire_path, {pathOnly: true}), 'utf8'));
 }
 
 
@@ -33,17 +40,25 @@ exports.httpGet = (url) =>
 };
 
 
-let interpolation_re = exports.interpolation_re = /{([^}]+)}/g;
-exports.interpolate = (string, data, missing='MISSING INTERPOLATE DATA') =>
+exports.getBowerComponentsResources = (bower_components, { url_prefix='/vendor' }) =>
 {
+  // Collect `scripts` and `styles` from `bower.json` => `components`
+  return Object.entries(bower_components)
+    .reduce((resources, component) => {
+      const name = component[0];
+      const data = component[1];
 
-  const matches = string.match(interpolation_re)
+      ;['scripts', 'styles'].forEach(prop => {
+        if (data[prop]) {
+          const urls = (Array.isArray(data[prop]) ? data[prop] : [ data[prop] ])
+            .map(resource => join(url_prefix, name, resource));
 
-  matches.map((match => {
-    let dot_path = match.replace(/\s|\{|\}/g, '');
-    let value = dotProp.get(data, dot_path);
-    string = string.replace(match, value, missing)
-  }));
-
-  return string
+          resources[prop] = resources[prop].concat(urls);
+        }
+      })
+      return resources;
+    }, {
+      scripts: [],
+      styles: [],
+    });
 }
