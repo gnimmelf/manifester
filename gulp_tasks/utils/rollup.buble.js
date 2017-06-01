@@ -2,7 +2,7 @@ const rollup = require('rollup')
 const riot = require('rollup-plugin-riot')
 const nodeResolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')
-const buble = require('rollup-plugin-buble')
+const buble = require('rollup-plugin-buble');
 const debug = require('debug')('client:rollup:buble');
 
 // Helpers

@@ -26,7 +26,7 @@ const context = {
   scripts: {
     vendors: resources.scripts,
     bundles: [
-      join(settings.url_src_client, '/pre.bundle.js'),
+      join(settings.url_dist_client, '/pre.bundle.js'),
       join(settings.url_dist_client, '/main.bundle.js'),
     ]
   }
