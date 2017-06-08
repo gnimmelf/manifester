@@ -23,6 +23,9 @@ app.set('view engine', 'hbs');
 // Allow cors for ALL domains!
 app.use(cors()); // TODO! Change for `prod`
 
+// Jsend middleware
+app.use(jsend.middleware);
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -41,8 +44,9 @@ debug('static', '/ =>', upquirePath(settings.dir_src_client))
  * Routes
  */
 
-const index = require('./routes/index');
-app.use('/', index);
+app.use('/', require('./routes/index'));
+app.use('/api/auth', require('./routes/authenticate'));
+app.use('/api/schemas', require('./routes/schemas'));
 
 /**
  * Errorhandling

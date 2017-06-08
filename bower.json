@@ -47,7 +47,7 @@
     "json-forms": {
       "scripts": ["dist/js/brutusin-json-forms.min.js"],
       "styles": ["dist/css/brutusin-json-forms.min.css"],
-      "rollup_external": {"jsonForms": "jsonForms"}
+      "rollup_external": {"jsonForms": "brutusin[\"json-forms\"]"}
     }
   }
 }

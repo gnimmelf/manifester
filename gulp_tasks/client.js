@@ -13,20 +13,6 @@ const utils = require('./utils');
 const settings = require('upquire')('/package.json').settings;
 
 
-const preBundle = () =>
-{
-
-  const dir_src_client = upquire(settings.dir_src_client, { pathOnly: true });
-  const dir_dist_client = upquire(settings.dir_dist_client, { pathOnly: true });
-
-  try {
-    mkdirp(dir_dist_client);
-    copy(join(dir_src_client, '../', 'pre.bundle.js'), dir_dist_client);
-  } catch(err) {
-    throw err;
-  }
-}
-
 module.exports = function(gulp)
 {
   const rollup = require('./utils/rollup.buble.js')(gulp);
@@ -59,7 +45,6 @@ module.exports = function(gulp)
 
 
   gulp.task('client:rollup', (done) => {
-    preBundle();
     rollup('main', done);
   });
 

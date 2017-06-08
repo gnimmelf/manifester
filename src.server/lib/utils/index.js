@@ -1,11 +1,16 @@
-const join = require('path').join;
+const path = require('path');
+const join = path.join;
 const dotProp = require('dot-prop');
 const upquire = require('upquire');
 
 
-exports.upquirePath = (some_path) =>
+exports.upquirePath = function(some_path, join_part)
 {
-  return upquire(some_path, { pathOnly: true, dirnameOnly: true })
+  let full_path = upquire(some_path, { pathOnly: true, dirnameOnly: true });
+  if (join_part) {
+    full_path = join.apply(join, [full_path].concat( Array.prototype.slice.call(arguments, 1) ));
+  }
+  return full_path
 }
 
 
