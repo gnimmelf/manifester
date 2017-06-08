@@ -23,6 +23,7 @@
     "json-schema-ref-parser": "^3.1.2",
     "jsondir-livedb": "0.0.3",
     "jsonpath": "^0.2.11",
+    "jsonwebtoken": "^7.4.1",
     "mkdirp": "^0.5.1",
     "morgan": "^1.8.2",
     "nodemailer": "^4.0.1",

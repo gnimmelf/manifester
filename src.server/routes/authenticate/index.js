@@ -1,14 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const upquire = require('upquire');
+const jwt = require('jsonwebtoken');
+
 const upquirePath = upquire('/lib/utils').upquirePath;
 const generateCode = upquire('/lib/utils/code-gen');
+const sendMail = upquire('/lib/send-mail');
+
+// Sensitive stuff
+const sensitive = upquire('/sensitive');
 
 const db = upquire('/lib/json-tree')(upquirePath('/sensitive', 'db/users'), {
   instantPush: true,
 });
 
-const sendMail = require('upquire')('/lib/send-mail');
 
 
 /**
@@ -17,7 +22,13 @@ const sendMail = require('upquire')('/lib/send-mail');
 router.get('/:email', function(req, res, next) {
   const user = db.get(`${req.params.email}.json`);
 
-  if (user) {
+  if (!user) {
+    res.jsend.fail({
+      message: 'Kunne ikke finne e-postaddressen',
+      code: 422,
+    });
+  }
+  else {
 
     const login_code = generateCode();
 
@@ -36,21 +47,33 @@ router.get('/:email', function(req, res, next) {
 
     });
 
+    res.jsend.success({email: req.params.email});
   }
 
-  res.jsend.success({user_exists: user ? true : false});
 })
 
 
 router.get('/:email/:code', function(req, res, next) {
-  const user = req.coll.findOne({ 'data.email': req.params.email });
+  const user = db.get(`${req.params.email}.json`);
 
-  if (user) {
+  if (!user) {
+    res.jsend.fail({
+      message: 'Kunne ikke finne e-postaddressen',
+      code: 422,
+    });
+  }
+  else {
 
     if (user.loginCode === req.params.code) {
-      user.data.loginCode = req.params.code; // Add`loginCode` to user for pass-back from post-results
 
-      res.jsend.success(user.data)
+      var token = jwt.sign(user, sensitive.secret, {
+        expiresIn: '24h'
+      });
+
+      res.jsend.success({
+        message: 'Enjoy your token!',
+        token: token
+      })
 
     }
     else {
@@ -60,11 +83,7 @@ router.get('/:email/:code', function(req, res, next) {
       });
     }
   }
-  else {
-    res.jsend.fail({
-      message: 'Kunne ikke finne e-postaddressen',
-      code: 422,
-    });
-  }
+
 });
+
 module.exports = router;

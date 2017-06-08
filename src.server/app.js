@@ -43,10 +43,13 @@ debug('static', '/ =>', upquirePath(settings.dir_src_client))
 /**
  * Routes
  */
+const authorize = require('./routes/authenticate/authorize');
+
 
 app.use('/', require('./routes/index'));
 app.use('/api/auth', require('./routes/authenticate'));
 app.use('/api/schemas', require('./routes/schemas'));
+app.use('/api', authorize, (req, res, next) => { res.jsen.success() });
 
 /**
  * Errorhandling

@@ -6,4 +6,6 @@ const db = upquire('/lib/json-tree')(upquirePath('/sensitive', 'db/users'), {
   instantPush: true,
 });
 
-//db.set('gnimmelf@gmail.com.json', 'loginCode', 'aaaaaa');
+db.set('gnimmelf@gmail.com.json', 'loginCode', 'bbbb');
+
+process.exit(0)
