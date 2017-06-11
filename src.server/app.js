@@ -32,28 +32,27 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(`/${settings.url_dist_client}`, express.static(upquirePath(settings.dir_dist_client)));
-app.use(`/${settings.url_src_client}`, express.static(upquirePath(settings.dir_src_client)));
-app.use(express.static(upquirePath(settings.dir_public)));
+app.use(`/${settings.urlDistClient}`, express.static(upquirePath(settings.dirDistClient)));
+app.use(`/${settings.urlSrcClient}`, express.static(upquirePath(settings.dirSrcClient)));
+app.use(express.static(upquirePath(settings.dirPublic)));
 
-debug('static', `/${settings.url_dist_client} =>`, upquirePath(settings.dir_dist_client))
-debug('static', `/${settings.url_src_client} =>`, upquirePath(settings.dir_src_client))
-debug('static', '/ =>', upquirePath(settings.dir_src_client))
+debug('static', `/${settings.urlDistClient} =>`, upquirePath(settings.dirDistClient))
+debug('static', `/${settings.urlSrcClient} =>`, upquirePath(settings.dirSrcClient))
+debug('static', '/ =>', upquirePath(settings.dirSrcClient))
 
-/**
- * Routes
- */
+/*
+  Routes
+*/
 const authorize = require('./routes/authenticate/authorize');
-
 
 app.use('/', require('./routes/index'));
 app.use('/api/auth', require('./routes/authenticate'));
 app.use('/api/schemas', require('./routes/schemas'));
 app.use('/api', authorize, (req, res, next) => { res.jsen.success() });
 
-/**
- * Errorhandling
- */
+/*
+  Errorhandling
+*/
 
 // Catch 404 and forward to error handler
 app.use(function(req, res, next) {

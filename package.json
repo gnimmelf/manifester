@@ -59,12 +59,12 @@
     "source-map-support": "^0.4.10"
   },
   "settings": {
-    "dir_public": "public",
-    "dir_src_server": "src.server",
-    "dir_dist_server": "dist.server",
-    "dir_src_client": "src.client/riot",
-    "dir_dist_client": "dist.client",
-    "url_src_client": "src",
-    "url_dist_client": "dist"
+    "dirSrcServer": "src.server",
+    "dirDistServer": "dist.server",
+    "dirPublic": "public",
+    "dirSrcClient": "src.client/riot",
+    "dirDistClient": "dist.client",
+    "urlSrcClient": "src",
+    "urlDistClient": "dist"
   }
 }

@@ -14,6 +14,7 @@ module.exports = (root_path, options={}) =>
 
   const db = new LiveDB(options);
 
+  // Extend with basic `jsonpath` methods
   ['query', 'paths', 'nodes', 'value', 'parent', ].forEach(method => {
     db[method] = jsonpath[method].bind(jsonpath, db.tree);
   });

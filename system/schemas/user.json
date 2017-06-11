@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema#",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "title": "E-mail",
+      "description": "Your e-mail-address and username"
+    },
+    "firstName": {
+      "type": "string",
+      "title": "First name"
+    },
+    "lastName": {
+      "type": "string",
+      "title": "Last name"
+    }
+  }
+}

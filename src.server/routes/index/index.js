@@ -8,6 +8,7 @@ const utils = upquire('/lib/utils');
 
 // Package settings
 const settings = require('upquire')('/package.json').settings;
+const siteInfo = upquire('/sensitive/db/site-info.json');
 
 // Get resources from bower components (custom property)
 const resources = utils.getBowerComponentsResources(upquire('/bower.json').components, { url_prefix: '/vendor' });
@@ -15,17 +16,17 @@ const resources = utils.getBowerComponentsResources(upquire('/bower.json').compo
 const router = express.Router();
 
 const context = {
-  title: 'Manifester loading...',
+  title: `${siteInfo.siteName} loading...`,
   styles: {
     'vendors': resources.styles,
     'bundles': [
-      join(settings.url_dist_client, '/bundle.css'),
+      join(settings.urlDistClient, '/bundle.css'),
     ],
   },
   scripts: {
     vendors: resources.scripts,
     bundles: [
-      join(settings.url_dist_client, '/main.bundle.js'),
+      join(settings.urlDistClient, '/main.bundle.js'),
     ]
   }
 }

@@ -1,20 +1,30 @@
 const express = require('express');
 const upquire = require('upquire');
 const upquirePath = upquire('/lib/utils').upquirePath;
-
-const db = upquire('/lib/json-tree')(upquirePath('/sensitive', 'db/schemas'))
 const router = express.Router();
 
+const systemSchemas = upquire('/lib/json-tree')(upquirePath('/system', '/schemas'));
+const siteSchemas = upquire('/lib/json-tree')(upquirePath('/sensitive', 'db/schemas'));
 
-
+/**
+ * Routes
+ */
 router.get('/', (req, res) => {
-  console.log(db.tree)
+  const schemas = Object.assign({}, siteSchemas.tree, systemSchemas.tree)
 
-  res.send(JSON.stringify(db.tree))
+  console.log(systemSchemas.tree)
+
+  res.jsend.success(schemas);
 })
 
 router.get('/:id', (req, res) => {
-  res.send(db.get(`${req.params.id}.json`))
+  const schema = (systemSchemas.get(`${req.params.id}.json`) || siteSchemas.get(`${req.params.id}.json`));
+  schema ?
+    res.jsend.success(schema) :
+    res.jsend.fail({
+      message: 'Schema not found',
+      code: 404,
+    })
 })
 
 module.exports = router;

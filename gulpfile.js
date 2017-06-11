@@ -30,12 +30,12 @@ gulp.task('client:build', ['client:clean'], function() {
 gulp.task('client:watch', ['client:build'], function(done) {
 
   gulp.watch([
-    join(settings.dir_src_client, '**', '*.css')
+    join(settings.dirSrcClient, '**', '*.css')
   ] , ['client:postcss']);
 
   gulp.watch([
-    join(settings.dir_src_client, '**', '*.js'),
-    join(settings.dir_src_client, '**', '*tag.html'),
+    join(settings.dirSrcClient, '**', '*.js'),
+    join(settings.dirSrcClient, '**', '*tag.html'),
   ] , ['client:rollup']);
 
 });

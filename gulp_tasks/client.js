@@ -20,7 +20,7 @@ module.exports = function(gulp)
 
   gulp.task('client:clean' , (done) =>
   {
-    utils.rmdir(settings.dir_dist_client, done);
+    utils.rmdir(settings.dirDistClient, done);
   });
 
 
@@ -32,7 +32,7 @@ module.exports = function(gulp)
     const concat        = require('gulp-concat');
     const sourcemaps    = require('gulp-sourcemaps');
 
-    return gulp.src(utils.join(settings.dir_src_client, '**', '*.css'))
+    return gulp.src(utils.join(settings.dirSrcClient, '**', '*.css'))
       .pipe(sourcemaps.init())
       .pipe(postcss([
         postcssNext(),
@@ -40,7 +40,7 @@ module.exports = function(gulp)
       .on('error', utils.streamOnError)
       .pipe(concat('bundle.css'))
       .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(settings.dir_dist_client))
+      .pipe(gulp.dest(settings.dirDistClient))
   });
 
 

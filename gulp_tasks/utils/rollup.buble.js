@@ -23,7 +23,7 @@ module.exports = (gulp) => {
   return (js_main_name, done) =>
   {
     return rollup.rollup({
-      entry: utils.join(settings.dir_src_client, `${js_main_name}.js`),
+      entry: utils.join(settings.dirSrcClient, `${js_main_name}.js`),
       plugins: [
         riot({
           presets: ['es2015-riot'],
@@ -45,7 +45,7 @@ module.exports = (gulp) => {
       bundle.write({
         globals: globals,
         format: "iife",
-        dest: `${settings.dir_dist_client}/${js_main_name}.bundle.js`,
+        dest: `${settings.dirDistClient}/${js_main_name}.bundle.js`,
         // Note: The riot-compiler does not currently generate sourcemaps
         // so rollup will throw a warning about the sourcemap likely being incorrect
         sourceMap: false

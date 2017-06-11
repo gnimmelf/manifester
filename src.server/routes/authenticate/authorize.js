@@ -2,10 +2,13 @@ const jwt = require('jsonwebtoken');
 const upquire = require('upquire');
 
 // Sensitive stuff
-const sensitive = upquire('/sensitive');
+const hashSecret = upquire('/sensitive/hash-secret');
 
-module.exports = function(req, res, next) {
-
+module.exports = function(req, res, next)
+/**
+JWT authorize middleware
+*/
+{
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
@@ -13,7 +16,7 @@ module.exports = function(req, res, next) {
   if (token) {
 
     // verifies secret and checks exp
-    jwt.verify(token, sensitive.secret, function(err, decoded) {
+    jwt.verify(token, hashSecret, function(err, decoded) {
       if (err) {
         return res.json({ success: false, message: 'Failed to authenticate token.' });
       } else {

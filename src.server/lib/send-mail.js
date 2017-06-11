@@ -26,15 +26,8 @@ module.exports = function({sender_name, reciever_email, subject_str, text_or_htm
   mail_options[text_or_html.startsWith('<') ? 'html' : 'text'] = text_or_html;
 
   // send mail with defined transport object
-  transporter.sendMail(mail_options, function(error, info){
-    if(error) {
-      console.log(error);
-      console.log('Fail email details:')
-      console.log(mailOptions)
-    }
-    else {
-      console.log('Message sent: ' + info.response);
-    }
+  transporter.sendMail(mail_options, function(err, info){
+    if (err) throw err;
   });
 
 }
