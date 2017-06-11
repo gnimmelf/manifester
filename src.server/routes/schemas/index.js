@@ -1,14 +1,15 @@
-const express = require('express');
 const upquire = require('upquire');
+const express = require('express');
 const upquirePath = upquire('/lib/utils').upquirePath;
 const router = express.Router();
 
 const systemSchemas = upquire('/lib/json-tree')(upquirePath('/system', '/schemas'));
 const siteSchemas = upquire('/lib/json-tree')(upquirePath('/sensitive', 'db/schemas'));
 
-/**
- * Routes
- */
+/*
+  Routes
+  - Always prioritise system schemas
+*/
 router.get('/', (req, res) => {
   const schemas = Object.assign({}, siteSchemas.tree, systemSchemas.tree)
 

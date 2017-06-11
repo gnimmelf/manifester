@@ -58,13 +58,24 @@
     "run-sequence": "^1.1.5",
     "source-map-support": "^0.4.10"
   },
-  "settings": {
-    "dirSrcServer": "src.server",
-    "dirDistServer": "dist.server",
-    "dirPublic": "public",
-    "dirSrcClient": "src.client/riot",
-    "dirDistClient": "dist.client",
-    "urlSrcClient": "src",
-    "urlDistClient": "dist"
+  "appSettings": {
+    "pathMaps": {
+      "srcClient": {
+        "dir": "src.client/riot",
+        "url": "/src"
+      },
+      "distClient": {
+        "dir": "dist.client",
+        "url": "/dist"
+      },
+      "public": {
+        "dir": "public",
+        "url": "/"
+      },
+      "vendors": {
+        "dir": "bower_components",
+        "url": "/vendors"
+      }
+    }
   }
 }

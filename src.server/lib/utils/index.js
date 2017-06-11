@@ -45,7 +45,7 @@ exports.httpGet = (url) =>
 };
 
 
-exports.getBowerComponentsResources = (bower_components, { url_prefix='/vendor' }) =>
+exports.getBowerComponentsResources = (bower_components, { url_prefix='/bower_components' }={}) =>
 {
   // Collect `scripts` and `styles` from `bower.json` => `components`
   return Object.entries(bower_components)

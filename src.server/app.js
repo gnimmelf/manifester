@@ -8,10 +8,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const jsend = require('jsend');
 
-const upquirePath = require('./lib/utils').upquirePath
+const upquirePath = require('./lib/utils').upquirePath;
 
-// Package settings
-const settings = require('../package.json').settings;
+const pathMaps = require('../package.json').appSettings.pathMaps;
 
 // Express app
 const app = express();
@@ -32,13 +31,14 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(`/${settings.urlDistClient}`, express.static(upquirePath(settings.dirDistClient)));
-app.use(`/${settings.urlSrcClient}`, express.static(upquirePath(settings.dirSrcClient)));
-app.use(express.static(upquirePath(settings.dirPublic)));
 
-debug('static', `/${settings.urlDistClient} =>`, upquirePath(settings.dirDistClient))
-debug('static', `/${settings.urlSrcClient} =>`, upquirePath(settings.dirSrcClient))
-debug('static', '/ =>', upquirePath(settings.dirSrcClient))
+// Static folders
+Object.values(pathMaps).forEach(map => {
+  const url = path.join('/', map.url);
+  const dir = upquirePath(map.dir);
+  app.use(url, express.static(dir));
+  debug('path-mappings', url, '=>', dir);
+})
 
 /*
   Routes

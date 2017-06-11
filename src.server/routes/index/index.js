@@ -1,17 +1,14 @@
 const path = require('path');
 const join = path.join;
 const express = require('express');
-
 const upquire = require('upquire');
+
 const utils = upquire('/lib/utils');
-
-
-// Package settings
-const settings = require('upquire')('/package.json').settings;
+const pathMaps = upquire('/package.json').appSettings.pathMaps;
 const siteInfo = upquire('/sensitive/db/site-info.json');
 
 // Get resources from bower components (custom property)
-const resources = utils.getBowerComponentsResources(upquire('/bower.json').components, { url_prefix: '/vendor' });
+const resources = utils.getBowerComponentsResources(upquire('/bower.json').components, { url_prefix: pathMaps.vendors.url });
 
 const router = express.Router();
 
@@ -20,13 +17,13 @@ const context = {
   styles: {
     'vendors': resources.styles,
     'bundles': [
-      join(settings.urlDistClient, '/bundle.css'),
+      join(pathMaps.distClient.url, '/bundle.css'),
     ],
   },
   scripts: {
     vendors: resources.scripts,
     bundles: [
-      join(settings.urlDistClient, '/main.bundle.js'),
+      join(pathMaps.distClient.url, '/main.bundle.js'),
     ]
   }
 }

@@ -38,6 +38,3 @@ public/dist
 # Sensitive data
 sensitive
 
-
-# .bowerrc directory (instead of bower_components)
-public/vendor

@@ -8,10 +8,7 @@ const runSequence = require('run-sequence');
 
 // Helpers
 const utils = require('./utils');
-
-// Package settings
-const settings = require('upquire')('/package.json').settings;
-
+const pathMaps = upquire('/package.json').appSettings.pathMaps;
 
 module.exports = function(gulp)
 {
@@ -20,7 +17,7 @@ module.exports = function(gulp)
 
   gulp.task('client:clean' , (done) =>
   {
-    utils.rmdir(settings.dirDistClient, done);
+    utils.rmdir(pathMaps.distClient.dir, done);
   });
 
 
@@ -32,7 +29,7 @@ module.exports = function(gulp)
     const concat        = require('gulp-concat');
     const sourcemaps    = require('gulp-sourcemaps');
 
-    return gulp.src(utils.join(settings.dirSrcClient, '**', '*.css'))
+    return gulp.src(utils.join(pathMaps.srcClient.dir, '**', '*.css'))
       .pipe(sourcemaps.init())
       .pipe(postcss([
         postcssNext(),
@@ -40,7 +37,7 @@ module.exports = function(gulp)
       .on('error', utils.streamOnError)
       .pipe(concat('bundle.css'))
       .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(settings.dirDistClient))
+      .pipe(gulp.dest(pathMaps.distClient.dir))
   });
 
 

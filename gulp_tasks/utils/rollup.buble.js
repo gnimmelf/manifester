@@ -1,18 +1,18 @@
+const debug = require('debug')('client:rollup:buble');
+
 const rollup = require('rollup')
 const riot = require('rollup-plugin-riot')
 const nodeResolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')
 const buble = require('rollup-plugin-buble');
-const debug = require('debug')('client:rollup:buble');
+const upquire = require('upquire');
 
 // Helpers
 const utils = require('../utils');
-
-// Package settings
-const settings = require('upquire')('/package.json').settings;
+const pathMaps = upquire('/package.json').appSettings.pathMaps;
 
 // Bower components (custom property)
-const components = require('upquire')('/bower.json').components;
+const components = upquire('/bower.json').components;
 
 const globals = utils.getBowerComponentsGlobals(components);
 
@@ -23,7 +23,7 @@ module.exports = (gulp) => {
   return (js_main_name, done) =>
   {
     return rollup.rollup({
-      entry: utils.join(settings.dirSrcClient, `${js_main_name}.js`),
+      entry: utils.join(pathMaps.srcClient.dir, `${js_main_name}.js`),
       plugins: [
         riot({
           presets: ['es2015-riot'],
@@ -45,7 +45,7 @@ module.exports = (gulp) => {
       bundle.write({
         globals: globals,
         format: "iife",
-        dest: `${settings.dirDistClient}/${js_main_name}.bundle.js`,
+        dest: `${pathMaps.distClient.dir}/${js_main_name}.bundle.js`,
         // Note: The riot-compiler does not currently generate sourcemaps
         // so rollup will throw a warning about the sourcemap likely being incorrect
         sourceMap: false

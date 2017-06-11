@@ -1,13 +1,9 @@
 var gulp = require('gulp');
 var runSequence = require('run-sequence');
 
-// NOTE! Bower components are linked to directly 'as is' from within the html-templates
-//var bowerFiles = require('main-bower-files');
-
 // Helpers
 var join = require('path').join;
-
-var settings = require('./package.json').settings;
+const pathMaps = require('./package.json').appSettings.pathMaps;
 
 require('./gulp_tasks/client')(gulp);
 
@@ -30,12 +26,12 @@ gulp.task('client:build', ['client:clean'], function() {
 gulp.task('client:watch', ['client:build'], function(done) {
 
   gulp.watch([
-    join(settings.dirSrcClient, '**', '*.css')
+    join(pathMaps.srcClient.dir, '**', '*.css')
   ] , ['client:postcss']);
 
   gulp.watch([
-    join(settings.dirSrcClient, '**', '*.js'),
-    join(settings.dirSrcClient, '**', '*tag.html'),
+    join(pathMaps.srcClient.dir, '**', '*.js'),
+    join(pathMaps.srcClient.dir, '**', '*tag.html'),
   ] , ['client:rollup']);
 
 });

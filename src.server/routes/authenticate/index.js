@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const upquire = require('upquire');
 const jwt = require('jsonwebtoken');
+const upquire = require('upquire');
 
 const upquirePath = upquire('/lib/utils').upquirePath;
 const generateCode = upquire('/lib/utils/code-gen');
@@ -42,7 +42,7 @@ router.get('/:email', function(req, res, next) {
 
     users.set(`${req.params.email}.json`, 'loginCode', login_code);
 
-    const context = { loginCode: login_code, domainName: [req.headers.host, siteInfo.siteName].join('|') };
+    const context = { loginCode: login_code, domainName: req.headers.host, senderName: siteInfo.siteName };
 
     res.render('login-mailcode', context, (err, html) =>
     {
@@ -50,7 +50,7 @@ router.get('/:email', function(req, res, next) {
       if (err) throw err;
 
       sendMail({
-        sender_name: context.domainName,
+        sender_name: [siteInfo.siteName, req.headers.host].join(' | '),
         reciever_email: req.params.email,
         subject_str: 'Login kode',
         text_or_html: html,

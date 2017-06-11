@@ -1,7 +1,7 @@
 {
-  "$schema": "http://json-schema.org/draft-03/schema#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
   "items": {
-    "$ref": "./user.json"
+    "$ref": "user.json/properties"
   }
 }
