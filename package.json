@@ -43,6 +43,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-postcss": "^7.0.0",
     "gulp-rename": "^1.2.2",
+    "gulp-riot": "^1.1.1",
     "gulp-sourcemaps": "^2.6.0",
     "postcss": "^6.0.1",
     "postcss-cssnext": "^2.11.0",
@@ -61,7 +62,7 @@
   "appSettings": {
     "pathMaps": {
       "srcClient": {
-        "dir": "src.client/riot",
+        "dir": "src.client",
         "url": "/src"
       },
       "distClient": {

@@ -1,10 +1,8 @@
-const join = require('path').join;
 const upquire = require('upquire');
+const dirname = require('path').dirname;
 const mkdirp = require('mkdirp').sync;
 const copy = require('cpx').copySync;
-
-const gutil = require("gulp-util");
-const runSequence = require('run-sequence');
+const riot = require('gulp-riot');
 
 // Helpers
 const utils = require('./utils');
@@ -18,6 +16,15 @@ module.exports = function(gulp)
   gulp.task('client:clean' , (done) =>
   {
     utils.rmdir(pathMaps.distClient.dir, done);
+  });
+
+  gulp.task('client:riot' , (done) =>
+  {
+    return gulp.src(utils.join(pathMaps.srcClient.dir, 'riot', '**', '*.html'))
+      .pipe(riot({
+        compact: true
+      }))
+      .pipe(gulp.dest(utils.join(pathMaps.distClient.dir, 'riot')));
   });
 
 
@@ -42,7 +49,12 @@ module.exports = function(gulp)
 
 
   gulp.task('client:rollup', (done) => {
-    rollup('main', done);
+    const js_main = 'riot/main.js';
+
+    mkdirp(pathMaps.distClient.dir);
+    copy(utils.join(pathMaps.srcClient.dir, js_main), dirname(utils.join(pathMaps.distClient.dir, js_main)));
+
+    rollup(js_main, done);
   });
 
 }

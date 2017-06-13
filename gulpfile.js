@@ -18,6 +18,7 @@ gulp.task('clean', ['client:clean']);
 gulp.task('client:build', ['client:clean'], function() {
   runSequence([
     'client:postcss',
+    'client:riot',
     'client:rollup',
   ]);
 

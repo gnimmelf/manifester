@@ -1,5 +1,6 @@
 const debug = require('debug')('client:rollup:buble');
 
+const path = require('path');
 const rollup = require('rollup')
 const riot = require('rollup-plugin-riot')
 const nodeResolve = require('rollup-plugin-node-resolve')
@@ -20,17 +21,14 @@ debug('rollup globals', globals)
 
 module.exports = (gulp) => {
 
-  return (js_main_name, done) =>
+  return (js_main, done) =>
   {
+
+    console.log(utils.join(pathMaps.distClient.dir, '../', utils.replaceExt(js_main, '.bundle.js')))
+
     return rollup.rollup({
-      entry: utils.join(pathMaps.srcClient.dir, `${js_main_name}.js`),
+      entry: utils.join(pathMaps.distClient.dir, js_main),
       plugins: [
-        riot({
-          presets: ['es2015-riot'],
-          ext: 'html',
-          type: 'none',
-          sourceMap: true,
-        }),
         nodeResolve({
           jsnext: true,
           main: true,
@@ -45,10 +43,10 @@ module.exports = (gulp) => {
       bundle.write({
         globals: globals,
         format: "iife",
-        dest: `${pathMaps.distClient.dir}/${js_main_name}.bundle.js`,
+        dest: utils.join(pathMaps.distClient.dir, utils.replaceExt(path.basename(js_main), '.bundle.js')),
         // Note: The riot-compiler does not currently generate sourcemaps
         // so rollup will throw a warning about the sourcemap likely being incorrect
-        sourceMap: false
+        sourceMap: true
       });
     })
     .then(done)

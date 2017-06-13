@@ -48,6 +48,21 @@ exports.makeOnwarn = function(supress_starts_with)
 }
 
 
+exports.replaceExt = function(npath, ext)
+{
+  if (typeof npath !== 'string') {
+    return npath;
+  }
+
+  if (npath.length === 0) {
+    return npath;
+  }
+
+  var nFileName = path.basename(npath, path.extname(npath)) + ext;
+  return path.join(path.dirname(npath), nFileName);
+}
+
+
 exports.join = function()
 {
   return (path.join.apply(null, Array.prototype.slice.call(arguments)));

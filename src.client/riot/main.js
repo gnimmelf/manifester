@@ -1,5 +1,5 @@
 import riot from 'riot';
-import './app/tag.html';
+import './app/tag';
 
 import rx from 'rx';
 import jsonForms from 'jsonForms'
