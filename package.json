@@ -45,6 +45,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-riot": "^1.1.1",
     "gulp-sourcemaps": "^2.6.0",
+    "gulp-wrapper": "^1.0.0",
     "postcss": "^6.0.1",
     "postcss-cssnext": "^2.11.0",
     "request-debug": "^0.2.0",

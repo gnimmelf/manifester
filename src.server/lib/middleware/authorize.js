@@ -4,10 +4,10 @@ const upquire = require('upquire');
 // Sensitive stuff
 const hashSecret = upquire('/sensitive/hash-secret');
 
-module.exports = function(req, res, next)
-/**
-JWT authorize middleware
+/*
+  JWT authorize middleware
 */
+module.exports = function(req, res, next)
 {
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];

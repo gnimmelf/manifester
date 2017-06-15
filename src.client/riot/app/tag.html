@@ -5,6 +5,11 @@ import '../list/tag';
 
   <list items={ list_items } title="List"></list>
 
+  <style>
+    :scope { display: block }
+    h1 { font-size: 120% }
+  </style>
+
   <script>
     const tag = this;
 
@@ -12,7 +17,8 @@ import '../list/tag';
 
     tag.list_items = [
       { title: 'First' },
-      { title: 'Second' }
+      { title: 'Second' },
+      { title: 'Second' },
     ];
 
     tag.on('*', function(eventName) {

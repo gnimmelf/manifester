@@ -5,7 +5,6 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const cors = require('cors');
 const jsend = require('jsend');
 
 const upquirePath = require('./lib/utils').upquirePath;
@@ -15,17 +14,17 @@ const pathMaps = require('../package.json').appSettings.pathMaps;
 // Express app
 const app = express();
 
-// view engine setup
+// Exportable Express app for custom development of the "head in headless".
+app.customApp = express();
+
+// View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
-
-// Allow cors for ALL domains!
-app.use(cors()); // TODO! Change for `prod`
 
 // Jsend middleware
 app.use(jsend.middleware);
 
-// uncomment after placing your favicon in /public
+// Uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -43,13 +42,13 @@ Object.values(pathMaps).forEach(map => {
 /*
   Routes
 */
-const authorize = require('./routes/authenticate/authorize');
+const authorize = require('./lib/middleware/authorize');
 
-app.use('/', require('./routes/index'));
+app.use('/admin', require('./routes/index'));
 app.use('/api/auth', require('./routes/authenticate'));
 app.use('/api/schemas', require('./routes/schemas'));
 app.use('/api', authorize, (req, res, next) => { res.jsen.success() });
-
+app.use(app.customApp)
 /*
   Errorhandling
 */

@@ -2,9 +2,10 @@ const upquire = require('upquire');
 const express = require('express');
 const upquirePath = upquire('/lib/utils').upquirePath;
 const router = express.Router();
+const jsonTree = upquire('/lib/json-tree');
 
-const systemSchemas = upquire('/lib/json-tree')(upquirePath('/system', '/schemas'));
-const siteSchemas = upquire('/lib/json-tree')(upquirePath('/sensitive', 'db/schemas'));
+const systemSchemas = jsonTree(upquirePath('/system', '/schemas'));
+const siteSchemas = jsonTree(upquirePath('/sensitive', 'db/schemas'));
 
 /*
   Routes
