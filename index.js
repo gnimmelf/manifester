@@ -87,7 +87,7 @@ module.exports = {
   },
   app: app.customApp,
   use: app.customApp.use.bind(app.customApp),
-  tree: {
+  db: {
     system: jsonTree(path.join(__dirname, '/system')),
     content: jsonTree(path.join(__dirname, '/sensitive/db')),
   },
