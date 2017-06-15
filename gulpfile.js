@@ -33,6 +33,6 @@ gulp.task('client:watch', ['client:build'], function(done) {
   gulp.watch([
     join(pathMaps.srcClient.dir, '**', '*.js'),
     join(pathMaps.srcClient.dir, '**', '*tag.html'),
-  ] , ['client:rollup']);
+  ] , ['client:riot', 'client:rollup']);
 
 });
