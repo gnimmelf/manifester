@@ -3,6 +3,7 @@ const dirname = require('path').dirname;
 const mkdirp = require('mkdirp').sync;
 const copy = require('cpx').copySync;
 const riot = require('gulp-riot');
+const wrapper = require('gulp-wrapper');
 
 // Helpers
 const utils = require('./utils');
@@ -22,8 +23,10 @@ module.exports = function(gulp)
   {
     return gulp.src(utils.join(pathMaps.srcClient.dir, 'riot', '**', '*.html'))
       .pipe(riot({
-        compact: true
+        compact: true,
+
       }))
+      .pipe(wrapper({ header: '/* File: "riot/${filename}" */\n\n' }))
       .pipe(gulp.dest(utils.join(pathMaps.distClient.dir, 'riot')));
   });
 
