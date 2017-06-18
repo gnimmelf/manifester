@@ -33,8 +33,3 @@ npm-debug.log
 # Dist directories for builds
 dist.server
 dist.client
-public/dist
-
-# Sensitive data
-sensitive
-

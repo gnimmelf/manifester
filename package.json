@@ -4,11 +4,12 @@
   "private": true,
   "main": "dist.server/app.js",
   "scripts": {
-    "start": "node ./bin/www || true",
     "build": "gulp build",
     "watch": "gulp watch:client",
-    "test": "mocha dist.server/_test/_spec.js || true",
-    "dev-test": "mocha dist.server/_test/_spec.js --grep \"getting files\" || true"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "manifest-a-site": "generators/create-site/create-site.js"
   },
   "dependencies": {
     "babel-polyfill": "^6.22.0",
@@ -28,8 +29,10 @@
     "morgan": "^1.8.2",
     "nodemailer": "^4.0.1",
     "nodemailer-mailgun-transport": "^1.3.5",
+    "omit": "^1.0.1",
     "rxjs": "^5.4.0",
     "serve-favicon": "~2.4.3",
+    "slug": "^0.9.1",
     "upquire": "0.0.13"
   },
   "devDependencies": {
@@ -37,6 +40,7 @@
     "chai": "^3.5.0",
     "chai-arrays": "1.0.0",
     "chai-as-promised": "^6.0.0",
+    "colors": "^1.1.2",
     "cpx": "^1.5.0",
     "glob-to-regexp": "^0.3.0",
     "gulp": "^3.9.1",
@@ -48,6 +52,8 @@
     "gulp-wrapper": "^1.0.0",
     "postcss": "^6.0.1",
     "postcss-cssnext": "^2.11.0",
+    "promisify-node": "^0.4.0",
+    "prompt": "^1.0.0",
     "request-debug": "^0.2.0",
     "rimraf": "^2.5.4",
     "rollup": "^0.41.6",
@@ -58,6 +64,7 @@
     "rollup-plugin-riot": "^1.1.0",
     "rollup-plugin-sourcemaps": "^0.4.1",
     "run-sequence": "^1.1.5",
+    "shelljs": "^0.7.8",
     "source-map-support": "^0.4.10"
   },
   "appSettings": {

@@ -1,0 +1,13 @@
+{
+  "superuser": {
+    "email": "gnimmelf@gmail.com",
+    "firstName": "Flemming",
+    "lastName": "Hansen"
+  },
+  "hashSecret" : "superDuperSecret",
+  "mailgun": {
+    "apiKey": "",
+    "domain": "",
+    "senderEmail": ""
+  }
+}

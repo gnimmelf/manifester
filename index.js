@@ -79,6 +79,7 @@ app.set('port', port);
 let server;
 
 module.exports = {
+  _app: app,
   run: () =>  {
     server = http.createServer(app);
     server.listen(port);
