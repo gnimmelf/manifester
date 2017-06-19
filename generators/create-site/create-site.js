@@ -154,11 +154,6 @@ const parseMailgun = function()
 const parseHashSecret = function()
 {
   sensitive_json.hashSecret = crypto.randomBytes(20).toString('hex');
-
-
-  console.log(sensitive_json);
-
-
   nextStep();
 }
 
@@ -263,7 +258,9 @@ const createFileStructure = function()
   console.info('Copying files...');
   shell.cp('-R', `${templatePath}/*`, project_path);
 
+  // After recursive copy, write the json settings files
   fs.writeFileSync(path.join(project_path, 'package.json'), JSON.stringify(package_json, null, 2));
+  fs.writeFileSync(path.join(project_path, 'sensitive.json'), JSON.stringify(sensitive_json, null, 2));
 
   // Npm Linking
   console.info('Linking to manifester...');
