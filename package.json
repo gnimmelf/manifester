@@ -12,17 +12,19 @@
     "manifest-a-site": "generators/create-site/create-site.js"
   },
   "dependencies": {
-    "babel-polyfill": "^6.22.0",
+    "awilix": "^2.4.0",
+    "awilix-express": "^0.11.0",
     "body-parser": "~1.17.2",
+    "caller": "^1.0.1",
     "cookie-parser": "~1.4.3",
-    "cors": "^2.8.3",
     "debug": "~2.6.8",
+    "deep-assign": "^2.0.0",
+    "dirtree": "0.0.2",
     "dot-prop": "^4.1.1",
     "express": "~4.15.3",
     "hbs": "~4.0.1",
     "jsend": "^1.0.2",
     "json-schema-ref-parser": "^3.1.2",
-    "jsondir-livedb": "0.0.3",
     "jsonpath": "^0.2.11",
     "jsonwebtoken": "^7.4.1",
     "mkdirp": "^0.5.1",
@@ -33,7 +35,8 @@
     "rxjs": "^5.4.0",
     "serve-favicon": "~2.4.3",
     "slug": "^0.9.1",
-    "upquire": "0.0.13"
+    "upquire": "0.0.13",
+    "watch": "^1.0.2"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.1",

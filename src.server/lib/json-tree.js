@@ -1,5 +1,3 @@
-const upquire = require('upquire');
-const mkdirp = require('mkdirp');
 const path = require('path');
 const jsonpath = require('jsonpath')
 
@@ -8,7 +6,15 @@ const LiveDB = require('jsondir-livedb');
 
 module.exports = (root_path, options={}) =>
 {
-  mkdirp.sync(root_path);
+
+  // Ensure superusers
+  upquire('/sensitive/credentials/superusers').forEach(superuser => {
+    if (!users.get(`${superuser.email}.json`)) {
+      users.set(`${superuser.email}.json`, null, superuser);
+    }
+  });
+
+
 
   options.root = root_path;
 
@@ -19,5 +25,5 @@ module.exports = (root_path, options={}) =>
     db[method] = jsonpath[method].bind(jsonpath, db.tree);
   });
 
-  return db;
+  module.exports = db;
 }

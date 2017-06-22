@@ -1,14 +1,13 @@
 const jwt = require('jsonwebtoken');
 const upquire = require('upquire');
 
-// Sensitive stuff
-const hashSecret = upquire('/sensitive/hash-secret');
-
 /*
   JWT authorize middleware
 */
 module.exports = function(req, res, next)
 {
+  const hash_secret = req.container.get('sensistive').hashSecret;
+
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
 

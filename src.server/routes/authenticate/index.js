@@ -10,24 +10,13 @@ const sendMail = upquire('/lib/send-mail');
 // Sensitive stuff
 const hashSecret = upquire('/sensitive/hash-secret');
 
-const siteInfo = upquire('/sensitive/db/site-info.json');
-
-const users = upquire('/lib/json-tree')(upquirePath('/sensitive', 'db/users'), {
-  instantPush: true,
-});
-
-// Ensure superusers
-upquire('/sensitive/credentials/superusers').forEach(superuser => {
-  if (!users.get(`${superuser.email}.json`)) {
-    users.set(`${superuser.email}.json`, null, superuser);
-  }
-});
-
-
 /*
   Routes
 */
 router.get('/:email', function(req, res, next) {
+
+  const users = serviceLoacator.db.users;
+
   const user = users.get(`${req.params.email}.json`);
 
   if (!user) {
@@ -65,6 +54,8 @@ router.get('/:email', function(req, res, next) {
 
 
 router.get('/:email/:code', function(req, res, next) {
+  const users = serviceLoacator.db.users;
+
   const user = users.get(`${req.params.email}.json`);
 
   if (!user) {

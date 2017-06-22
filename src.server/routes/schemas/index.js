@@ -1,18 +1,14 @@
 const upquire = require('upquire');
 const express = require('express');
-const upquirePath = upquire('/lib/utils').upquirePath;
 const router = express.Router();
 const jsonTree = upquire('/lib/json-tree');
-
-const systemSchemas = jsonTree(upquirePath('/system', '/schemas'));
-const siteSchemas = jsonTree(upquirePath('/sensitive', 'db/schemas'));
 
 /*
   Routes
   - Always prioritise system schemas
 */
 router.get('/', (req, res) => {
-  const schemas = Object.assign({}, siteSchemas.tree, systemSchemas.tree)
+  const schemas = serviceLoacator.db.schemas;
 
   console.log(systemSchemas.tree)
 
@@ -20,7 +16,10 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
+  const schemas = serviceLoacator.db.schemas;
+
   const schema = (systemSchemas.get(`${req.params.id}.json`) || siteSchemas.get(`${req.params.id}.json`));
+
   schema ?
     res.jsend.success(schema) :
     res.jsend.fail({

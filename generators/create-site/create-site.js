@@ -3,7 +3,7 @@
 // https://github.com/flatiron/prompt
 
 const fs = require('fs');
-const path = require('path');
+const { join, relative } = require('path');
 const util = require('util');
 const crypto = require('crypto');
 
@@ -14,7 +14,6 @@ const omit = require('omit');
 const prompt = require('prompt');
 const shell = require('shelljs');
 const colors = require("colors/safe");
-const jp = require('jsonpath');
 
 // Set source and destination dirs
 const templatePath = `${__dirname}/templates/`;
@@ -55,6 +54,7 @@ const nextStep = (function()
     'maybeMkProjectdir',
     'verifySettings',
     'createFileStructure',
+    'createUser',
     'showFeedback',
   ];
   return function() {
@@ -71,35 +71,32 @@ const nextStep = (function()
 
 const parseSuperuser = function()
 {
-  const author = package_json.author.match(/\[(.*?)\]/)[1];
-  let firstName = author.split(' ')[0];
-  let lastName = author.split(' ')[1];
-  let emailAddress = author.match(/\<(.*?)\>/)[1];
+  const su = sensitive_json.superuser;
 
   prompt.get({
     properties: {
       firstName: {
         description: 'your first name',
         type: 'string',
-        default: firstName || undefined,
+        default: su.firstName || undefined,
         required: true,
       },
       lastName: {
         description: 'your last name',
         type: 'string',
-        default: lastName || undefined,
+        default: su.lastName || undefined,
         required: true,
       },
-      emailAddress: {
+      email: {
         description: 'your email-address',
         type: 'string',
-        default: emailAddress || undefined,
+        default: su.email || undefined,
         required: true,
       },
     }
   }, function(err, res) {
     checkErrorVar(err);
-    Object.assign(sensitive_json.superuser, res)
+    Object.assign(su, res)
     nextStep();
   });
 }
@@ -186,9 +183,9 @@ const parsePackageJson = function()
     return acc;
   }, {}));
 
-  // Override `author.default` with `superUser` credentials
-  const user = sensitive_json.superuser;
-  schema.properties.author.default = `${user.firstName} ${user.lastName} <${user.emailAddress}>`
+  // Set `author.default` to `superUser` identity
+  const su = sensitive_json.superuser;
+  schema.properties.author.default = `${su.firstName} ${su.lastName} <${su.email}>`
 
   prompt.get(schema, function(err, res) {
     checkErrorVar(err);
@@ -221,7 +218,7 @@ const maybeMkProjectdir = function()
     }
   }, function(err, res) {
     checkErrorVar(err);
-    store.project_path = path.join(localPath, res.projectDir || '')
+    store.project_path = join(localPath, res.projectDir || '')
     nextStep()
   });
 }
@@ -229,7 +226,7 @@ const maybeMkProjectdir = function()
 
 const verifySettings = function()
 {
-  console.info(`creating at path "${store.project_path}"`)
+  console.info(`Verify: creating at path "${store.project_path}"`)
   prompt.get({
     properties: {
       continue: {
@@ -258,9 +255,9 @@ const createFileStructure = function()
   console.info('Copying files...');
   shell.cp('-R', `${templatePath}/*`, project_path);
 
-  // After recursive copy, write the json settings files
-  fs.writeFileSync(path.join(project_path, 'package.json'), JSON.stringify(package_json, null, 2));
-  fs.writeFileSync(path.join(project_path, 'sensitive.json'), JSON.stringify(sensitive_json, null, 2));
+  // After recursive copy, (over)write the json settings files
+  fs.writeFileSync(join(project_path, 'package.json'), JSON.stringify(package_json, null, 2));
+  fs.writeFileSync(join(project_path, 'sensitive.json'), JSON.stringify(sensitive_json, null, 2));
 
   // Npm Linking
   console.info('Linking to manifester...');
@@ -271,9 +268,21 @@ const createFileStructure = function()
 
 }
 
+const createUser = function()
+{
+
+  const user_path = join(store.project_path, 'db/users', sensitive_json.superuser.email);
+
+  mkdirp(user_path);
+
+  fs.writeFileSync(join(user_path, 'common.json'), JSON.stringify(sensitive_json.superuser, null, 2));
+
+  nextStep();
+}
+
 const showFeedback = function()
 {
-  let path_diff_str = path.relative(localPath, store.project_path);
+  let path_diff_str = relative(localPath, store.project_path);
   if (path_diff_str) {
     path_diff_str = `cd ${path_diff_str} && `
   }

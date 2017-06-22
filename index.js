@@ -2,12 +2,16 @@
  * Export the Manifester "api".
  */
 const http = require('http');
-const path = require('path');
+const { join, dirname } = require('path');
+const assert = require('assert');
+const caller = require('caller');
+const app = require('./src.server/app');
 
-const src = (rel_path) => path.join(__dirname, 'src.server', rel_path)
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
 
-const jsonTree = require(src('/lib/json-tree'));
-const app = require(src('/app'));
+// Server
+let server;
 
 /**
  * Get port from environment and store in Express.
@@ -70,29 +74,23 @@ function onListening() {
 }
 
 /**
- * Start listening.
+ * Export the stuff
  */
-
-const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-let server;
 
 module.exports = {
   _app: app,
-  run: () =>  {
+  run: ({ absLocalAppPath = dirname(caller()) } = {}) =>  {
+
+    assert(absLocalAppPath, 'required!')
+
+    app.get('container').registerValue('localPath', absLocalAppPath);
+
     server = http.createServer(app);
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListening);
   },
-  app: app.customApp,
-  use: app.customApp.use.bind(app.customApp),
-  db: {
-    system: jsonTree(path.join(__dirname, '/system')),
-    content: jsonTree(path.join(__dirname, '/sensitive/db')),
-  },
-  middleware: {
-    authorize: require(src('/lib/middleware/authorize')),
-  }
+  app: app.localApp,
+  use: app.localApp.use.bind(app.localApp),
 }
+

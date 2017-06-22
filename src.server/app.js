@@ -1,54 +1,73 @@
-const debug = require('debug')('app')
+const debug = require('debug')('app');
+
 const express = require('express');
-const path = require('path');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
 const jsend = require('jsend');
 
-const upquirePath = require('./lib/utils').upquirePath;
+const { scopePerRequest } = require('awilix-express');
+const { urlencoded, json } = require('body-parser');
+const { join } = require('path');
+const { upquirePath } = require('./lib/utils');
+const configureContainer = require('./lib/configureContainer');
 
 const pathMaps = require('../package.json').appSettings.pathMaps;
 
+
 // Express app
 const app = express();
+const container = configureContainer(join(__dirname, 'lib'));
 
-// Exportable Express app for custom development of the "head in headless".
-app.customApp = express();
+/**
+ * App setup
+ */
 
+// Exportable Express app for local development of the "head in headless".
+app.localApp = express();
+
+app.set('container', container);
 // View engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'hbs');
+app.set('json spaces', 2);
 
-// Jsend middleware
-app.use(jsend.middleware);
 
-// Uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+/**
+ * Standard middleware
+ */
+
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
+
 
 // Static folders
 Object.values(pathMaps).forEach(map => {
-  const url = path.join('/', map.url);
+  const url = join('/', map.url);
   const dir = upquirePath(map.dir);
   app.use(url, express.static(dir));
   debug('path-mappings', url, '=>', dir);
 })
 
+// Favicon: uncomment after placing your favicon in
+//app.use(favicon(join(pathMaps.public.dir, 'favicon.ico')));
+
+
+/**
+ * Middleware
+ */
+
+app.use(scopePerRequest(container));
+app.use(jsend.middleware);
+
 /*
   Routes
 */
-const authorize = require('./lib/middleware/authorize');
 
-app.use('/admin', require('./routes/index'));
-app.use('/api/auth', require('./routes/authenticate'));
-app.use('/api/schemas', require('./routes/schemas'));
-app.use('/api', authorize, (req, res, next) => { res.jsen.success() });
-app.use(app.customApp)
+app.use(app.localApp)
+
 /*
   Errorhandling
 */
