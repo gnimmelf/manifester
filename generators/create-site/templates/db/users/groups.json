@@ -1,0 +1,14 @@
+{
+  "admins": {
+    "priority": 0,
+    "members": []
+  },
+  "editors": {
+    "priority": 100,
+    "members": []
+  },
+  "members": {
+    "priority": 100,
+    "members": []
+  }
+}

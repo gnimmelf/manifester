@@ -3,14 +3,11 @@ const { inspect } = require('util');
 
 class userService {
   constructor({ db }) {
-
-    console.log(inspect(db, {colors: true, depth: 5}));
-
-    this.users = db;
+    this.users = db.users;
   }
 
   getUser(id) {
-    return this.users;
+    return this.users.get(id);
   }
 }
 

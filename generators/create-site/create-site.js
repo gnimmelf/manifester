@@ -3,7 +3,10 @@
 // https://github.com/flatiron/prompt
 
 const fs = require('fs');
-const { join, relative } = require('path');
+const {
+  join,
+  relative,
+  dirname } = require('path');
 const util = require('util');
 const crypto = require('crypto');
 
@@ -48,13 +51,14 @@ const nextStep = (function()
 {
   steps = [
     'parseSuperuser',
+    'parsePackageJson',
     'parseMailgun',
     'parseHashSecret',
-    'parsePackageJson',
     'maybeMkProjectdir',
     'verifySettings',
     'createFileStructure',
-    'createUser',
+    'installPackages',
+    'createAdminUser',
     'showFeedback',
   ];
   return function() {
@@ -106,8 +110,13 @@ const parseMailgun = function()
 {
   prompt.get({
     properties: {
+      senderEmail: {
+        description: 'Server sender email-address',
+        required: true,
+        default: "post@example.com",
+      },
       useMailgun: {
-        description: 'Set up mailgun transport? [Yes|No]',
+        description: 'Set up mailgun as nodemailer transport? [Yes|No]',
         message: 'Must respond yes or no',
         type: 'string',
         default: 'yes',
@@ -130,19 +139,18 @@ const parseMailgun = function()
           return prompt.history('useMailgun').value.match(yes_pattern);
         }
       },
-      senderEmail: {
-        description: 'mailgun sender email-address',
-        required: true,
-        default: "post@example.com",
-        ask: function() {
-          // only ask for proxy credentials if a proxy was set
-          return prompt.history('useMailgun').value.match(yes_pattern);
-        }
-      },
     }
   }, function(err, res) {
     checkErrorVar(err);
-    Object.assign(sensitive_json.mailgun, omit(['useMailgun'], res));
+
+    sensitive_json.emailConfig.senderEmail = res.senderEmail;
+
+    if (res.useMailgun) {
+      sensitive_json.emailConfig.mailgunAuth = {
+        api_key: res.apiKey,
+        domain: res.domain
+      }
+    }
     nextStep();
   });
 }
@@ -259,23 +267,38 @@ const createFileStructure = function()
   fs.writeFileSync(join(project_path, 'package.json'), JSON.stringify(package_json, null, 2));
   fs.writeFileSync(join(project_path, 'sensitive.json'), JSON.stringify(sensitive_json, null, 2));
 
+  nextStep();
+}
+
+
+const installPackages = function()
+{
   // Npm Linking
   console.info('Linking to manifester...');
-  shell.exec(`npm link manifester`, { silent: true, cwd: project_path }, function(err, stdout, stderr) {
+  shell.exec(`npm link manifester`, { silent: true, cwd: store.project_path }, function(err, stdout, stderr) {
     checkErrorVar(err, 'Could not link to manifester. Make sure you have npm-linked it allready!');
     nextStep();
   })
-
 }
 
-const createUser = function()
+
+const createAdminUser = function()
 {
 
-  const user_path = join(store.project_path, 'db/users', sensitive_json.superuser.email);
+  const users_dir = join(store.project_path, 'db/users');
+  const groups_path = join(users_dir, 'groups.json');
+  const superuser_common_path = join(users_dir, sensitive_json.superuser.email, 'common.json');
 
-  mkdirp(user_path);
+  // Mkdirp the deepest dir
+  mkdirp(dirname(superuser_common_path));
 
-  fs.writeFileSync(join(user_path, 'common.json'), JSON.stringify(sensitive_json.superuser, null, 2));
+  // Add superuser user
+  fs.writeFileSync(superuser_common_path, JSON.stringify(sensitive_json.superuser, null, 2));
+
+  // Add superuser to admins
+  const groups = require(groups_path);
+  groups.admins.members.push(sensitive_json.superuser.email);
+  fs.writeFileSync(groups_path, JSON.stringify(groups, null, 2));
 
   nextStep();
 }

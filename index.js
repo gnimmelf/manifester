@@ -2,7 +2,7 @@
  * Export the Manifester "api".
  */
 const http = require('http');
-const { join, dirname } = require('path');
+const { join, dirname, resolve } = require('path');
 const assert = require('assert');
 const caller = require('caller');
 const app = require('./src.server/app');
@@ -79,11 +79,22 @@ function onListening() {
 
 module.exports = {
   _app: app,
-  run: ({ absLocalAppPath = dirname(caller()) } = {}) =>  {
+  run: ({ localAppPath = dirname(caller()) } = {}) =>  {
 
-    assert(absLocalAppPath, 'required!')
+    assert(localAppPath, 'required!')
 
-    app.get('container').registerValue('localPath', absLocalAppPath);
+    localAppPath = resolve(localAppPath);
+
+    console.log('\nlocalPath', localAppPath);
+
+    const sensitive = require(join(localAppPath, 'sensitive.json'));
+
+    app.get('container').registerValue({
+      localAppPath: localAppPath,
+      sensitive: sensitive.hashSecret,
+      emailConfig: sensitive.emailConfig,
+    });
+
 
     server = http.createServer(app);
     server.listen(port);

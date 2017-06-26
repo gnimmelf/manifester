@@ -5,9 +5,11 @@
     "lastName": "Hansen"
   },
   "hashSecret" : "superDuperSecret",
-  "mailgun": {
-    "apiKey": "",
-    "domain": "",
-    "senderEmail": ""
+  "emailConfig": {
+    "senderEmail": "post@example.com",
+    "mailgunAuth": {
+      "api_key": "",
+      "domain": ""
+    }
   }
 }

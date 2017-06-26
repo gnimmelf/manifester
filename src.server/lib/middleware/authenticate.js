@@ -6,7 +6,7 @@ const upquire = require('upquire');
 */
 module.exports = function(req, res, next)
 {
-  const hash_secret = req.container.get('sensistive').hashSecret;
+  const hash_secret = req.container.get('sensitive').hashSecret;
 
   // check header or url parameters or post parameters for token
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -19,19 +19,9 @@ module.exports = function(req, res, next)
       if (err) {
         return res.json({ success: false, message: 'Failed to authenticate token.' });
       } else {
-        // if everything is good, save to request for use in other routes
-        req.decoded = decoded;
+        req.container.set('');
         next();
       }
-    });
-
-  } else {
-
-    // if there is no token
-    // return an error
-    return res.jsend.fail({
-        message: 'No token provided',
-        code: 403,
     });
 
   }
