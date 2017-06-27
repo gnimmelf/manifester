@@ -74,11 +74,13 @@ function onListening() {
 }
 
 /**
- * Export the stuff
+ * Export stuff needed to create client code.
  */
 
 module.exports = {
   _app: app,
+  app: app.localApp,
+  use: app.localApp.use.bind(app.localApp),
   run: ({ localAppPath = dirname(caller()) } = {}) =>  {
 
     assert(localAppPath, 'required!')
@@ -91,17 +93,16 @@ module.exports = {
 
     app.get('container').registerValue({
       localAppPath: localAppPath,
-      sensitive: sensitive.hashSecret,
+      hashSecret: sensitive.hashSecret,
       emailConfig: sensitive.emailConfig,
     });
 
+    console.log(require('util').inspect(app.get('container').registrations, {colors: true, depth: 5}));
 
     server = http.createServer(app);
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListening);
   },
-  app: app.localApp,
-  use: app.localApp.use.bind(app.localApp),
 }
 

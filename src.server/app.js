@@ -4,11 +4,12 @@ const express = require('express');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-const jsend = require('jsend');
+const jsend = require('jsend')({ strict: true });
 
 const { scopePerRequest } = require('awilix-express');
 const { urlencoded, json } = require('body-parser');
 const { join } = require('path');
+
 const { upquirePath } = require('./lib/utils');
 const configureContainer = require('./lib/configureContainer');
 
@@ -23,7 +24,7 @@ const container = configureContainer(join(__dirname, 'lib'));
  * App setup
  */
 
-// Exportable Express app for local development of the "head in headless".
+// Exportable Express app for local development of the "head" in "headless"
 app.localApp = express();
 
 app.set('container', container);

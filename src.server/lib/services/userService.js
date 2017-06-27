@@ -1,13 +1,20 @@
 const { join } = require('path');
-const { inspect } = require('util');
+
+// START HERE! This is wrong, the userService is for ONE user, and should be instantiated as that user!
+// - Or throw an error if that userId is not found!
 
 class userService {
-  constructor({ db }) {
-    this.users = db.users;
+  constructor({ dbService }) {
+    this.users = dbService.users;
+    this.user = undefined;
   }
 
-  getUser(id) {
-    return this.users.get(id);
+  setUserById(id) {
+    this.user = this.users.getByPath(id);
+  }
+
+  getUser({ id }={}) {
+    return this.user;
   }
 }
 

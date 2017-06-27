@@ -1,96 +1,59 @@
-const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const upquire = require('upquire');
+const { makeInvoker } require('awilix-express');
 
-const upquirePath = upquire('/lib/utils').upquirePath;
-const generateCode = upquire('/lib/utils/code-gen');
-const sendMail = upquire('/lib/send-mail');
 
-// Sensitive stuff
-const hashSecret = upquire('/sensitive/hash-secret');
+function API ({ authService, tokenCookieName }) {
 
-/*
-  Routes
-*/
-router.get('/:email', function(req, res, next) {
+  const deleteCookie = (res) => res.clearCookie(tokenCookieName);;
+  const setCookie = (res, value) => res.cookie(tokenCookieName, token, {});
 
-  const users = serviceLoacator.db.users;
 
-  const user = users.get(`${req.params.email}.json`);
-
-  if (!user) {
-    res.jsend.fail({
-      message: 'Could not find email-address',
-      code: 422,
-    });
-  }
-  else {
-
-    const login_code = generateCode();
-
-    users.set(`${req.params.email}.json`, 'loginCode', login_code);
-
-    const context = { loginCode: login_code, domainName: req.headers.host, senderName: siteInfo.siteName };
-
-    res.render('login-mailcode', context, (err, html) =>
-    {
-
-      if (err) throw err;
-
-      sendMail({
-        sender_name: [siteInfo.siteName, req.headers.host].join(' | '),
-        reciever_email: req.params.email,
-        subject_str: 'Login kode',
-        text_or_html: html,
+  const requestLogincodeByMail = (req, res) => {
+    authService.requestLogincodeByMail(req.params.email)
+      .catch(res.jsend.fail)
+      .then(logincode => {
+        res.jsend.success('Mail away!')
       });
-
-    });
-
-    res.jsend.success({email: req.params.email});
-  }
-
-})
+  };
 
 
-router.get('/:email/:code', function(req, res, next) {
-  const users = serviceLoacator.db.users;
-
-  const user = users.get(`${req.params.email}.json`);
-
-  if (!user) {
-    res.jsend.fail({
-      message: 'Could not find email-address',
-      code: 422,
-    });
-  }
-  else {
-
-    if (user.loginCode && user.loginCode === req.params.code) {
-
-      var token = jwt.sign(user, hashSecret, {
-        expiresIn: '24h'
+  const authenticateLogincode = (req, res) => {
+    authService.authenticateLogincode(req.params.email, req.params.code)
+      .catch(res.jsend.fail)
+      .then(token => {
+        res.jsend.success(token)
       });
+  };
 
-      let o = users.delete(`${req.params.email}.json`, 'loginCode')
 
-      console.log('deleted', o)
-
-      res.jsend.success({
-        message: 'Enjoy your token!',
-        token: token
+  const authenticateToken = (req, res) => {
+    // Check header request for token
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+    authService.authenticateToken(token)
+      .catch(err => {
+        // TODO! Delete token from wherever it was
+        res.jsend.fail(err);
       })
-
-
-    }
-    else {
-      res.jsend.fail({
-        message: 'Invalid code',
-        code: 422,
+      .then(decoded => {
+        res.jsend.success(decoded)
       });
-    }
-  }
+  };
 
-});
+  /**
+   * Public
+   */
+  return {
+    requestLogincodeByMail: requestLogincodeByMail,
+    authenticateLogincode: authenticateLogincode,
+    authenticateToken: authenticateToken,
+  };
+};
+
+
+const api = makeInvoker(API);
+
+router.get('/:email', api('requestTokenByMail'));
+router.get('/:email/:code', api('authenticateToken'));
+
 
 module.exports = router;

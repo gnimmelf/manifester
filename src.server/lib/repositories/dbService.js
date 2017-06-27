@@ -6,6 +6,9 @@ const ensureDir = (path) => { mkdirp(path); return path }
 
 module.exports = ({ localAppPath }) =>
 {
+  /**
+   * Public
+   */
   return {
     schemas: new Database({ root: ensureDir(join(localAppPath, 'db/schemas')) }),
     users: new Database({ root: ensureDir(join(localAppPath, 'db/users')) }),

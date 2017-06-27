@@ -11,7 +11,7 @@ const {
   asFunction,
   asClass
 } = require('awilix');
-const mailgunTransport = require('nodemailer-mailgun-transport'); // http://github.com/orliesaurus/nodemailer-mailgun-transport
+
 
 module.exports = function(cwd) {
 
@@ -19,8 +19,7 @@ module.exports = function(cwd) {
 
   const container = createContainer();
 
-  // In Emergency! -Register container on self to allow it to appear in registration signatures
-  //container.registerValue('container', container);
+  container.registerValue('tokenCookieName', 'user_token');
 
   container.loadModules([
     ['services/*.js', Lifetime.SCOPED],
@@ -30,9 +29,6 @@ module.exports = function(cwd) {
     formatName: 'camelCase',
     cwd: cwd,
   });
-
-
-  console.log(require('util').inspect(container.registrations, {colors: true, depth: 5}));
 
   return container;
 }
