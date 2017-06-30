@@ -10,7 +10,7 @@ const { scopePerRequest } = require('awilix-express');
 const { urlencoded, json } = require('body-parser');
 const { join } = require('path');
 
-const { upquirePath } = require('./lib/utils');
+const { upquirePath, makeSingleInvoker } = require('./lib/utils');
 const configureContainer = require('./lib/configureContainer');
 
 const pathMaps = require('../package.json').appSettings.pathMaps;
@@ -59,9 +59,10 @@ Object.values(pathMaps).forEach(map => {
 /**
  * Middleware
  */
-
-app.use(scopePerRequest(container));
 app.use(jsend.middleware);
+app.use(scopePerRequest(container));
+app.use(makeSingleInvoker(require('./lib/middleware/authenticateHeaderToken')));
+app.use('/api/auth', require('./routes/authenticate'));
 
 /*
   Routes

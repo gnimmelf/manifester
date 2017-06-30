@@ -4,13 +4,8 @@ const { join } = require('path');
 // - Or throw an error if that userId is not found!
 
 class userService {
-  constructor({ dbService }) {
-    this.users = dbService.users;
-    this.user = undefined;
-  }
-
-  setUserById(id) {
-    this.user = this.users.getByPath(id);
+  constructor({ dbService, userId }) {
+    this.user = dbService.users.users.getByPath(id);
   }
 
   getUser({ id }={}) {

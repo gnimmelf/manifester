@@ -3,6 +3,7 @@ const join = path.join;
 const dotProp = require('dot-prop');
 const upquire = require('upquire');
 
+exports.makeSingleInvoker = require('./make-single-invoker')
 exports.makeLogincode = require('./generate-logincode');
 
 exports.upquirePath = function(some_path, join_part)
