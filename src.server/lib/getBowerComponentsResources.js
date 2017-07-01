@@ -1,3 +1,5 @@
+const { join } = require('path');
+
 const getBowerComponentsResources = (bower_components, { url_prefix='/bower_components' }={}) =>
 {
   // Collect `scripts` and `styles` from `bower.json` => `components`

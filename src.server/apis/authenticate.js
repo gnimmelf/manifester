@@ -1,11 +1,7 @@
 const debug = require('debug')('apis:authenticate');
 
-module.exports = ({ authService, tokenHeaderName, tokenCookieName }) =>
+module.exports = ({ authService, tokenKeyName }) =>
 {
-
-  const deleteCookie = (res) => res.clearCookie(tokenCookieName);;
-  const setCookie = (res, value) => res.cookie(tokenCookieName, token, {});
-
 
   const requestLogincodeByMail = (req, res) =>
   {

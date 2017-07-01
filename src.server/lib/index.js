@@ -1,13 +1,13 @@
 const path = require('path');
 const join = path.join;
 const dotProp = require('dot-prop');
-const upquire = require('upquire');
+
+const upquire = exports.upquire = require('upquire');
 
 exports.makeSingleInvoker = require('./makeSingleInvoker')
 exports.makeLogincode = require('./makeLogincode');
 exports.getBowerComponentsResources = require('./getBowerComponentsResources');
 exports.configureContainer = require('./configureContainer');
-
 
 exports.upquirePath = function(some_path, join_part)
 {

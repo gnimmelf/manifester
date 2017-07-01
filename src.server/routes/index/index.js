@@ -1,11 +1,12 @@
 const path = require('path');
 const join = path.join;
 const express = require('express');
-const upquire = require('upquire');
 
-const utils = upquire('/lib/utils');
+const { getBowerComponentsResources, upquire } = require('../../lib');
 const pathMaps = upquire('/package.json').appSettings.pathMaps;
-const siteInfo = upquire('/sensitive/db/site-info.json');
+
+//const siteInfo = upquire('/sensitive/db/site-info.json');
+const siteInfo = {};
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ const getContext = (function(bower_components)
 
     if (!context)  {
 
-      const resources = utils.getBowerComponentsResources(bower_components, {
+      const resources = getBowerComponentsResources(bower_components, {
         url_prefix: join(app_mountpath, pathMaps.vendors.url)
       });
 
