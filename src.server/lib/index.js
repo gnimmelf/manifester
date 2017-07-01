@@ -3,8 +3,11 @@ const join = path.join;
 const dotProp = require('dot-prop');
 const upquire = require('upquire');
 
-exports.makeSingleInvoker = require('./make-single-invoker')
-exports.makeLogincode = require('./generate-logincode');
+exports.makeSingleInvoker = require('./makeSingleInvoker')
+exports.makeLogincode = require('./makeLogincode');
+exports.getBowerComponentsResources = require('./getBowerComponentsResources');
+exports.configureContainer = require('./configureContainer');
+
 
 exports.upquirePath = function(some_path, join_part)
 {
@@ -13,12 +16,6 @@ exports.upquirePath = function(some_path, join_part)
     full_path = join.apply(join, [full_path].concat( Array.prototype.slice.call(arguments, 1) ));
   }
   return full_path
-}
-
-
-exports.readJsonFile = (upquire_path) =>
-{
-  JSON.parse(fs.readFileSync(upquire(upquire_path, {pathOnly: true}), 'utf8'));
 }
 
 
@@ -45,27 +42,3 @@ exports.httpGet = (url) =>
     request.on('error', (err) => reject(err))
     })
 };
-
-
-exports.getBowerComponentsResources = (bower_components, { url_prefix='/bower_components' }={}) =>
-{
-  // Collect `scripts` and `styles` from `bower.json` => `components`
-  return Object.entries(bower_components)
-    .reduce((resources, component) => {
-      const name = component[0];
-      const data = component[1];
-
-      ;['scripts', 'styles'].forEach(prop => {
-        if (data[prop]) {
-          const urls = (Array.isArray(data[prop]) ? data[prop] : [ data[prop] ])
-            .map(resource => join(url_prefix, name, resource));
-
-          resources[prop] = resources[prop].concat(urls);
-        }
-      })
-      return resources;
-    }, {
-      scripts: [],
-      styles: [],
-    });
-}

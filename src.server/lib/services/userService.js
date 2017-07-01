@@ -5,10 +5,10 @@ const { join } = require('path');
 
 class userService {
   constructor({ dbService, userId }) {
-    this.user = dbService.users.users.getByPath(id);
+    this.user = dbService.users.users.getByPath(userId);
   }
 
-  getUser({ id }={}) {
+  getUser() {
     return this.user;
   }
 }

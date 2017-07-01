@@ -1,8 +1,10 @@
-module.exports = ({ authService, tokenHeaderName }) =>
+const makeSingleInvoker = require('../makeSingleInvoker');
+
+const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
 {
   return (req, res, next) =>
   {
-    var token = req.headers[tokenHeaderName];
+    var token = req.headers[tokenKeyName];
 
     authService.authenticateToken(token)
       .then(decoded => {
@@ -10,9 +12,12 @@ module.exports = ({ authService, tokenHeaderName }) =>
         next();
       })
       .catch(err => {
-        delete req.headers[tokenHeaderName];
+        delete req.headers[tokenKeyName];
         next();
       });
   };
 
 };
+
+
+module.exports = makeSingleInvoker(authenticateHeaderToken);

@@ -18,8 +18,7 @@ module.exports = function(cwd) {
 
   const container = createContainer();
 
-  container.registerValue('tokenCookieName', 'user_token');
-  container.registerValue('tokenHeaderName', 'x-access-token');
+  container.registerValue('tokenKeyName', 'x-access-token');
 
   container.loadModules([
     ['services/*.js', Lifetime.SCOPED],

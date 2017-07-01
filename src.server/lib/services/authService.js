@@ -1,6 +1,6 @@
 const debug = require('debug')('service:authService');
 const jwt = require('jsonwebtoken');
-const { makeLogincode } = require('../utils');
+const { makeLogincode } = require('../makeLogincode');
 
 module.exports = ({ dbService, mailService, hashSecret }) => {
 
