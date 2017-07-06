@@ -10,7 +10,13 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 var path = require('path');
 var watch = require('watch');
+
 var jp = require('jsonpath');
+const isObj = require('is-obj');
+
+const dotProp = require('./dotProp')
+
+console.log('dotProp', dotProp);
 
 /*
   assignJSONfile - parse contents of JSON file and insert it to key of `obj` by `relPath`
@@ -67,8 +73,8 @@ function stringify(obj, prettify) {
 */
 var DB = module.exports = function DB(obj) {
   if (!(this instanceof DB)) {
-        return new DB(obj);
-    }
+    return new DB(obj);
+  }
   this.liveIgnore = false;
   this.pathSep = '/';
   this.prettify = true;
@@ -173,6 +179,42 @@ DB.prototype.getByPath = function(relPath, key, reassign) {
   + key - (optional) key to set the value of (will be evaluated)
   + value - (optional) number, string, array or object (default: {})
 */
+
+const makeDotPropKey = (relPath) => relPath.replace('.', '\\.').replace('/', '.');
+
+DB.prototype.setByPath2 = function(relPath, key, value) {
+  if (key && !value) {
+    value = key;
+    key = '';
+  }
+
+  value = dotProp.set({}, key, value);
+
+  const dotPropRelPath = makeDotPropKey(relPath);
+  const content = dotProp.get(this.tree, dotPropRelPath);
+
+
+  try {
+    // Update `tree`
+    dotProp.set(this.tree, dotPropRelPath, value);
+
+    if (!content) {
+      // File doesn't exist
+      this.commits.push(['create', relPath, value]);
+    }
+    else {
+      // File exists
+      this.commits.push(relPath);
+    }
+
+  }
+
+  catch(err) { console.error(err); return false; }
+  if (this.instantPush) this.push();
+  return true;
+}
+
+
 DB.prototype.setByPath = function(relPath, key, value) {
   value = value || {};
   try {
@@ -219,22 +261,31 @@ DB.prototype.deleteByPath = function(relPath, key) {
 /**
  * Extra `jsonpath`-based methods (Flemming)
  */
-DB.prototype.get = function(q_path, max_count) {
+DB.prototype.get = function(q_path, max_count)
+{
   return this.nodes(q_path, max_count).map(n => n.value);
 }
 
-DB.prototype.getOne = function(q_path) {
+
+DB.prototype.getOne = function(q_path)
+{
   var res = this.get(this.tree, q_path, 1)
-  return res.length == 1 ? res[0] : null;
+  return res.length >= 1 ? res[0] : null;
 }
 
-DB.prototype.nodes = function(q_path, max_count) {
-  console.log(q_path)
+
+DB.prototype.nodes = function(q_path, max_count)
+/**
+Each '^' at `q_path` end signifies one parent up; make it so regardless of cost.
+*/
+{
+  let up_count = 0;
 
   const matches = q_path.match(/(\^+)$/g);
-  let up_count = 0;
+
   if (matches) {
     up_count = matches[0].length;
+    // Remove '^'-chars at end from `q_path`
     q_path = q_path.slice(0, -up_count)
   }
 
@@ -242,9 +293,9 @@ DB.prototype.nodes = function(q_path, max_count) {
 
   if (up_count) {
     const tree = this.tree;
-    const nodes2 = nodes.map(n => {
-      const q = n.path.slice(0, -up_count).join('.');
-      return jp.nodes(tree, q)
+    const nodes2 = nodes.map(node => {
+      const q_path2 = node.path.slice(0, -up_count).join('.');
+      return jp.nodes(tree, q_path2)
     })
     return nodes2[0]
   }

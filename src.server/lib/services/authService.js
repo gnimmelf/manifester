@@ -1,15 +1,24 @@
 const debug = require('debug')('service:authService');
 const jwt = require('jsonwebtoken');
-const { makeLogincode } = require('../makeLogincode');
+const { makeLogincode, maybeThrow } = require('../');
 
 module.exports = ({ dbService, mailService, hashSecret }) => {
 
-  const requestLogincodeByMail = (email) => {
+  const requestLogincodeByEmail = (email) => {
 
     return new Promise((resolve, reject) => {
       const user = dbService.users.getByPath(email);
+
+      maybeThrow(!user, 'invalid email-address; user not found', 422);
+
       const logincode = makeLogincode();
-      debug(user, logincode)
+
+      // TODO! START HERE. Make db create file if it doesn't exist already
+      user.setByPath('logincode.json', {})
+
+      // TODO!
+      mailService.sendMail()
+
       resolve(logincode)
     });
 
@@ -20,6 +29,9 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
 
     return new Promise((resolve, reject) => {
       const user = dbService.users.getByPath(email);
+
+      // TODO! + Restfull status codes!
+
     });
 
   };
@@ -34,8 +46,9 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
       // Verify secret and check if expired
       jwt.verify(token, hashSecret, (err, decoded) => {
         if (err) {
-          err.message = 'no token found';
-          debug('failed decoding', `${err.name}`, err.message);
+
+          // TODO! + Restfull status codes!
+
           reject(err);
         }
         else {
@@ -51,7 +64,7 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
    * Public
    */
   return {
-    requestLogincodeByMail: requestLogincodeByMail,
+    requestLogincodeByEmail: requestLogincodeByEmail,
     authenticateLogincode: authenticateLogincode,
     authenticateToken: authenticateToken,
   }

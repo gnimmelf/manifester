@@ -1,28 +1,59 @@
 const path = require('path');
 const join = path.join;
-const dotProp = require('dot-prop');
+const jsend = require('jsend')({ strict: false });
 
 const upquire = exports.upquire = require('upquire');
+const RESTfulError = require('./RESTfulError');
 
 exports.makeSingleInvoker = require('./makeSingleInvoker')
 exports.makeLogincode = require('./makeLogincode');
 exports.getBowerComponentsResources = require('./getBowerComponentsResources');
 exports.configureContainer = require('./configureContainer');
+exports.Db = require('./Db');
+exports.dotProp = require('./dotProp');
 
-exports.upquirePath = function(some_path, join_part)
+
+exports.upquirePath = function(some_path, ...rest)
 {
   let full_path = upquire(some_path, { pathOnly: true, dirnameOnly: true });
-  if (join_part) {
-    full_path = join.apply(join, [full_path].concat( Array.prototype.slice.call(arguments, 1) ));
+  if (rest) {
+    full_path = join.apply(join, [full_path].concat( rest ));
   }
   return full_path
 }
 
 
-exports.httpGet = (url) =>
+exports.sendApiResponse = (expressResponseObj, response) =>
 {
-  // https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/
-  // return new pending promise
+  let method = 'success';
+
+  if (response instanceof Error) {
+    if (response instanceof RESTfulError) {
+      method = 'fail';
+      response = [response.code, response.name, response.message].join('|');
+    }
+    else {
+      method = 'error';
+    }
+  }
+  expressResponseObj.json(jsend[method](response));
+}
+
+
+exports.maybeThrow = (predicate, message, RestErrorTypeOrCode) =>
+{
+  if (predicate) {
+    if (RestErrorType) {
+      throw new RESTfulError(RestErrorType, message);
+    }
+    else throw new Error(message);
+  }
+}
+
+
+exports.httpGet = (url) =>
+// https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/
+{
   return new Promise((resolve, reject) => {
     // select http or https module, depending on reqested url
     const lib = url.startsWith('https') ? require('https') : require('http');

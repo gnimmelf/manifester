@@ -21,8 +21,8 @@ module.exports = function(cwd) {
   container.registerValue('tokenKeyName', 'x-access-token');
 
   container.loadModules([
-    ['services/*.js', Lifetime.SCOPED],
-    ['repositories/*.js', Lifetime.SINGLETON],
+    ['services/*.js', Lifetime.SINGLETON],
+    ['services/scoped/*.js', Lifetime.SCOPED],
   ]
   , {
     formatName: 'camelCase',

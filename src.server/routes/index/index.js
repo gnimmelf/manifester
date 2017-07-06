@@ -5,8 +5,10 @@ const express = require('express');
 const { getBowerComponentsResources, upquire } = require('../../lib');
 const pathMaps = upquire('/package.json').appSettings.pathMaps;
 
-//const siteInfo = upquire('/sensitive/db/site-info.json');
-const siteInfo = {};
+const siteInfo = {
+  // TODO! Swap for DI-container => `dbService.get('siteInfo.json')`...
+  //const siteInfo = upquire('/sensitive/db/site-info.json');
+};
 
 const router = express.Router();
 

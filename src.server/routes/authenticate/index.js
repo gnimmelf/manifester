@@ -7,7 +7,7 @@ const api = makeInvoker(require('../../apis/authenticate'));
 
 router.get('/token/:token?', api('authenticateToken'));
 router.get('/:email/:code', api('authenticateLogincode'));
-router.get('/:email', api('requestTokenByMail'));
+router.get('/:email', api('requestLogincodeByEmail'));
 
 
 module.exports = router;

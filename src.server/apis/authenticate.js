@@ -1,14 +1,18 @@
 const debug = require('debug')('apis:authenticate');
 
+const { sendApiResponse } = require('../lib');
+
 module.exports = ({ authService, tokenKeyName }) =>
 {
 
-  const requestLogincodeByMail = (req, res) =>
+  const requestLogincodeByEmail = (req, res) =>
   {
-    authService.requestLogincodeByMail(req.params.email)
-      .catch(res.jsend.fail)
+    authService.requestLogincodeByEmail(req.params.email)
       .then(logincode => {
-        res.jsend.success('Mail away!')
+        sendApiResponse(res, { 'email': req.params.email })
+      })
+      .catch(err => {
+        sendApiResponse(res, err)
       });
   };
 
@@ -26,10 +30,10 @@ module.exports = ({ authService, tokenKeyName }) =>
 
     authService.authenticateToken(token)
       .then(decoded => {
-        res.jsend.success(decoded);
+        sendApiResponse(res, decoded);
       })
       .catch(err => {
-        res.jsend.fail(err);
+        sendApiResponse(res, err)
       });
   };
 
@@ -37,7 +41,7 @@ module.exports = ({ authService, tokenKeyName }) =>
    * Public
    */
   return {
-    requestLogincodeByMail: requestLogincodeByMail,
+    requestLogincodeByEmail: requestLogincodeByEmail,
     authenticateLogincode: authenticateLogincode,
     authenticateToken: authenticateToken,
   };
