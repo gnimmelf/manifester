@@ -19,7 +19,7 @@ exports.upquirePath = function(some_path, ...rest)
   if (rest) {
     full_path = join.apply(join, [full_path].concat( rest ));
   }
-  return full_path
+  return full_path;
 }
 
 

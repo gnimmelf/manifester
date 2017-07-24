@@ -1,308 +1,255 @@
-'use strict';
-
 /**
  * https://github.com/VINTproYKT/node-jsondir-livedb
  */
 
-var assign = require('deep-assign');
-var dirtree = require('dirtree');
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var path = require('path');
-var watch = require('watch');
+const assert = require('assert');
+const assign = require('deep-assign');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const chokidar = require('chokidar');
+const { join, dirname, resolve } = require('path');
+const { isFunction } = require('util');
 
-var jp = require('jsonpath');
+const jp = require('jsonpath');
 const isObj = require('is-obj');
+const writeFile = require('write-file-atomic').sync;
+const deleteFile = require('delete').sync;
 
 const dotProp = require('./dotProp')
 
-console.log('dotProp', dotProp);
+const tree = {};
 
-/*
-  assignJSONfile - parse contents of JSON file and insert it to key of `obj` by `relPath`
-  Arguments:
-  + relPath - relative (to root) path to JSON file
-  + separator - directories separator used in `relPath`
-  + absPath - accessive real path to JSON file
-  + obj - tree object to assign the key to
-*/
-function assignJSONfile(relPath, separator, absPath, obj) {
-  try { var additive = JSON.parse(fs.readFileSync(absPath)); }
-  catch(err) { console.error(err); return false; }
-  var bases = relPath.split(separator);
-  for (let depth = bases.length - 1; depth >=0; depth--) {
-    additive = { [bases[depth]]: additive };
-  }
-  assign(obj, additive);
-  return true;
-}
-
-/*
-  deleteByRelPath - find a key from `obj` by `relPath` and delete it
-  Arguments:
-  + relPath - relative (to root) path to JSON file
-  + separator - directories separator used in `relPath`
-  + obj - tree object to delete the key from
-*/
-function deleteByRelPath(relPath, separator, obj) {
-  var bases = relPath.split(separator);
-  var additive = 'delete obj';
-  for (let depth = 0; depth < bases.length; depth++) {
-    additive += '["'+ bases[depth] +'"]';
-  }
-  try { eval(additive); }
-  catch(err) { console.error(err); return false; }
-  return true;
-}
-
-function stringify(obj, prettify) {
-  return prettify ? JSON.stringify(obj, null, 2) : JSON.stringify(obj);
-}
-
-/*
-  DB - Initial function, start watching whole storage for changes, returns object with `tree`
-  Arguments:
-  + obj - initial settings
-    Required key is `root` is absolute path to storage
-    Optional key `instantPush` sets whether any change will be applied to storage instantly
-    Optional key `liveIgnore` sets whether changes in filesystem will be ignored (default: false)
-    Optional key `pathSep` sets separator for relative paths in tree (default: '/')
-    Optional key `unwatch` sets whether watcher is not supposed to be used
-    Optional key `watch` represents options for watcher (https://www.npmjs.com/package/watch#watchwatchtreeroot-options-callback)
-    Optional key `prettify` sets whether to write pretty formatted json til files
-*/
-var DB = module.exports = function DB(obj) {
-  if (!(this instanceof DB)) {
-    return new DB(obj);
-  }
-  this.liveIgnore = false;
-  this.pathSep = '/';
-  this.prettify = true;
-  Object.assign(this, obj);
-  this.root = path.resolve(this.root);
-
-  this.dirtree = dirtree();
-  this.fetch();
-
-  if (!this.unwatch) {
-    var liveCallback = (f, curr, prev) => {
-      if (!this.liveIgnore && !(typeof f == 'object' && prev === null && curr === null) && path.extname(f) == '.json') {
-        var relPath = f.substr(this.root.length + 1);
-        if (prev === null) {// On create
-          assignJSONfile(relPath, path.sep, f, this.tree);
-        }
-        else {// On remove or change
-          deleteByRelPath(relPath, path.sep, this);
-          if (curr.nlink === 0) this.fetch();// On remove
-          else assignJSONfile(relPath, path.sep, f, this.tree);// On change
-        }
-      }
-    }
-    if (this.watch) watch.watchTree(this.root, this.watch, liveCallback);
-    else watch.watchTree(this.root, liveCallback);
-  }
-
-  this.commits = [];
-}
-/*
-  DB.fetch - import data from filesystem storage
-*/
-DB.prototype.fetch = function() {
-  this.tree = {};
-  this.dirtree.root(this.root).include('files', /\.json$/).create();
-  for (let fn in this.dirtree._flattened) {
-    assignJSONfile(fn, '/', this.dirtree._flattened[fn], this.tree);
-  }
-}
-/*
-  DB.push - do some changes in filesystem storage
-*/
-DB.prototype.push = function() {
-  this.commits = Array.from(new Set(this.commits));// commits can't be same
-  try {
-    for (let n = 0; n < this.commits.length; n++) {
-      if (typeof this.commits[n] === 'object') {// array given - action with files themselves
-        var absPath = path.resolve(this.root, this.commits[n][1]);
-        if (this.commits[n][0] === 'create') {
-          if (path.extname(this.commits[n][1]) == '.json') {
-            mkdirp.sync(path.dirname(absPath));
-            fs.writeFileSync(absPath, stringify(this.commits[n][2], this.prettify));
-          }
-        }
-        else if (this.commits[n][0] === 'delete') {
-          var st = fs.statSync(absPath);
-          if (st.isDirectory()) {
-            var dirtree = dirtree();
-            dirtree.root(absPath).include('file', /\.json$/).create();
-            console.log(dirtree);
-            for (let fn in dirtree._flattened) {
-              fs.unlink(dirtree._flattened[fn]);
-            }
-          }
-          else fs.unlink(absPath);
-        }
-      }
-      else {// string given, write contents to this file
-        var absPath = path.resolve(this.root, this.commits[n]);
-        fs.writeFileSync(absPath, stringify(this.getByPath(this.commits[n]), this.prettify));
-      }
-    }
-  }
-  catch(err) { console.error(err); }
-  this.commits = [];
-}
-/*
-  DB.get - get object in tree by `relPath` or get value from it by `key`
-  Arguments:
-  + relPath - relative path to file
-  + key - (optional) key to get the value of (will be evaluated)
-  + reassign - (optional) make it a new object, i.e. without reference
-*/
-DB.prototype.getByPath = function(relPath, key, reassign) {
-  var bases = relPath.split(this.pathSep);
-  var additive = this.tree;
-  if (reassign) additive = Object.assign({}, additive);
-  for (let depth = 0; depth < bases.length; depth++) {
-    additive = additive[bases[depth]];
-    if (typeof additive === 'undefined') break;
-  }
-  if (key) {
-    try { eval('additive = additive.'+ key); }
-    catch(err) { additive = undefined; }
-  }
-  return additive;
-}
-/*
-  DB.set - create file or set `key`'s value in it
-  Arguments:
-  + relPath - relative path to file
-  + key - (optional) key to set the value of (will be evaluated)
-  + value - (optional) number, string, array or object (default: {})
-*/
-
-const makeDotPropKey = (relPath) => relPath.replace('.', '\\.').replace('/', '.');
-
-DB.prototype.setByPath2 = function(relPath, key, value) {
-  if (key && !value) {
-    value = key;
-    key = '';
-  }
-
-  value = dotProp.set({}, key, value);
-
-  const dotPropRelPath = makeDotPropKey(relPath);
-  const content = dotProp.get(this.tree, dotPropRelPath);
-
-
-  try {
-    // Update `tree`
-    dotProp.set(this.tree, dotPropRelPath, value);
-
-    if (!content) {
-      // File doesn't exist
-      this.commits.push(['create', relPath, value]);
-    }
-    else {
-      // File exists
-      this.commits.push(relPath);
-    }
-
-  }
-
-  catch(err) { console.error(err); return false; }
-  if (this.instantPush) this.push();
-  return true;
-}
-
-
-DB.prototype.setByPath = function(relPath, key, value) {
-  value = value || {};
-  try {
-    if (key) {
-      var contents = this.getByPath(relPath);
-      eval('contents'+ ('.'+key || '') +' = value');
-      this.commits.push(relPath);
-    }
-    else {
-      var bases = relPath.split(this.pathSep);
-      var additive = value;
-      for (let depth = bases.length - 1; depth >=0; depth--) {
-        additive = { [bases[depth]]: additive };
-      }
-      assign(this.tree, additive);
-      this.commits.push(['create', relPath, value]);
-    }
-  }
-  catch(err) { console.error(err); return false; }
-  if (this.instantPush) this.push();
-  return true;
-}
-/*
-  DB.delete - delete JSON files in `relPath` directory or file by this path or certain `key` in file if given
-  Arguments:
-  + relPath - relative path to file or directory
-  + key - (optional) key to delete from file (will be evaluated)
-*/
-DB.prototype.deleteByPath = function(relPath, key) {
-  try {
-    if (key) {
-      var contents = this.getByPath(relPath);
-      eval('delete contents.'+ key);
-    }
-    else deleteByRelPath(relPath, this.pathSep, this);
-  }
-  catch(err) { console.error(err); return false; }
-  if (key) this.commits.push(relPath);
-  else this.commits.push(['delete', relPath]);
-  if (this.instantPush) this.push();
-  return true;
-}
-
-/**
- * Extra `jsonpath`-based methods (Flemming)
- */
-DB.prototype.get = function(q_path, max_count)
+const makeDotPropKey = (path) =>
 {
-  return this.nodes(q_path, max_count).map(n => n.value);
+  path = path.split('.').join('\\.').split('/').join('.');
+  return path.startsWith('.') ? path.substring(1) : path;
+}
+const dotJoin = (...parts) => parts.filter(x => x).join('.').replace('..', '.');
+const stringify = (obj, prettify=true) => (prettify ? JSON.stringify(obj, null, 2) : JSON.stringify(obj));
+
+
+const updateTreePath = (path, instance) =>
+{
+  const dotPropKey = makeDotPropKey(path);
+  dotProp.set(tree, dotPropKey, JSON.parse(fs.readFileSync(path)));
 }
 
 
-DB.prototype.getOne = function(q_path)
+const deleteTreePath = (path, instance) =>
 {
-  var res = this.get(this.tree, q_path, 1)
-  return res.length >= 1 ? res[0] : null;
+  dotProp.delete(tree, dotPropKey(path));
 }
 
 
-DB.prototype.nodes = function(q_path, max_count)
-/**
-Each '^' at `q_path` end signifies one parent up; make it so regardless of cost.
-*/
+const addCommit = ({instance, action, path}) =>
 {
-  let up_count = 0;
+  instance.commits.push({
+    instance: instance,
+    action: action,
+    path: path
+  });
 
-  const matches = q_path.match(/(\^+)$/g);
-
-  if (matches) {
-    up_count = matches[0].length;
-    // Remove '^'-chars at end from `q_path`
-    q_path = q_path.slice(0, -up_count)
+  if (instance.instantPush) {
+    pushCommits(instance);
   }
 
-  let nodes = jp.nodes(this.tree, q_path, max_count);
+}
 
-  if (up_count) {
-    const tree = this.tree;
-    const nodes2 = nodes.map(node => {
-      const q_path2 = node.path.slice(0, -up_count).join('.');
-      return jp.nodes(tree, q_path2)
-    })
-    return nodes2[0]
+
+const pushCommits = (instance) => {
+
+  const commits = Array.from(new Set(instance.commits));
+
+  console.log(commits)
+
+  commits.forEach(commit => {
+    if (commit.action == 'write') {
+      // Write file @ `path` with value from `instance.get(path)`
+      const content = dotProp.get(tree, makeDotPropKey(commit.path));
+      writeFile(commit.path, stringify(content, instance.prettify));
+    }
+    else if (commit.action == 'delete') {
+      // Delete file @ `path`
+      deleteFile(path)
+    }
+
+    // Increment the paths pushCount to avoid circularity with watcher file-events
+    let pushCount = (instance.treePathPushCounts[commit.path] || 0);
+    instance.treePathPushCounts[commit.path] = ++pushCount;
+
+    console.log(instance.treePathPushCounts)
+  });
+}
+
+class Db {
+
+  constructor({ root, instantPush=false, prettify=true, watchArgs={}, onReady })
+  /*
+    Start watching whole storage for changes, returns object with `tree`.
+    Arguments:
+    + options - initial settings
+      Required key is `root` is absolute path to storage
+      Optional key `instantPush` sets whether any change will be applied to storage instantly
+      Optional key `watchArgs` represents options for watcher (https://www.npmjs.com/package/watch#watchwatchtreeroot-options-callback)
+      Optional key `prettify` sets whether to write pretty formatted json til files
+  */
+  {
+    assert(root);
+    this.root = resolve(root);
+    this.instantPush = instantPush;
+    this.prettify = prettify;
+
+    Object.assign({
+      // https://www.npmjs.com/package/chokidar#api
+      persistent: true,
+      ignored: /(^|[\/\\])\../,
+      ignoreInitial: false,
+      followSymlinks: false,
+      cwd: this.root,
+      usePolling: false,
+      useFsEvents: false,
+      alwaysStat: false,
+      depth: undefined,
+      awaitWriteFinish: {stabilityThreshold: 200, pollInterval: 100},
+      ignorePermissionErrors: false,
+      //atomic: true // = (!usePolling && !useFsEvents)
+    }, watchArgs);
+
+    this.commits = [];
+    this.treePathPushCounts = {};
+
+    // Prime the instance to the tree
+    const treePath = makeDotPropKey(this.root);
+    dotProp.set(tree, treePath, {});
+    this.tree = dotProp.get(tree, treePath)
+
+    const watcher = this.watcher = chokidar.watch(join(this.root, '**/*.json'), watchArgs);
+
+    this.watcher
+      .on('all', this.handleEvent.bind(this))
+      .on('error', error => console.log(`Watcher error: ${error}`))
+      .on('ready', () => {
+        console.log('Initial scan complete. Ready for changes');
+        if (isFunction(onReady)) {
+          onReady(this.tree);
+        }
+      });
   }
-  return nodes
-}
 
-DB.prototype.set = function(q_path) {
-  var res = jp.nodes(this.tree, 'json_path', max_count);
-  return nodes;
-}
+  handleEvent(event, path) {
+
+    if (this.treePathPushCounts[path]) {
+      // Ignore the event, it originated from the `tree` being pushed.
+      // Just decrement the pushed path's counter and return.
+      this.ignorePaths--;
+      return;
+    }
+
+    switch (event) {
+      case 'change':
+      case 'add':
+        updateTreePath(path);
+        break;
+      case 'unlink':
+        deleteTreePath(path);
+        break;
+      case 'addDir':
+      case 'unlinkDir':
+      default:
+        console.error(`unhandled event ${event}`)
+    }
+  }
+
+
+  get(path, key, reassign)
+  /*
+    Get object in tree by `path` or get value from it by `key`
+    Arguments:
+    + path - relative path to file
+    + key - (optional) key to get the value of (will be evaluated)
+    + reassign - (optional) make it a new object, i.e. without reference
+  */
+  {
+    if (!path) return this.tree;
+
+    const dotPropPath = makeDotPropKey(path);
+    const value = dotProp.get(this.tree, dotJoin(dotPropPath, key));
+    return (reassign ? Object.assign({}, value) : value);
+  }
+
+
+  set(path, key='', value=undefined)
+  /*
+    Set `key`'s value in db, create file if it doesn't exist
+    Arguments:
+    + path - relative path to file
+    + key - (optional) key to set the value of (will be evaluated)
+    + value - (optional) number, string, array or object (default: {})
+  */
+  {
+    assert(path);
+
+    if (key && !value) {
+      // Assume `key` holds `value`, so swap
+      value = key;
+      key = '';
+    }
+
+    const dotPropPath = makeDotPropKey(path);
+
+    try {
+      // Update `tree`
+      dotProp.set(this.tree, dotJoin(dotPropPath, key), value);
+      // Add commit
+      addCommit({
+        instance: this,
+        action: 'write',
+        path: join(this.root, path)
+      });
+    }
+    catch(err) {
+      console.error(err); return false;
+    }
+
+    return true;
+  }
+
+
+  delete(path, key=undefined)
+  /*
+    Delete JSON files in `path` directory or file by this path or certain `key` in file if given
+    Arguments:
+    + path - relative path to file or directory
+    + key - (optional) key to delete from file (will be evaluated)
+  */
+  {
+    assert(path);
+
+    const dotPropPath = makeDotPropKey(path);
+
+    try {
+      dotProp.delete(this.tree, dotJoin(dotPropPath, key));
+      // Add commit, 'delete' (file) if no `key` is specicied for deletion
+      addCommit({
+        instance: this,
+        action: (key ? 'write' : 'delete'),
+        path: join(this.root, path)
+      });
+    }
+    catch(err) {
+      console.error(err); return false;
+    }
+
+    return true;
+  }
+
+
+  push()
+  /* */
+  {
+    pushCommits(this);
+  }
+
+};
+
+module.exports = Db;

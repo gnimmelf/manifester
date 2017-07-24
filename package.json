@@ -16,9 +16,11 @@
     "awilix-express": "^0.11.0",
     "body-parser": "~1.17.2",
     "caller": "^1.0.1",
+    "chokidar": "^1.7.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.8",
     "deep-assign": "^2.0.0",
+    "delete": "^1.1.0",
     "dirtree": "0.0.2",
     "dot-prop": "^4.1.1",
     "express": "~4.15.3",
@@ -38,7 +40,7 @@
     "serve-favicon": "~2.4.3",
     "slug": "^0.9.1",
     "upquire": "0.0.13",
-    "watch": "^1.0.2"
+    "write-file-atomic": "^2.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.1",
