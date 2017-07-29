@@ -30,13 +30,20 @@ const stringify = (obj, prettify=true) => (prettify ? JSON.stringify(obj, null, 
 
 const updateTreePath = (absPath, instance) =>
 {
-  const dotPropKey = makeDotPath(absPath);
-  dotProp.set(tree, dotPropKey, JSON.parse(fs.readFileSync(absPath)));
+  try {
+    const content = JSON.parse(fs.readFileSync(absPath));
+    const dotPropKey = makeDotPath(absPath);
+    dotProp.set(tree, dotPropKey, content);
+  }
+  catch(err) {
+    console.error(err.message, absPath)
+  }
 }
 
 
 const deleteTreePath = (absPath, instance) =>
 {
+  const dotPropKey = makeDotPath(absPath);
   dotProp.delete(tree, dotPropKey(absPath));
 }
 
