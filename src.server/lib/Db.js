@@ -82,7 +82,7 @@ const pushCommits = (instance) => {
 
 class Db {
 
-  constructor({ root, instantPush=false, prettify=true, watchArgs={} })
+  constructor({ root, instantPush=false, prettify=true, watchArgs={}, name='' })
   /*
     Start watching whole storage for changes, returns object with `tree`.
     Arguments:
@@ -98,6 +98,7 @@ class Db {
     this.root = resolve(root);
     this.instantPush = instantPush;
     this.prettify = prettify;
+    this.name = name;
 
     Object.assign({
       // https://www.npmjs.com/package/chokidar#api
@@ -145,11 +146,14 @@ class Db {
   handleEvent(event, absPath) {
 
     if (this.treePathPushCounts[absPath]) {
+      debug('ignored', event, absPath)
       // Ignore the event, it originated from the `tree` being pushed.
       // Just decrement the pushed path's counter and return.
-      this.treePathPushCounts[absPath]--;
+      --this.treePathPushCounts[absPath];
       return;
     }
+
+    debug(event, absPath)
 
     switch (event) {
       case 'change':

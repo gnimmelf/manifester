@@ -30,10 +30,15 @@ exports.sendApiResponse = (expressResponseObj, response) =>
   if (response instanceof Error) {
     if (response instanceof RESTfulError) {
       method = 'fail';
-      response = [response.code, response.name, response.message].join('|');
+      response = {
+        code: response.code,
+        name: response.name,
+        message: response.message
+      };
     }
     else {
       method = 'error';
+      expressResponseObj.status = 500;
     }
   }
   expressResponseObj.json(jsend[method](response));

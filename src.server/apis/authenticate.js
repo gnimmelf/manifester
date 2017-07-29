@@ -9,7 +9,7 @@ module.exports = ({ authService, tokenKeyName }) =>
   {
     authService.requestLogincodeByEmail(req.params.email)
       .then(logincode => {
-        sendApiResponse(res, { 'email': req.params.email })
+        sendApiResponse(res, { email: req.params.email })
       })
       .catch(err => {
         sendApiResponse(res, err)
@@ -20,8 +20,12 @@ module.exports = ({ authService, tokenKeyName }) =>
   const authenticateLogincode = (req, res) =>
   {
     authService.authenticateLogincode(req.params.email, req.params.code)
-      .then(res.jsend.success)
-      .catch(res.jsend.fail)
+      .then(token => {
+        sendApiResponse(res, { token: token })
+      })
+      .catch(err => {
+        sendApiResponse(res, err)
+      });
   };
 
   const authenticateToken = (req, res) =>
