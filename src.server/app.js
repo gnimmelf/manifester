@@ -93,7 +93,7 @@ app.use('/api', function(err, req, res, next) {
   console.log(err)
   err.code = err.code;
   err.data = req.protocol + '://' + req.get('host') + req.originalUrl;
-  res.json(jsend.error(err.toString()))
+  res.jsend.error(err.toString())
 });
 
 

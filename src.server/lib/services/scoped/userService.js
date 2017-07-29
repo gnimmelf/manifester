@@ -1,16 +1,26 @@
 const { join } = require('path');
+const assert = require('assert');
+const { makeLogincode, maybeThrow } = require('../../');
 
-// START HERE! This is wrong, the userService is for ONE user, and should be instantiated as that user!
-// - Or throw an error if that userId is not found!
 
-class userService {
-  constructor({ dbService, userId }) {
-    this.user = dbService.users.users.getByPath(userId);
+class UserService {
+  constructor({ dbService, userId })
+  {
+    this.dbService = dbService;
+    this.userId = userId;
+    this.user = dbService.users.get(userId);
+
   }
 
-  getUser() {
-    return this.user;
+
+  makeLogincode()
+  {
+    assert(this.user);
+    const logincode = makeLogincode();
+    this.dbService.users.set(join(this.userId, 'logincode.json'), {logincode: logincode});
+    return logincode;
   }
+
 }
 
-module.exports = userService;
+module.exports = UserService;

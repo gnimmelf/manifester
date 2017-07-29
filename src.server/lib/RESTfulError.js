@@ -358,15 +358,15 @@ class RESTfulError extends Error {
     Object.assign(this, types[(Number.isNaN(Number(typeOrCode)) ? typeOrCode : this.getTypeByCode(typeOrCode))]);
   }
 
-  static getTypes() {
+  getTypes() {
     return Object.keys(types);
   }
 
-  static getTypeInfo(type) {
+  getTypeInfo(type) {
     return Object.assign({}, types[type]);
   }
 
-  static getTypeByCode(code) {
+  getTypeByCode(code) {
     return Object.keys(types).find(key => parseInt(types[key].code) == code);
   }
 

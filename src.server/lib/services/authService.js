@@ -1,23 +1,21 @@
 const debug = require('debug')('service:authService');
 const jwt = require('jsonwebtoken');
 const { makeLogincode, maybeThrow } = require('../');
+const UserService = require('./scoped/userService');
 
 module.exports = ({ dbService, mailService, hashSecret }) => {
 
   const requestLogincodeByEmail = (email) => {
 
     return new Promise((resolve, reject) => {
-      const user = dbService.users.getByPath(email);
+      const userService = new UserService({dbService: dbService, userId: email});
 
-      maybeThrow(!user, 'invalid email-address; user not found', 422);
+      maybeThrow(!userService.user, 'user not found by given email', 422);
 
-      const logincode = makeLogincode();
-
-      // TODO! START HERE. Make db create file if it doesn't exist already
-      user.setByPath('logincode.json', {})
+      const logincode = userService.makeLogincode();
 
       // TODO!
-      mailService.sendMail()
+      //mailService.sendMail()
 
       resolve(logincode)
     });

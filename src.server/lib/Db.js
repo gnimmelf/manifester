@@ -1,7 +1,7 @@
 /**
  * https://github.com/VINTproYKT/node-jsondir-livedb
  */
-
+const debug = require('debug')('db');
 const assert = require('assert');
 const assign = require('deep-assign');
 const fs = require('fs');
@@ -19,7 +19,7 @@ const dotProp = require('./dotProp')
 
 const tree = {};
 
-const makeDotPropKey = (path) =>
+const makeDotPath = (path) =>
 {
   path = path.split('.').join('\\.').split('/').join('.');
   return path.startsWith('.') ? path.substring(1) : path;
@@ -28,26 +28,28 @@ const dotJoin = (...parts) => parts.filter(x => x).join('.').replace('..', '.');
 const stringify = (obj, prettify=true) => (prettify ? JSON.stringify(obj, null, 2) : JSON.stringify(obj));
 
 
-const updateTreePath = (path, instance) =>
+const updateTreePath = (absPath, instance) =>
 {
-  const dotPropKey = makeDotPropKey(path);
-  dotProp.set(tree, dotPropKey, JSON.parse(fs.readFileSync(path)));
+  const dotPropKey = makeDotPath(absPath);
+  dotProp.set(tree, dotPropKey, JSON.parse(fs.readFileSync(absPath)));
 }
 
 
-const deleteTreePath = (path, instance) =>
+const deleteTreePath = (absPath, instance) =>
 {
-  dotProp.delete(tree, dotPropKey(path));
+  dotProp.delete(tree, dotPropKey(absPath));
 }
 
 
-const addCommit = ({instance, action, path}) =>
+const addCommit = ({instance, action, absPath}) =>
 {
   instance.commits.push({
     instance: instance,
     action: action,
-    path: path
+    absPath: absPath
   });
+
+  debug(instance.commits)
 
   if (instance.instantPush) {
     pushCommits(instance);
@@ -60,41 +62,39 @@ const pushCommits = (instance) => {
 
   const commits = Array.from(new Set(instance.commits));
 
-  console.log(commits)
 
   commits.forEach(commit => {
     if (commit.action == 'write') {
-      // Write file @ `path` with value from `instance.get(path)`
-      const content = dotProp.get(tree, makeDotPropKey(commit.path));
-      writeFile(commit.path, stringify(content, instance.prettify));
+      // Write file @ `absPath` with value from `instance.get(path)`
+      const content = dotProp.get(tree, makeDotPath(commit.absPath));
+      writeFile(commit.absPath, stringify(content, instance.prettify));
     }
     else if (commit.action == 'delete') {
-      // Delete file @ `path`
-      deleteFile(path)
+      // Delete file @ `absPath`
+      deleteFile(commit.absPath)
     }
 
     // Increment the paths pushCount to avoid circularity with watcher file-events
-    let pushCount = (instance.treePathPushCounts[commit.path] || 0);
-    instance.treePathPushCounts[commit.path] = ++pushCount;
-
-    console.log(instance.treePathPushCounts)
+    let pushCount = (instance.treePathPushCounts[commit.absPath] || 0);
+    instance.treePathPushCounts[commit.absPath] = ++pushCount;
   });
 }
 
 class Db {
 
-  constructor({ root, instantPush=false, prettify=true, watchArgs={}, onReady })
+  constructor({ root, instantPush=false, prettify=true, watchArgs={} })
   /*
     Start watching whole storage for changes, returns object with `tree`.
     Arguments:
     + options - initial settings
       Required key is `root` is absolute path to storage
       Optional key `instantPush` sets whether any change will be applied to storage instantly
-      Optional key `watchArgs` represents options for watcher (https://www.npmjs.com/package/watch#watchwatchtreeroot-options-callback)
+      Optional key `watchArgs` represents options for watcher
       Optional key `prettify` sets whether to write pretty formatted json til files
   */
   {
     assert(root);
+
     this.root = resolve(root);
     this.instantPush = instantPush;
     this.prettify = prettify;
@@ -118,76 +118,82 @@ class Db {
     this.commits = [];
     this.treePathPushCounts = {};
 
-    // Prime the instance to the tree
-    const treePath = makeDotPropKey(this.root);
-    dotProp.set(tree, treePath, {});
-    this.tree = dotProp.get(tree, treePath)
+    // Connect the "instance-tree" to the `tree`
+    const rootDotPath = makeDotPath(this.root);
+    dotProp.set(tree, rootDotPath, {});
+    this.tree = dotProp.get(tree, rootDotPath)
+
 
     const watcher = this.watcher = chokidar.watch(join(this.root, '**/*.json'), watchArgs);
 
-    this.watcher
-      .on('all', this.handleEvent.bind(this))
-      .on('error', error => console.log(`Watcher error: ${error}`))
-      .on('ready', () => {
-        console.log('Initial scan complete. Ready for changes');
-        if (isFunction(onReady)) {
-          onReady(this.tree);
-        }
-      });
+    // Make a promise
+    const self = this;
+    this.promise = new Promise(resolve => {
+
+      watcher
+        .on('all', this.handleEvent.bind(this))
+        .on('error', error => console.log(`Watcher error: ${error}`))
+        .on('ready', () => {
+          console.log('Initial scan complete. Ready for changes');
+          resolve(self);
+        });
+
+    });
+
   }
 
-  handleEvent(event, path) {
+  handleEvent(event, absPath) {
 
-    if (this.treePathPushCounts[path]) {
+    if (this.treePathPushCounts[absPath]) {
       // Ignore the event, it originated from the `tree` being pushed.
       // Just decrement the pushed path's counter and return.
-      this.ignorePaths--;
+      this.treePathPushCounts[absPath]--;
       return;
     }
 
     switch (event) {
       case 'change':
       case 'add':
-        updateTreePath(path);
+        updateTreePath(absPath);
         break;
       case 'unlink':
-        deleteTreePath(path);
+        deleteTreePath(absPath);
         break;
       case 'addDir':
       case 'unlinkDir':
       default:
-        console.error(`unhandled event ${event}`)
+        console.error(`unhandled event: ${event} [${absPath}]`)
     }
   }
 
 
-  get(path, key, reassign)
+  get(relPath, key, reassign)
   /*
-    Get object in tree by `path` or get value from it by `key`
+    Get object in tree by `relPath` or get value from it by `key`
     Arguments:
-    + path - relative path to file
+    + relPath - relative path to file
     + key - (optional) key to get the value of (will be evaluated)
     + reassign - (optional) make it a new object, i.e. without reference
   */
   {
-    if (!path) return this.tree;
+    if (!relPath) return this.tree;
 
-    const dotPropPath = makeDotPropKey(path);
-    const value = dotProp.get(this.tree, dotJoin(dotPropPath, key));
+    const dotPath = makeDotPath(relPath);
+    const value = dotProp.get(this.tree, dotJoin(dotPath, key));
     return (reassign ? Object.assign({}, value) : value);
   }
 
 
-  set(path, key='', value=undefined)
+  set(relPath, key='', value=undefined)
   /*
     Set `key`'s value in db, create file if it doesn't exist
     Arguments:
-    + path - relative path to file
+    + relPath - relative path to file
     + key - (optional) key to set the value of (will be evaluated)
     + value - (optional) number, string, array or object (default: {})
   */
   {
-    assert(path);
+    assert(relPath);
 
     if (key && !value) {
       // Assume `key` holds `value`, so swap
@@ -195,16 +201,16 @@ class Db {
       key = '';
     }
 
-    const dotPropPath = makeDotPropKey(path);
+    const dotPath = makeDotPath(relPath);
 
     try {
       // Update `tree`
-      dotProp.set(this.tree, dotJoin(dotPropPath, key), value);
+      dotProp.set(this.tree, dotJoin(dotPath, key), value);
       // Add commit
       addCommit({
         instance: this,
         action: 'write',
-        path: join(this.root, path)
+        absPath: join(this.root, relPath)
       });
     }
     catch(err) {
@@ -215,25 +221,25 @@ class Db {
   }
 
 
-  delete(path, key=undefined)
+  delete(relPath, key=undefined)
   /*
-    Delete JSON files in `path` directory or file by this path or certain `key` in file if given
+    Delete JSON files in `relPath` directory or file by this path or certain `key` in file if given
     Arguments:
-    + path - relative path to file or directory
+    + relPath - relative path to file or directory
     + key - (optional) key to delete from file (will be evaluated)
   */
   {
-    assert(path);
+    assert(relPath);
 
-    const dotPropPath = makeDotPropKey(path);
+    const dotPath = makeDotPath(relPath);
 
     try {
-      dotProp.delete(this.tree, dotJoin(dotPropPath, key));
+      dotProp.delete(this.tree, dotJoin(dotPath, key));
       // Add commit, 'delete' (file) if no `key` is specicied for deletion
       addCommit({
         instance: this,
         action: (key ? 'write' : 'delete'),
-        path: join(this.root, path)
+        absPath: join(this.root, relPath)
       });
     }
     catch(err) {

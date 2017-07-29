@@ -43,8 +43,8 @@ exports.sendApiResponse = (expressResponseObj, response) =>
 exports.maybeThrow = (predicate, message, RestErrorTypeOrCode) =>
 {
   if (predicate) {
-    if (RestErrorType) {
-      throw new RESTfulError(RestErrorType, message);
+    if (RestErrorTypeOrCode) {
+      throw new RESTfulError(RestErrorTypeOrCode, message);
     }
     else throw new Error(message);
   }
