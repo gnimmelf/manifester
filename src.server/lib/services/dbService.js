@@ -4,8 +4,8 @@ const loopWhile = require('deasync').loopWhile;
 const Db = require('../Db');
 
 
-
 const ensureDir = (path) => { mkdirp(path); return path }
+
 
 module.exports = ({ localAppPath }) =>
 {

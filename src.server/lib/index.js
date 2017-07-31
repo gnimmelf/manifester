@@ -51,7 +51,12 @@ exports.maybeThrow = (predicate, message, RestErrorTypeOrCode) =>
     if (RestErrorTypeOrCode) {
       throw new RESTfulError(RestErrorTypeOrCode, message);
     }
-    else throw new Error(message);
+    else if (message) {
+      throw new Error(message);
+    }
+    else if (predicate instanceof Error) {
+      throw predicate;
+    }
   }
 }
 

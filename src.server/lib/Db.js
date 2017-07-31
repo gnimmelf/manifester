@@ -206,7 +206,7 @@ class Db {
   {
     assert(relPath);
 
-    if (key && !value) {
+    if (key && value == undefined) {
       // Assume `key` holds `value`, so swap
       value = key;
       key = '';
