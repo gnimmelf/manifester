@@ -68,7 +68,7 @@ app.use(require('./lib/middleware/authenticateHeaderToken'));
 const authorize = require('./lib/middleware/authorizeUser');
 
 app.use('/api/auth', require('./routes/authenticate'));
-app.use('/admin', authorize({groups: ['admin']}), require('./routes/index'));
+app.use('/admin', authorize({groups: ['admins']}), require('./routes/index'));
 app.use(app.localApp)
 
 

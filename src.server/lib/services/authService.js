@@ -73,7 +73,7 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
 
       jwt.verify(token, hashSecret, (err, decoded) => {
         maybeThrow(err);
-        resolve(decoded.email);
+        resolve(decoded);
       });
 
     });
