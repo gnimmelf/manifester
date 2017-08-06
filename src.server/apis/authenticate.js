@@ -19,7 +19,7 @@ module.exports = ({ authService, tokenKeyName }) =>
 
   const authenticateLogincode = (req, res) =>
   {
-    authService.authenticateLogincode(req.params.email, req.params.code)
+    authService.authenticateLogincode(req.params.email, req.params.code, req.query.renewtoken ? true : false)
       .then(token => {
         sendApiResponse(res, { token: token })
       })

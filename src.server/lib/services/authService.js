@@ -34,21 +34,30 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
   };
 
 
-  const authenticateLogincode = (email, logincode) => {
+  const authenticateLogincode = (email, logincode, renewtoken) => {
 
     return new Promise((resolve, reject) => {
 
       const user = getUser(email);
 
-      const storedLogincode = dbService.users.get(join(email, AUTH_FILE), 'logincode');
+      const authData = dbService.users.get(join(email, AUTH_FILE));
 
-      maybeThrow(!storedLogincode, 'No logincode requested', 422);
-      maybeThrow(storedLogincode != logincode, 'Logincode incorrect', 422);
-
-      var authtoken = jwt.sign(dbService.users.get(join(email, 'common.json')), hashSecret);
+      maybeThrow(!authData.logincode, 'No logincode requested', 422);
+      maybeThrow(authData.logincode != logincode, 'Logincode incorrect', 422);
 
       dbService.users.set(join(email, AUTH_FILE), 'logincode', '');
-      dbService.users.set(join(email, AUTH_FILE), 'authtoken', authtoken);
+
+      let authtoken;
+
+      if (authData.authtoken && !renewtoken) {
+        // Reuse token
+        authtoken = authData.authtoken;
+      }
+      else {
+        // Create new token
+        authtoken = jwt.sign(email, hashSecret);
+        dbService.users.set(join(email, AUTH_FILE), 'authtoken', authtoken);
+      }
 
       resolve(authtoken)
     });

@@ -44,7 +44,7 @@ const updateTreePath = (absPath, instance) =>
 const deleteTreePath = (absPath, instance) =>
 {
   const dotPropKey = makeDotPath(absPath);
-  dotProp.delete(tree, dotPropKey(absPath));
+  dotProp.delete(tree, dotPropKey);
 }
 
 
