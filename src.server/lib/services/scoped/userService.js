@@ -1,15 +1,44 @@
+const debug = require('debug')('services:userService');
 const { join } = require('path');
 const assert = require('assert');
 const { maybeThrow } = require('../../');
+const jp = require('jsonpath');
 
+const DBSERVICE = Symbol('dbService');
+const USERID = Symbol('userId');
+const GROUPS = Symbol('GROUPS');
 
 class UserService {
 
   constructor({ dbService, userId })
   {
-    this.dbService = dbService;
-    this.userId = userId;
-    this.user = dbService.users.get(userId);
+    this[DBSERVICE] = dbService;
+    this[USERID] = dbService.users.get(userId) ? userId : undefined;
+
+    debug('userId', this.userId);
+    debug('groups', this.groups);
+
+    if (this[USERID]) {
+      Object.assign(this, dbService.users.get(join(userId, 'common.json')));
+    }
+  }
+
+  get userId()
+  {
+    return this[USERID];
+  }
+
+  get groups()
+  {
+    if (!this[GROUPS]) {
+      const tree = this[DBSERVICE].users.get('groups.json');
+
+      this[GROUPS] = jp.nodes(tree, "$[*].members")
+        .filter(({_, value}) => ~value.indexOf(this[USERID]))
+        .map(({path, _}) => path[1]);
+    }
+
+    return this[GROUPS];
   }
 
 

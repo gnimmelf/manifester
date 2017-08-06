@@ -26,6 +26,7 @@
     "dot-prop": "^4.1.1",
     "express": "~4.15.3",
     "hbs": "~4.0.1",
+    "intersect": "^1.0.1",
     "is-obj": "^1.0.1",
     "jsend": "^1.0.2",
     "json-schema-ref-parser": "^3.1.2",

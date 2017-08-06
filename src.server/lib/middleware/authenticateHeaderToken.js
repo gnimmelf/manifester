@@ -12,6 +12,7 @@ const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
         next();
       })
       .catch(err => {
+        req.container.registerValue('userId', undefined)
         delete req.headers[tokenKeyName];
         next();
       });

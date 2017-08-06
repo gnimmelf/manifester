@@ -4,10 +4,9 @@ _Dead simple headless CMS__
 
 ## Tech
 * Riot.js
-* http://brutusin.org/json-forms/
-* https://github.com/VINTproYKT/node-jsondir-livedb
-* https://github.com/mariocasciaro/object-path
+* https://www.npmjs.com/package/jsonpath
 * https://github.com/BigstickCarpet/json-schema-ref-parser
+* http://brutusin.org/json-forms/
 * https://www.npmjs.com/package/awilix
 * https://www.npmjs.com/package/awilix-express
 

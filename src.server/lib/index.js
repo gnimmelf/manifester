@@ -40,6 +40,7 @@ exports.sendApiResponse = (expressResponseObj, response) =>
       method = 'error';
       expressResponseObj.status = 500;
     }
+    console.error(response);
   }
   expressResponseObj.json(jsend[method](response));
 }

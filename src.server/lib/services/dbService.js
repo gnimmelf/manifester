@@ -9,20 +9,20 @@ const ensureDir = (path) => { mkdirp(path); return path }
 
 module.exports = ({ localAppPath }) =>
 {
-  const services = {};
+  const dbs = {};
   let done = false;
 
   Promise.all([
     new Db({
       root: ensureDir(join(localAppPath, 'db/schemas')),
-    }).promise.then(db => services['schemas'] = db),
+    }).promise.then(db => dbs['schemas'] = db),
     new Db({
       root: ensureDir(join(localAppPath, 'db/users')),
       instantPush: true,
-    }).promise.then(db => services['users'] = db),
+    }).promise.then(db => dbs['users'] = db),
     new Db({
       root: ensureDir(join(localAppPath, 'db/content')),
-    }).promise.then(db => services['content'] = db),
+    }).promise.then(db => dbs['content'] = db),
   ])
   .then(() => { done = true; })
   .catch(err => err);
@@ -30,8 +30,8 @@ module.exports = ({ localAppPath }) =>
   // Loop while not all done
   loopWhile(() => !done);
 
-  console.log('dbServices loaded!', Object.keys(services))
+  console.log('dbServices loaded!', Object.keys(dbs))
 
-  return services;
+  return dbs;
 }
 

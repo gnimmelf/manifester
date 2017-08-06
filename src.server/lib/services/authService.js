@@ -7,7 +7,7 @@ const AUTH_FILE = 'auth.json';
 
 module.exports = ({ dbService, mailService, hashSecret }) => {
 
-  const getUser = (email) => {
+  const maybeGetUser = (email) => {
     const user = dbService.users.get(email);
     maybeThrow(!user, 'User not found by given email', 422);
     return user['common.json'];
@@ -18,7 +18,7 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
 
     return new Promise((resolve, reject) => {
 
-      getUser(email);
+      maybeGetUser(email);
 
       const logincode = makeLogincode();
 
@@ -38,7 +38,7 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
 
     return new Promise((resolve, reject) => {
 
-      const user = getUser(email);
+      maybeGetUser(email);
 
       const authData = dbService.users.get(join(email, AUTH_FILE));
 
@@ -55,7 +55,7 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
       }
       else {
         // Create new token
-        authtoken = jwt.sign(email, hashSecret);
+        authtoken = jwt.sign({ email : email }, hashSecret);
         dbService.users.set(join(email, AUTH_FILE), 'authtoken', authtoken);
       }
 
@@ -73,7 +73,7 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
 
       jwt.verify(token, hashSecret, (err, decoded) => {
         maybeThrow(err);
-        resolve(decoded);
+        resolve(decoded.email);
       });
 
     });
