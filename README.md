@@ -35,7 +35,7 @@ npm link
 ```
 manifest-a-site
 ```
-to start the (very simple) site generator
+to start the (very simple) site generator.
 
 * Cd into the created app directory, if you chose to `mkdir` it during generation and
 ```
