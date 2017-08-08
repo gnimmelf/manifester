@@ -6,7 +6,7 @@ const jp = require('jsonpath');
 
 const DBSERVICE = Symbol('dbService');
 const USERID = Symbol('userId');
-const GROUPS = Symbol('GROUPS');
+const GROUPS = Symbol('groups');
 
 class UserService {
 
@@ -34,7 +34,9 @@ class UserService {
       const tree = this[DBSERVICE].users.get('groups.json');
 
       this[GROUPS] = jp.nodes(tree, "$[*].members")
+        // Filter on `userId` in `members`-array
         .filter(({_, value}) => ~value.indexOf(this[USERID]))
+        // Map to the group-name part of the json-`path`
         .map(({path, _}) => path[1]);
     }
 
