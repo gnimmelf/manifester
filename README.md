@@ -2,6 +2,10 @@
 
 _Dead simple headless CMS_
 
+## Staus
+
+Under leisure development.
+
 ## Tech
 * Riot.js
 * https://www.npmjs.com/package/jsonpath
@@ -9,6 +13,10 @@ _Dead simple headless CMS_
 * http://brutusin.org/json-forms/
 * https://www.npmjs.com/package/awilix
 * https://www.npmjs.com/package/awilix-express
+
+### Additional
+
+* https://github.com/chmln/flatpickr
 
 ## Knowledge
 * https://spacetelescope.github.io/understanding-json-schema/basics.html
@@ -41,10 +49,10 @@ the ExpressJs app.
 
 ## Development
 
-Your created app, `<your app>/app.js`, is an express app which is mounted onto the `manfester` Express app. It is mounted *last*, so your app-routes will have precedence.
+Your created app, `<your app>/app.js`, is an express app which is mounted onto the `manfiester` Express app. It is mounted *last*, so your app-routes will have precedence.
 
 ## Disclaimer & motivation
 
 This is above all a proof of concept using the technoloigies listed above.
 
-The motivation is to start with minimum CPU-, RAM- and cach-overhead. The database is therefor a simple JSON-file storage, because most DBs are overkill for a small Wordpress-scale CMS. On par with that, this is also an atempt at making something I would love to use when friends ask me if I can help out with a website: Then I can say "Yes, I can, but only if you accept my terms", instead of sending them off to Wordpress (Which I hate to work with), SquareWixSpace, which is pointless when their requirements are so simple.
+The motivation is to start with minimum CPU-, RAM- and ca$h-overhead. The database is therefor a simple JSON-file storage, because most DBs are overkill for a small Wordpress-scale CMS. On par with that, this is also an atempt at making something I would love to use when friends ask me if I can help out with a website: Then I can say "Yes, I can, but only if you accept my terms", instead of sending them off to Wordpress (Which I hate to work with), SquareWixSpace, which is pointless when their requirements are so simple.

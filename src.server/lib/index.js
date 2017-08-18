@@ -12,8 +12,12 @@ exports.configureContainer = require('./configureContainer');
 exports.Db = require('./Db');
 exports.dotProp = require('./dotProp');
 
+exports.inspect = (obj) => console.log(require('util').inspect(obj, {colors: true, depth: 5}));
 
 exports.upquirePath = function(some_path, ...rest)
+/*
+Find `some_path` somewhere in parent folder structure and resolve it.
+*/
 {
   let full_path = upquire(some_path, { pathOnly: true, dirnameOnly: true });
   if (rest) {
@@ -22,8 +26,12 @@ exports.upquirePath = function(some_path, ...rest)
   return full_path;
 }
 
+exports.addFileExt = (path, ext=".json") => path.endsWith(ext) ? path : `${path}.json`;
 
 exports.sendApiResponse = (expressResponseObj, response) =>
+/*
+Send `response` as jSend via `expressResponseObj`
+*/
 {
   let method = 'success';
 
@@ -40,6 +48,7 @@ exports.sendApiResponse = (expressResponseObj, response) =>
       method = 'error';
       expressResponseObj.status = 500;
     }
+    // TODO! Use `morgan` logger?
     console.error(response);
   }
   expressResponseObj.json(jsend[method](response));

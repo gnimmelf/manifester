@@ -17,6 +17,9 @@ module.exports = ({ localAppPath }) =>
       root: ensureDir(join(localAppPath, 'db/schemas')),
     }).promise.then(db => dbs['schemas'] = db),
     new Db({
+      root: ensureDir(join(localAppPath, 'db/site')),
+    }).promise.then(db => dbs['site'] = db),
+    new Db({
       root: ensureDir(join(localAppPath, 'db/users')),
       instantPush: true,
     }).promise.then(db => dbs['users'] = db),

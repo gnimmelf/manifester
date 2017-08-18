@@ -68,7 +68,8 @@ app.use(require('./lib/middleware/authenticateHeaderToken'));
 const authorize = require('./lib/middleware/authorizeUser');
 
 app.use('/api/auth', require('./routes/authenticate'));
-app.use('/admin', authorize({groups: ['admins']}), require('./routes/index'));
+app.use('/api/schemas', require('./routes/schemas'));
+app.use('/admin', authorize({groups: ['admins']}), require('./routes/admin'));
 app.use(app.localApp)
 
 
@@ -92,7 +93,7 @@ app.use(function(err, req, res, next) {
 
 // API-error: JSON-response
 app.use('/api', function(err, req, res, next) {
-  console.log(err)
+  console.error("API ERROR", err)
   err.code = err.code;
   err.data = req.protocol + '://' + req.get('host') + req.originalUrl;
   res.jsend.error(err.toString())

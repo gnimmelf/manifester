@@ -14,78 +14,73 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
   }
 
 
-  const requestLogincodeByEmail = (email) => {
+  return {
 
-    return new Promise((resolve, reject) => {
+    requestLogincodeByEmail: (email) => {
 
-      maybeGetUser(email);
+      return new Promise((resolve, reject) => {
 
-      const logincode = makeLogincode();
+        maybeGetUser(email);
 
-      dbService.users.set(join(email, AUTH_FILE), 'logincode', logincode);
+        const logincode = makeLogincode();
 
-
-      // TODO!
-      //mailService.sendMail()
-
-      resolve(logincode)
-    });
-
-  };
+        dbService.users.set(join(email, AUTH_FILE), 'logincode', logincode);
 
 
-  const authenticateLogincode = (email, logincode, renewtoken) => {
+        // TODO!
+        //mailService.sendMail()
 
-    return new Promise((resolve, reject) => {
-
-      maybeGetUser(email);
-
-      const authData = dbService.users.get(join(email, AUTH_FILE));
-
-      maybeThrow(!authData.logincode, 'No logincode requested', 422);
-      maybeThrow(authData.logincode != logincode, 'Logincode incorrect', 422);
-
-      dbService.users.set(join(email, AUTH_FILE), 'logincode', '');
-
-      let authtoken;
-
-      if (authData.authtoken && !renewtoken) {
-        // Reuse token
-        authtoken = authData.authtoken;
-      }
-      else {
-        // Create new token
-        authtoken = jwt.sign({ email : email }, hashSecret);
-        dbService.users.set(join(email, AUTH_FILE), 'authtoken', authtoken);
-      }
-
-      resolve(authtoken)
-    });
-
-  };
-
-
-  const authenticateToken = (token) => {
-
-    return new Promise((resolve, reject) => {
-
-      maybeThrow(!token, 'No token passed', 422);
-
-      jwt.verify(token, hashSecret, (err, decoded) => {
-        maybeThrow(err);
-        resolve(decoded);
+        resolve(logincode)
       });
 
-    });
+    },
+
+
+    authenticateLogincode: (email, logincode, renewtoken) => {
+
+      return new Promise((resolve, reject) => {
+
+        maybeGetUser(email);
+
+        const authData = dbService.users.get(join(email, AUTH_FILE));
+
+        maybeThrow(!authData.logincode, 'No logincode requested', 422);
+        maybeThrow(authData.logincode != logincode, 'Logincode incorrect', 422);
+
+        dbService.users.set(join(email, AUTH_FILE), 'logincode', '');
+
+        let authtoken;
+
+        if (authData.authtoken && !renewtoken) {
+          // Reuse token
+          authtoken = authData.authtoken;
+        }
+        else {
+          // Create new token
+          authtoken = jwt.sign({ email : email }, hashSecret);
+          dbService.users.set(join(email, AUTH_FILE), 'authtoken', authtoken);
+        }
+
+        resolve(authtoken)
+      });
+
+    },
+
+
+    authenticateToken: (token) => {
+
+      return new Promise((resolve, reject) => {
+
+        maybeThrow(!token, 'No token passed', 422);
+
+        jwt.verify(token, hashSecret, (err, decoded) => {
+          maybeThrow(err);
+          resolve(decoded);
+        });
+
+      });
+    },
+
   };
 
-  /**
-   * Public
-   */
-  return {
-    requestLogincodeByEmail: requestLogincodeByEmail,
-    authenticateLogincode: authenticateLogincode,
-    authenticateToken: authenticateToken,
-  }
-
-}
+};

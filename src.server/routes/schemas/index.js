@@ -1,31 +1,14 @@
-const upquire = require('upquire');
-const express = require('express');
-const router = express.Router();
-const jsonTree = upquire('/lib/json-tree');
+const debug = require('debug')('routes:authenticate')
+const { Router } = require('express');
+const { makeInvoker } = require('awilix-express');
 
-/*
-  Routes
-  - Always prioritise system schemas
-*/
-router.get('/', (req, res) => {
-  const schemas = serviceLoacator.db.schemas;
+const router = Router();
+const api = makeInvoker(require('../../lib/apis/schemas'));
 
-  console.log(systemSchemas.tree)
+const onGlobPatternNext = (req, res, next) => !~req.params.schemaName.indexOf("*") ? next() : next('route');
 
-  res.jsend.success(schemas);
-})
+router.get('/:schemaName', onGlobPatternNext, api('getSchema'));
 
-router.get('/:id', (req, res) => {
-  const schemas = serviceLoacator.db.schemas;
-
-  const schema = (systemSchemas.get(`${req.params.id}.json`) || siteSchemas.get(`${req.params.id}.json`));
-
-  schema ?
-    res.jsend.success(schema) :
-    res.jsend.fail({
-      message: 'Schema not found',
-      code: 404,
-    })
-})
+router.get('/:globpattern?', api('getSchemaNames'));
 
 module.exports = router;
