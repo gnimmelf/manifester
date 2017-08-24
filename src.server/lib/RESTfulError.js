@@ -355,19 +355,24 @@ class RESTfulError extends Error {
 
   constructor(typeOrCode, message) {
     super(message);
-    Object.assign(this, types[(Number.isNaN(Number(typeOrCode)) ? typeOrCode : this.getTypeByCode(typeOrCode))]);
+    const errorType = RESTfulError.getByTypeOrCode(typeOrCode)
+    Object.assign(this, errorType);
   }
 
-  getTypes() {
+  static getTypes() {
     return Object.keys(types);
   }
 
-  getTypeInfo(type) {
+  static getTypeInfo(type) {
     return Object.assign({}, types[type]);
   }
 
-  getTypeByCode(code) {
+  static getTypeByCode(code) {
     return Object.keys(types).find(key => parseInt(types[key].code) == code);
+  }
+
+  static getByTypeOrCode(typeOrCode) {
+    return types[(Number.isNaN(Number(typeOrCode)) ? typeOrCode : RESTfulError.getTypeByCode(typeOrCode))];
   }
 
   get [Symbol.toStringTag]() {
@@ -377,7 +382,6 @@ class RESTfulError extends Error {
   toString() {
     return `${this.code}: ${super.toString()}`
   }
-
 }
 
 /**

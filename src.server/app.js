@@ -12,7 +12,8 @@ const { join } = require('path');
 const {
   upquirePath,
   configureContainer,
-  inspect
+  inspect,
+  sendApiResponse,
 } = require('./lib');
 
 
@@ -91,24 +92,16 @@ app.use(function(req, res, next) {
 });
 
 
-app.use(function(err, req, res, next) {
-  res.status(err.code || 500);
-  next(err);
-});
-
-
 // 500 API-error: JSON-response
 app.use('/api', function(err, req, res, next) {
-  console.error("API ERROR", err)
-  err.code = err.code;
   err.data = req.protocol + '://' + req.get('host') + req.originalUrl;
-  res.jsend.error(err.toString())
+  sendApiResponse(res, err);
 });
 
 
-// 500 Non-API-error: HTML-response
+// Non-API-error: HTML-response
 app.use(function(err, req, res, next) {
-
+  res.status(err.code || 500);
   // set locals, only providing error in development
   if (req.app.get('env') !== 'development') {
     console.log(err)

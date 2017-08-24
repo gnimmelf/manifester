@@ -1,5 +1,7 @@
 /**
- * https://github.com/VINTproYKT/node-jsondir-livedb
+  Inspiration: https://github.com/VINTproYKT/node-jsondir-livedb
+
+  On Chokidar ENOSPC error: https://stackoverflow.com/a/17437601/1008905
  */
 const debug = require('debug')('db');
 const assert = require('assert');
@@ -15,7 +17,9 @@ const isObj = require('is-obj');
 const writeFile = require('write-file-atomic').sync;
 const deleteFile = require('delete').sync;
 
-const dotProp = require('./dotProp')
+const dotProp = require('./dotProp');
+
+const { inspect } = require('./');
 
 const tree = {};
 
@@ -56,7 +60,7 @@ const addCommit = ({instance, action, absPath}) =>
     absPath: absPath
   });
 
-  debug(instance.commits)
+  debug('commits pending', instance.commits)
 
   if (instance.instantPush) {
     pushCommits(instance);
@@ -131,7 +135,6 @@ class Db {
     dotProp.set(tree, rootDotPath, {});
     this.tree = dotProp.get(tree, rootDotPath)
 
-
     const watcher = this.watcher = chokidar.watch(join(this.root, '**/*.json'), watchArgs);
 
     // Make a promise
@@ -144,6 +147,7 @@ class Db {
         .on('ready', () => {
           console.log('Initial scan complete. Ready for changes');
           resolve(self);
+          //inspect(self)
         });
 
     });
