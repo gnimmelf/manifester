@@ -1,4 +1,5 @@
 const debug = require('debug')('services:templateService');
+const fs = require('fs');
 const assert = require('assert');
 const {
   dirname,
@@ -18,7 +19,7 @@ const tryStat = (path) =>
 
   try {
     return fs.statSync(path);
-  } catch (e) {
+  } catch (err) {
     return undefined;
   }
 }
@@ -35,6 +36,15 @@ const destructureFilePath = (filePath) =>
   return parts;
 }
 
+const extractAppDirs = (app) => {
+  return {
+    app: app,
+    dirs: [].concat(app.get('views')).reduce((acc, cur) => {
+      acc.push(cur);
+      return acc;
+    }, [])
+  }
+}
 
 module.exports = ({ mainExpressApp }) =>
 /*
@@ -44,16 +54,8 @@ module.exports = ({ mainExpressApp }) =>
 */
 {
 
-  const mainAppDirs = [].concat(mainExpressApp.get('views')).reduce((acc, cur) => {
-    acc.push(cur);
-    return acc;
-  }, []);
-
-
-  const localAppDirs =  [].concat(mainExpressApp.localApp.get('views')).reduce((acc, cur) => {
-    acc.push(cur);
-    return acc;
-  }, []);
+  const mainAppDirs = extractAppDirs(mainExpressApp);
+  const localAppDirs =  extractAppDirs(mainExpressApp.localApp);
 
 
   class Template {
@@ -75,7 +77,7 @@ module.exports = ({ mainExpressApp }) =>
     }
 
     hook(fn)
-    // Add a context-hook function that is removed after render
+    // Add a context-hook function that is run once on render and the removed.
     {
       assert(fn instanceof Function, 'hook is not a function');
       this.hooks.push(fn)
@@ -97,18 +99,27 @@ module.exports = ({ mainExpressApp }) =>
           renderOptions = this.hooks.shift()(Object.assign({}, renderOptions)) || renderOptions;
         }
 
-        const paths = localAppDirs.concat(mainAppDirs).map(dir => join(dir, this.filePath));
+        // TODO! Template caching?
 
-        let filePath;
-        paths.every(path => {
-          filePath = path;
-          let stat = tryStat(path);
+        // Set `app` and `filePath` to first `filePath`-file found
+        let stat, app, filePath;
+        [localAppDirs, mainAppDirs].every(obj =>
+        {
+          obj.dirs.every(dir =>
+          {
+            filePath = normalize(join(dir, this.filePath));
+            stat = tryStat(filePath);
+            app = stat && stat.isFile() ? obj.app : undefined;
+            console.log("filePath", filePath, stat && stat.isFile())
+            // `every` breaks loop on `false`
+            return !app;
+          });
           // `every` breaks loop on `false`
-          return stat && stat.isFile() ? false : true;
+          return !app;
         })
 
         // TODO! Select the app owning the template to render? -Merges correct `app.locals`...?
-        mainExpressApp.render(filePath, renderOptions, (err, res) => {
+        app.render(filePath, renderOptions, (err, res) => {
           err ? reject(err) : resolve(res);
           (callback && callback(err, res));
         });

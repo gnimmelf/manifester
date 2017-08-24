@@ -26,7 +26,6 @@ module.exports = ({ dbService, templateService, mailService, hashSecret }) => {
         dbService.users.set(join(email, AUTH_FILE), 'logincode', logincode);
 
         templateService['mail-logincode']
-          .hook(ctx => Object.assign(ctx, {logincode: 'HOOKED'}))
           .render({
             logincode: logincode,
             domainName: "siteName"
