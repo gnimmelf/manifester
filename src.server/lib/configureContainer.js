@@ -12,12 +12,14 @@ const {
   asClass
 } = require('awilix');
 
-module.exports = function(cwd) {
+module.exports = function(expressApp, cwd) {
 
+  assert(expressApp, 'required!')
   assert(cwd, 'required!')
 
   const container = createContainer();
 
+  container.registerValue('mainExpressApp', expressApp)
   container.registerValue('tokenKeyName', 'x-access-token');
 
   container.loadModules([

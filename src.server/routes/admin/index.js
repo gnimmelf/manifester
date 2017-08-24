@@ -2,6 +2,7 @@ const path = require('path');
 const join = path.join;
 const express = require('express');
 
+const authorize = require('../../lib/middleware/authorizeUser');
 const { getBowerComponentsResources, upquire } = require('../../lib');
 const pathMaps = upquire('/package.json').appSettings.pathMaps;
 
@@ -17,7 +18,9 @@ const getContext = (function(bower_components)
 {
   let context = null;
 
-  return (app_mountpath) => {
+  return (app_mountpath) =>
+  // Make context of required vendor resources based on `mount_path`
+  {
 
     if (!context)  {
 
@@ -49,8 +52,8 @@ const getContext = (function(bower_components)
 })(upquire('/bower.json').components);
 
 
-/* GET home page. */
-router.get('/', function(req, res, next)
+/* GET admin page. */
+router.get('/', authorize({ groups: ['admins'], redirectUrl: '/login' }), function(req, res, next)
 {
   res.render(require.resolve('./tpl.hbs'), getContext(req.app.mountpath));
 });

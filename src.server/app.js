@@ -9,7 +9,11 @@ const { scopePerRequest } = require('awilix-express');
 const { urlencoded, json } = require('body-parser');
 const { join } = require('path');
 
-const { upquirePath, configureContainer } = require('./lib');
+const {
+  upquirePath,
+  configureContainer,
+  inspect
+} = require('./lib');
 
 
 const pathMaps = require('../package.json').appSettings.pathMaps;
@@ -17,7 +21,7 @@ const pathMaps = require('../package.json').appSettings.pathMaps;
 
 // Express app
 const app = express();
-const container = configureContainer(join(__dirname, 'lib'));
+const container = configureContainer(app, join(__dirname, 'lib'));
 
 /**
  * App setup
@@ -27,11 +31,13 @@ const container = configureContainer(join(__dirname, 'lib'));
 app.localApp = express();
 
 app.set('container', container);
+
 // View engine setup
 app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.set('json spaces', 2);
 
+app.get.toString()
 
 /**
  * Standard middleware
@@ -65,11 +71,11 @@ app.use(require('./lib/middleware/authenticateHeaderToken'));
 /**
  * Routes
  */
-const authorize = require('./lib/middleware/authorizeUser');
 
+// app.use('/login', require('./routes/login'));
 app.use('/api/auth', require('./routes/authenticate'));
 app.use('/api/schemas', require('./routes/schemas'));
-app.use('/admin', authorize({groups: ['admins']}), require('./routes/admin'));
+app.use('/admin', require('./routes/admin'));
 app.use(app.localApp)
 
 
@@ -91,7 +97,7 @@ app.use(function(err, req, res, next) {
 });
 
 
-// API-error: JSON-response
+// 500 API-error: JSON-response
 app.use('/api', function(err, req, res, next) {
   console.error("API ERROR", err)
   err.code = err.code;
@@ -100,7 +106,7 @@ app.use('/api', function(err, req, res, next) {
 });
 
 
-// Non-API-error: HTML-response
+// 500 Non-API-error: HTML-response
 app.use(function(err, req, res, next) {
 
   // set locals, only providing error in development

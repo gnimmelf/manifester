@@ -49,6 +49,8 @@ module.exports = ({ dbService }) =>
       return new Promise((resolve, reject) => {
         const schemaNames = Object.keys(schemaDb.tree).filter(schemaName => minimatch(schemaName, globpattern));
 
+        schemaNames.sort();
+
         resolve(schemaNames)
       });
     },

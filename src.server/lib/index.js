@@ -4,20 +4,29 @@ const jsend = require('jsend')({ strict: false });
 
 const upquire = exports.upquire = require('upquire');
 const RESTfulError = require('./RESTfulError');
+const { inspect } = require('util');
 
-exports.makeSingleInvoker = require('./makeSingleInvoker')
-exports.makeLogincode = require('./makeLogincode');
-exports.getBowerComponentsResources = require('./getBowerComponentsResources');
-exports.configureContainer = require('./configureContainer');
+/**
+ * Relays
+ */
+
 exports.Db = require('./Db');
 exports.dotProp = require('./dotProp');
+exports.makeLogincode = require('./makeLogincode');
+exports.makeSingleInvoker = require('./makeSingleInvoker')
+exports.configureContainer = require('./configureContainer');
+exports.getBowerComponentsResources = require('./getBowerComponentsResources');
 
-exports.inspect = (obj) => console.log(require('util').inspect(obj, {colors: true, depth: 5}));
+
+/**
+ * Own members
+ */
+
+exports.inspect = (obj) => console.log(inspect(obj, {colors: true, depth: 5}));
+
 
 exports.upquirePath = function(some_path, ...rest)
-/*
-Find `some_path` somewhere in parent folder structure and resolve it.
-*/
+// Find `some_path` somewhere in parent folder structure and resolve it.
 {
   let full_path = upquire(some_path, { pathOnly: true, dirnameOnly: true });
   if (rest) {
@@ -26,12 +35,19 @@ Find `some_path` somewhere in parent folder structure and resolve it.
   return full_path;
 }
 
+exports.requestFullUrl = (expressRequestObj) =>
+{
+  const req = expressRequestObj;
+  const secure = req.connection.encrypted || req.headers['x-forwarded-proto'] === 'https'
+  return `http${(secure ? 's' : '')}://${req.headers.host}${req.originalUrl}`;
+};
+
+
 exports.addFileExt = (path, ext=".json") => path.endsWith(ext) ? path : `${path}.json`;
 
+
 exports.sendApiResponse = (expressResponseObj, response) =>
-/*
-Send `response` as jSend via `expressResponseObj`
-*/
+// Send `response` as jSend via `expressResponseObj`
 {
   let method = 'success';
 

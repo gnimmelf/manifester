@@ -8,6 +8,14 @@ const DBSERVICE = Symbol('dbService');
 const USERID = Symbol('userId');
 const GROUPS = Symbol('groups');
 
+/*
+  TODO!
+  Figure out if `userService` should be
+  1) a lookupservice for users by id
+    1.1) That implemets a `currentUser` based on provided `userId`
+  2) As is, just the current user if `userId` is provided.
+*/
+
 class UserService {
 
   constructor({ dbService, userId })

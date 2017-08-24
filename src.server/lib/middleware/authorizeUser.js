@@ -4,7 +4,7 @@ const normalizeBool = require('normalize-bool');
 const makeSingleInvoker = require('../makeSingleInvoker');
 const { maybeThrow } = require('../');
 
-const authorizeUser = ({groups=[], userIds=[]}) =>
+const authorizeUser = ({groups=[], userIds=[], redirectUrl}) =>
 {
 
   return makeSingleInvoker(({ userService }) => {
@@ -14,6 +14,10 @@ const authorizeUser = ({groups=[], userIds=[]}) =>
       const authorized = normalizeBool(intersect(userService.groups, groups).length || ~userIds.indexOf(userService.userId));
 
       debug('authorized', authorized, groups, userIds)
+
+      if (redirectUrl) {
+        res.redirect(redirectUrl);
+      }
 
       maybeThrow(!authorized, 'Access denied', 401);
 

@@ -6,6 +6,7 @@ const { join, dirname, resolve } = require('path');
 const assert = require('assert');
 const caller = require('caller');
 const app = require('./src.server/app');
+const { inspect } = require('./src.server/lib');
 
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -77,10 +78,8 @@ function onListening() {
  * Export stuff needed to create client code.
  */
 
-module.exports = {
-  _app: app,
-  app: app.localApp,
-  use: app.localApp.use.bind(app.localApp),
+module.exports = Object.assign({}, app.localApp, {
+  mainApp: app,
   run: ({ localAppPath = dirname(caller()) } = {}) =>  {
 
     assert(localAppPath, 'required!')
@@ -97,12 +96,12 @@ module.exports = {
       emailConfig: sensitive.emailConfig,
     });
 
-    console.log(require('util').inspect(app.get('container').registrations, {colors: true, depth: 5}));
+    // inspect(app.get('container').registrations)
 
     server = http.createServer(app);
     server.listen(port);
     server.on('error', onError);
     server.on('listening', onListening);
   },
-}
+})
 

@@ -4,6 +4,8 @@ import './app/tag';
 import rx from 'rx';
 import jsonForms from 'jsonForms'
 
-riot.mount('app', {title: 'Application'});
+const context = {}
+
+riot.mount('app', {...context, title: 'Application'});
 
 console.log("Mounted!")

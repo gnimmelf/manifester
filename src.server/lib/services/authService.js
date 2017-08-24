@@ -5,14 +5,13 @@ const { makeLogincode, maybeThrow } = require('../');
 
 const AUTH_FILE = 'auth.json';
 
-module.exports = ({ dbService, mailService, hashSecret }) => {
+module.exports = ({ dbService, templateService, mailService, hashSecret }) => {
 
   const maybeGetUser = (email) => {
     const user = dbService.users.get(email);
     maybeThrow(!user, 'User not found by given email', 422);
     return user['common.json'];
   }
-
 
   return {
 
@@ -26,11 +25,26 @@ module.exports = ({ dbService, mailService, hashSecret }) => {
 
         dbService.users.set(join(email, AUTH_FILE), 'logincode', logincode);
 
+        templateService['mail-logincode']
+          .hook(ctx => Object.assign(ctx, {logincode: 'HOOKED'}))
+          .render({
+            logincode: logincode,
+            domainName: "siteName"
+          })
+          .then(html => {
 
-        // TODO!
-        //mailService.sendMail()
+            console.log("requestLogincodeByEmail\n", html)
 
-        resolve(logincode)
+            // mailService.sendMail({
+            //   senderName: siteService.siteName,
+            //   recieverEmail: email,
+            //   subjectStr: 'Your requesd logincode',
+            //   textOrHtml: html,
+            // })
+            resolve(logincode)
+          })
+          .catch(err => reject(err))
+
       });
 
     },

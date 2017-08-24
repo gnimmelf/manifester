@@ -1,6 +1,6 @@
 const debug = require('debug')('apis:schemas');
 
-const { sendApiResponse } = require('../');
+const { sendApiResponse, requestFullUrl } = require('../');
 
 module.exports = ({ schemaService }) =>
 {
@@ -12,6 +12,10 @@ module.exports = ({ schemaService }) =>
 
       schemaService.getSchema(req.params.schemaName)
         .then(schema => {
+
+          // Add `schema.id`, just because.
+          schema.id = requestFullUrl(req);
+
           sendApiResponse(res, { schema: schema })
         })
         .catch(err => {

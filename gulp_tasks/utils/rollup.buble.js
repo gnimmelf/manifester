@@ -35,7 +35,9 @@ module.exports = (gulp) => {
           browser: true
         }),
         commonjs(),
-        buble()
+        buble({
+          objectAssign: 'Object.assign'
+        })
       ],
       external: Object.keys(globals),
     })

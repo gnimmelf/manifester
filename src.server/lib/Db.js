@@ -107,20 +107,20 @@ class Db {
     this.prettify = prettify;
     this.name = name;
 
-    Object.assign({
+    watchArgs = Object.assign({
       // https://www.npmjs.com/package/chokidar#api
       persistent: true,
       ignored: /(^|[\/\\])\../,
       ignoreInitial: false,
       followSymlinks: false,
-      cwd: this.root,
+      // cwd: '.',
       usePolling: false,
       useFsEvents: false,
       alwaysStat: false,
       depth: undefined,
       awaitWriteFinish: {stabilityThreshold: 200, pollInterval: 100},
       ignorePermissionErrors: false,
-      //atomic: true // = (!usePolling && !useFsEvents)
+      atomic: true // = (!usePolling && !useFsEvents)
     }, watchArgs);
 
     this.commits = [];
