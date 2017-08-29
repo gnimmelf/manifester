@@ -11,6 +11,12 @@ const { inspect } = require('./src.server/lib');
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
+app.set('env', process.env.ENV || 'development');
+
+assert(~['production', 'development'].indexOf(app.get('env')),
+    "'ENV' must be 'production' or 'development' when specified! -Defaults to 'development'");
+
+
 // Server
 let server;
 
@@ -87,6 +93,7 @@ module.exports = Object.assign({}, app.localApp, {
     localAppPath = resolve(localAppPath);
 
     console.log('\nlocalPath', localAppPath);
+    console.log('ENV', app.get('env'));
 
     const sensitive = require(join(localAppPath, 'sensitive.json'));
 
