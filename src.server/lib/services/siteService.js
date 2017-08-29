@@ -5,8 +5,6 @@ const { maybeThrow, inspect, addFileExt } = require('../');
 const jp = require('jsonpath');
 const minimatch = require('minimatch');
 
-// TODO! Cach `siteService.getSettings()` as `settings`
-
 module.exports = ({ dbService }) =>
 {
   const siteDb = dbService.site;
