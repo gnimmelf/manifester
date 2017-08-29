@@ -5,7 +5,7 @@ const { makeLogincode, maybeThrow } = require('../');
 
 const AUTH_FILE = 'auth.json';
 
-module.exports = ({ dbService, templateService, mailService, hashSecret }) => {
+module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) => {
 
   const maybeGetUser = (email) => {
     const user = dbService.users.get(email);
@@ -22,20 +22,22 @@ module.exports = ({ dbService, templateService, mailService, hashSecret }) => {
         maybeGetUser(email);
 
         const logincode = makeLogincode();
+        const siteSettings = siteService.getSettings();
 
         dbService.users.set(join(email, AUTH_FILE), 'logincode', logincode);
+
 
         templateService['mail-logincode']
           .render({
             logincode: logincode,
-            domainName: "siteName"
+            domainName: siteSettings.siteName
           })
           .then(html => {
 
             console.log("requestLogincodeByEmail\n", html)
 
             // mailService.sendMail({
-            //   senderName: siteService.siteName,
+            //   senderName: siteSettings.siteName,
             //   recieverEmail: email,
             //   subjectStr: 'Your requesd logincode',
             //   textOrHtml: html,

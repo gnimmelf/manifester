@@ -1,7 +1,5 @@
 /**
   Inspiration: https://github.com/VINTproYKT/node-jsondir-livedb
-
-  On Chokidar ENOSPC error: https://stackoverflow.com/a/17437601/1008905
  */
 const debug = require('debug')('db');
 const assert = require('assert');
@@ -143,7 +141,10 @@ class Db {
 
       watcher
         .on('all', this.handleEvent.bind(this))
-        .on('error', error => console.log(`Watcher error: ${error}`))
+        .on('error', error => {
+          // Chokidar ENOSPC error: https://stackoverflow.com/a/17437601/1008905
+          console.warn(`Watcher error: ${error}`)
+        })
         .on('ready', () => {
           console.log('Initial scan complete. Ready for changes');
           resolve(self);

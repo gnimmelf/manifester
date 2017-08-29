@@ -31,5 +31,15 @@ module.exports = function(mainExpressApp, cwd) {
     cwd: cwd,
   });
 
+  /**
+   * Register default templates
+   */
+  const templateService = container.resolve('templateService');
+  [
+    'mail-logincode.hbs',
+    'login.hbs'
+  ].forEach(templateService.set)
+
+
   return container;
 }

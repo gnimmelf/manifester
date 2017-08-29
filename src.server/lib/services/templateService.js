@@ -24,7 +24,6 @@ const tryStat = (path) =>
   }
 }
 
-
 const destructureFilePath = (filePath) =>
 {
   const parts = {
@@ -118,7 +117,8 @@ module.exports = ({ mainExpressApp }) =>
           return !app;
         })
 
-        // TODO! Select the app owning the template to render? -Merges correct `app.locals`...?
+        // Let the "owner"-`app` do the rendering to merge its `app.locals`...
+        // TODO! -Is all of this necessary? Besides, we're still not merging in the `req.locals`...
         app.render(filePath, renderOptions, (err, res) => {
           err ? reject(err) : resolve(res);
           (callback && callback(err, res));
@@ -129,7 +129,10 @@ module.exports = ({ mainExpressApp }) =>
   }
 
 
-  // Proxy object to allow `set('./path/tpl.ext')`, but not ``
+  /**
+   * Proxy object to allow `templateService.set('./path/tpl.ext')`, and not `templateService['get']...`
+   */
+
   const proxySetter = (obj, value, prop=undefined) => {
     const parts = destructureFilePath(value)
     if (prop) assert(prop == parts.name, `file basename must match property (${prop}): ${value} `)
@@ -154,8 +157,6 @@ module.exports = ({ mainExpressApp }) =>
       }
     }
   });
-
-  ['mail-logincode.hbs', 'login.hbs'].forEach(templatesProxy.set)
 
   return templatesProxy;
 }

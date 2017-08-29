@@ -20,23 +20,34 @@ const {
 const pathMaps = require('../package.json').appSettings.pathMaps;
 
 
-// Express app
+// Main Express app
 const app = express();
+
+// Exportable Express app for local development of the "head" in "headless"
+app.localApp = express();
+
+// Configure `awilix` service-container
 const container = configureContainer(app, join(__dirname, 'lib'));
 
 /**
  * App setup
  */
 
-// Exportable Express app for local development of the "head" in "headless"
-app.localApp = express();
 
 app.set('container', container);
 
-// View engine setup
+/**
+ *  View engine setup
+ */
 app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.set('json spaces', 2);
+
+// Register `HandlebardFormHelpers` onto Handlebars (`hbs`)
+require('handlebars-form-helpers').register(require('hbs').handlebars);
+
+
+
 
 app.get.toString()
 
@@ -50,16 +61,15 @@ app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
-// Static folders
+/**
+ * Static folders
+ */
 Object.values(pathMaps).forEach(map => {
   const url = join('/', map.url);
   const dir = upquirePath(map.dir);
   app.use(url, express.static(dir));
   debug('path-mappings', url, '=>', dir);
 })
-
-// Favicon: uncomment after placing your favicon in
-//app.use(favicon(join(pathMaps.public.dir, 'favicon.ico')));
 
 
 /**
@@ -73,11 +83,17 @@ app.use(require('./lib/middleware/authenticateHeaderToken'));
  * Routes
  */
 
-// app.use('/login', require('./routes/login'));
 app.use('/api/auth', require('./routes/authenticate'));
 app.use('/api/schemas', require('./routes/schemas'));
-app.use('/admin', require('./routes/admin'));
+//app.use('/admin', require('./routes/admin'));
+app.use('/login', require('./routes/login'));
 app.use(app.localApp)
+
+
+/**
+ * Favicon: uncomment after placing your favicon in... TODO! Where? -Should prefer `app.localApp`...
+ */
+//app.use(favicon(join(pathMaps.public.dir, 'favicon.ico')));
 
 
 /**
