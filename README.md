@@ -2,7 +2,7 @@
 
 _Dead simple headless CMS_
 
-## Staus
+## Status
 
 Under leisure development.
 
