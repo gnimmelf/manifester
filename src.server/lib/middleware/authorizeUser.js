@@ -2,7 +2,7 @@ const debug = require('debug')('middleware:authorizeUser');
 const intersect = require('intersect');
 const normalizeBool = require('normalize-bool');
 const makeSingleInvoker = require('../makeSingleInvoker');
-const { maybeThrow } = require('../');
+const { maybeThrow, requestFullUrl } = require('../');
 
 const authorizeUser = ({groups=[], userIds=[], redirectUrl}) =>
 {
@@ -16,7 +16,8 @@ const authorizeUser = ({groups=[], userIds=[], redirectUrl}) =>
       debug('authorized', authorized, groups, userIds)
 
       if (redirectUrl) {
-        res.redirect(redirectUrl);
+        // TODO! Check if there is an http-header to use for `origin`
+        res.redirect(`${redirectUrl}?origin=${requestFullUrl(req)}`);
       }
 
       maybeThrow(!authorized, 'Access denied', 401);

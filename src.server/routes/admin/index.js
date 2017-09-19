@@ -1,56 +1,33 @@
-const path = require('path');
-const join = path.join;
-const express = require('express');
 
+const debug = require('debug')('routes:admin');
+const { join } = require('path');
+const { Router } = require('express');
+const {
+  upquire,
+  makeSingleInvoker,
+  bowerComponentsResources,
+} = require('../../lib');
 const authorize = require('../../lib/middleware/authorizeUser');
-const { getBowerComponentsResources, upquire } = require('../../lib');
-const pathMaps = upquire('/package.json').appSettings.pathMaps;
 
-const router = express.Router();
+const router = Router();
 
-const getContext = (function(bower_components)
-// Get resources from bower components (custom property)
-{
-  let context = null;
-
-  return (app_mountpath) =>
-  // Make context of required vendor resources based on `mount_path`
-  {
-
-    if (!context)  {
-
-      const resources = getBowerComponentsResources(bower_components, {
-        url_prefix: join(app_mountpath, pathMaps.vendors.url)
-      });
-
-      context = {
-        title: `${siteInfo.siteName} loading...`,
-        styles: {
-          'vendors': resources.styles,
-          'bundles': [
-            join(app_mountpath, pathMaps.distClient.url, '/bundle.css'),
-          ],
-        },
-        scripts: {
-          vendors: resources.scripts,
-          bundles: [
-            join(app_mountpath, pathMaps.distClient.url, '/main.bundle.js'),
-          ]
-        }
-      }
-    }
-
-    return context;
-
+const staticResources = {
+  styles: {
+    'vendors': bowerComponentsResources.styles,
+    'bundles': [],
+  },
+  scripts: {
+    vendors: bowerComponentsResources.scripts,
+    bundles: [
+      '/login-spa/bundle.js'
+    ]
   }
+};
 
-})(upquire('/bower.json').components);
+const loginForm = ({ siteService }) => (req, res, next) => {
+  res.render('single-page-app.hbs', Object.assign({ title: siteService.settings.siteName }, staticResources));
+}
 
-
-/* TODO! GET admin page. */
-router.get('/', authorize({ groups: ['admins'], redirectUrl: '/login' }), function(req, res, next)
-{
-  res.render(require.resolve('./tpl.hbs'), getContext(req.app.mountpath));
-});
+router.get('/', authorize({ groups: ['admins'], redirectUrl: '/login' }), makeSingleInvoker(loginForm));
 
 module.exports = router;

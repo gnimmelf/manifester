@@ -59,13 +59,13 @@ app.use(cookieParser());
 /**
  * Static folders
  */
-Object.values(pathMaps).forEach(map => {
+Object.keys(pathMaps).forEach(key => {
+  const map = pathMaps[key];
   const url = join('/', map.url);
   const dir = upquirePath(map.dir);
   app.use(url, express.static(dir));
-  debug('path-mappings', url, '=>', dir);
+  debug('path-mappings', key, url, '=>', dir);
 })
-
 
 /**
  * Middleware
@@ -80,7 +80,7 @@ app.use(require('./lib/middleware/authenticateHeaderToken'));
 
 app.use('/api/auth', require('./routes/authenticate'));
 app.use('/api/schemas', require('./routes/schemas'));
-//app.use('/admin', require('./routes/admin'));
+app.use('/admin', require('./routes/admin'));
 app.use('/login', require('./routes/login'));
 app.use(app.localApp)
 

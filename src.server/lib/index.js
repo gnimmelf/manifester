@@ -9,4 +9,4 @@ exports.dotProp = require('./dotProp');
 exports.makeLogincode = require('./makeLogincode');
 exports.makeSingleInvoker = require('./makeSingleInvoker')
 exports.configureContainer = require('./configureContainer');
-exports.getBowerComponentsResources = require('./getBowerComponentsResources');
+exports.bowerComponentsResources = require('./bowerComponentsResources');
