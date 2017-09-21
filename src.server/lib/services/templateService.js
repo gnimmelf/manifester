@@ -45,7 +45,7 @@ const extractAppDirs = (app) => {
   }
 }
 
-module.exports = ({ mainExpressApp }) =>
+module.exports = ({ mainApp }) =>
 /*
   Serve the templates for admin core functions, like login and mail-templates.
   They should be overridable with fallback to original, and their original context must be hookable to provide
@@ -53,8 +53,8 @@ module.exports = ({ mainExpressApp }) =>
 */
 {
 
-  const mainAppDirs = extractAppDirs(mainExpressApp);
-  const localAppDirs =  extractAppDirs(mainExpressApp.localApp);
+  const mainAppDirs = extractAppDirs(mainApp);
+  const localAppDirs =  extractAppDirs(mainApp.localApp);
 
 
   class Template {
@@ -84,14 +84,28 @@ module.exports = ({ mainExpressApp }) =>
       return this;
     }
 
-    render(context, callback=undefined) {
+    render(context, ...rest) {
+      let callback;
+
+      if (rest.length && typeof rest[rest.length-1] == 'function') {
+        // Assume it's a callback
+        callback = rest.pop()
+      }
+
+      console.log("REST", rest)
 
       return new Promise((resolve, reject) => {
 
+        // Merge `rest` with `context`
+        let renderOptions = Object.assign({}, context);
+        while (rest.length) {
+          renderOptions = Object.assign(rest.shift());
+        }
+
         // Run static hooks
-        let renderOptions = this.staticHooks.reduce((ctx, hook, idx) => {
+        renderOptions = this.staticHooks.reduce((ctx, hook, idx) => {
           return hook(ctx) || ctx;
-        }, Object.assign({}, context))
+        }, Object.assign({}, renderOptions))
 
         // Run dynamic hooks
         while (this.hooks.length) {

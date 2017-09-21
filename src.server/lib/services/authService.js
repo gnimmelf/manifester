@@ -22,10 +22,9 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         maybeGetUser(email);
 
         const logincode = makeLogincode();
-        const siteSettings = siteService.getSettings();
+        const siteSettings = siteService.settings;
 
         dbService.users.set(join(email, AUTH_FILE), 'logincode', logincode);
-
 
         templateService['mail-logincode']
           .render({
@@ -41,7 +40,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
             //   recieverEmail: email,
             //   subjectStr: 'Your requesd logincode',
             //   textOrHtml: html,
-            // })
+            // });
+
             resolve(logincode)
           })
           .catch(err => reject(err))

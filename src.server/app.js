@@ -28,19 +28,20 @@ app.localApp = express();
 
 
 /**
- * App setup
- */
-
-const container = configureContainer(app, join(__dirname, 'lib'));
-app.set('container', container);
-
-
-/**
  *  View engine setup
  */
 app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.set('json spaces', 2);
+
+
+/**
+ * App setup
+ */
+const container = configureContainer(app, join(__dirname, 'lib'));
+app.set('container', container);
+
+
 
 // Register `HandlebardFormHelpers` onto Handlebars (`hbs`)
 require('handlebars-form-helpers').register(require('hbs').handlebars);
@@ -84,7 +85,6 @@ app.use('/admin', require('./routes/admin'));
 app.use('/login', require('./routes/login'));
 app.use(app.localApp)
 
-
 /**
  * Favicon: uncomment after placing your favicon in... TODO! Where? -Should prefer `app.localApp`...
  */
@@ -110,10 +110,12 @@ app.use(function(req, res, next) {
 });
 
 
-
-
 // Non-API-error: HTML-response
 app.use(function(err, req, res, next) {
+  if (req.app.get('env') !== 'production') {
+    console.error(err)
+  }
+
   const statusCode = err.code || 500;
 
   res.status(statusCode);

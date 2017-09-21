@@ -12,14 +12,14 @@ const {
   asClass
 } = require('awilix');
 
-module.exports = function(mainExpressApp, cwd) {
+module.exports = function(mainApp, cwd) {
 
-  assert(mainExpressApp, 'required!')
+  assert(mainApp, 'required!')
   assert(cwd, 'required!')
 
   const container = createContainer();
 
-  container.registerValue('mainExpressApp', mainExpressApp)
+  container.registerValue('mainApp', mainApp)
   container.registerValue('tokenKeyName', 'x-access-token');
 
   container.loadModules([
@@ -37,6 +37,7 @@ module.exports = function(mainExpressApp, cwd) {
   const templateService = container.resolve('templateService');
   [
     'mail-logincode.hbs',
+    'login.hbs'
   ].forEach(templateService.set)
 
 

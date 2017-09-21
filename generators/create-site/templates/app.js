@@ -1,8 +1,5 @@
 const manifester = require('manifester');
 
+manifester.use('/', (req, res) => res.send('customApp\n'));
 
-manifester.use('/admin', (req, res) => res.send('customApp admin'));
-manifester.use('/', (req, res) => res.send('customApp'));
-
-
-manifester.run({ dbPath: `${__dirname}/db`});
+manifester.run();
