@@ -24,6 +24,7 @@ Under leisure development.
 * http://objectpath.org/reference.html
 * https://medium.com/@_cmdv_/why-i-chose-to-use-cycle-js-9156173c2752
 * https://cycle.js.org/basic-examples.html
+* https://github.com/pillarjs/understanding-csrf
 
 ## Usage
 

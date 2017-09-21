@@ -5,9 +5,9 @@ const { makeInvoker } = require('awilix-express');
 const router = Router();
 const api = makeInvoker(require('../../lib/apis/authenticate'));
 
-router.get('/token/:token?', api('authenticateToken'));
-router.get('/:email/:code', api('authenticateLogincode'));
-router.get('/:email', api('requestLogincodeByEmail'));
+router.post('/request', api('requestLogincodeByEmail'));
+router.post('/exchange', api('exchangeLogincode2Token'));
+router.post('/authenticate', api('authenticateToken'));
 
 
 module.exports = router;

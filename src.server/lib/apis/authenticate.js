@@ -10,9 +10,9 @@ module.exports = ({ authService, tokenKeyName }) =>
 
     requestLogincodeByEmail: (req, res) => {
 
-      authService.requestLogincodeByEmail(req.params.email)
+      authService.requestLogincodeByEmail(req.body.email)
         .then(logincode => {
-          sendApiResponse(res, { email: req.params.email })
+          sendApiResponse(res, { email: req.body.email })
         })
         .catch(err => {
           sendApiResponse(res, err)
@@ -20,11 +20,15 @@ module.exports = ({ authService, tokenKeyName }) =>
 
     },
 
-    authenticateLogincode: (req, res) => {
+    exchangeLogincode2Token: (req, res) => {
 
-      authService.authenticateLogincode(req.params.email, req.params.code, req.query.renewtoken ? true : false)
+      authService.exchangeLogincode2Token(req.body.email, req.body.code)
         .then(token => {
-          sendApiResponse(res, { token: token })
+          res.cookie(tokenKeyName, token, {
+            httpOnly: true,
+            sameSite: "Strict"
+          })
+          sendApiResponse(res, { cookieName: tokenKeyName })
         })
         .catch(err => {
           sendApiResponse(res, err)

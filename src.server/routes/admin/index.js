@@ -17,6 +17,6 @@ const loginForm = ({ siteService }) => (req, res, next) => {
   res.render('move-to-own-repo.hbs', { title: siteService.settings.siteName });
 }
 
-router.get('/', authorize({ groups: ['admins'], redirectUrl: '/login' }), makeSingleInvoker(loginForm));
+router.get('/', authorize({ groups: ['admins'] }), makeSingleInvoker(loginForm));
 
 module.exports = router;

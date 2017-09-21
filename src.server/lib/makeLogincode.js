@@ -17,8 +17,7 @@ var generate_code = function(id_length, only_numerical) {
 
 var UNIQUE_RETRIES = 9999;
 
-module.exports = function(previous, length=5, only_numerical=true) {
-  previous = previous || [];
+module.exports = function(length=5, previous=[], only_numerical=true) {
   var retries = 0;
   var id;
 

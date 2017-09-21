@@ -10,6 +10,7 @@ const {
 const router = Router();
 
 const loginForm = ({ templateService, siteService }) => (req, res, next) => {
+
   templateService['login'].render({
     siteName: siteService.settings.siteName,
     authpath: "/api/auth/",

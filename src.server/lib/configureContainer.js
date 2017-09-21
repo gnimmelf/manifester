@@ -20,7 +20,7 @@ module.exports = function(mainApp, cwd) {
   const container = createContainer();
 
   container.registerValue('mainApp', mainApp)
-  container.registerValue('tokenKeyName', 'x-access-token');
+  container.registerValue('tokenKeyName', 'XSRF-TOKEN');
 
   container.loadModules([
     ['services/*.js', Lifetime.SINGLETON],

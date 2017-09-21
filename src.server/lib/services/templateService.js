@@ -92,8 +92,6 @@ module.exports = ({ mainApp }) =>
         callback = rest.pop()
       }
 
-      console.log("REST", rest)
-
       return new Promise((resolve, reject) => {
 
         // Merge `rest` with `context`
@@ -123,7 +121,7 @@ module.exports = ({ mainApp }) =>
             filePath = normalize(join(dir, this.filePath));
             stat = tryStat(filePath);
             app = stat && stat.isFile() ? obj.app : undefined;
-            console.log("filePath", filePath, stat && stat.isFile())
+            debug("filePath", filePath, stat && stat.isFile())
             // `every` breaks loop on `false`
             return !app;
           });

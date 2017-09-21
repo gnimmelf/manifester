@@ -8,9 +8,12 @@ const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
   return (req, res, next) =>
   {
 
-    const token = req.headers[tokenKeyName];
 
-    debug(tokenKeyName, req.headers[tokenKeyName]);
+    debug("cookies", req.cookies)
+
+    let token = req.headers[tokenKeyName] || req.cookies[tokenKeyName];
+
+    debug(tokenKeyName, token);
 
     authService.authenticateToken(token)
       .then(decoded => {

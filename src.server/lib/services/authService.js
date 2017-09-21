@@ -51,7 +51,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
     },
 
 
-    authenticateLogincode: (email, logincode, renewtoken) => {
+    exchangeLogincode2Token: (email, logincode, renewtoken) => {
 
       return new Promise((resolve, reject) => {
 
@@ -64,23 +64,16 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
         dbService.users.set(join(email, AUTH_FILE), 'logincode', '');
 
-        let authtoken;
+        let authToken;
 
-        if (authData.authtoken && !renewtoken) {
-          // Reuse token
-          authtoken = authData.authtoken;
-        }
-        else {
-          // Create new token
-          authtoken = jwt.sign({ email : email }, hashSecret);
-          dbService.users.set(join(email, AUTH_FILE), 'authtoken', authtoken);
-        }
+        // Create new token
+        authToken = jwt.sign({ email : email, salt: makeLogincode(20) }, hashSecret);
+        dbService.users.set(join(email, AUTH_FILE), 'authToken', authToken);
 
-        resolve(authtoken)
+        resolve(authToken)
       });
 
     },
-
 
     authenticateToken: (token) => {
 

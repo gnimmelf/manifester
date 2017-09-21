@@ -4,7 +4,7 @@ const normalizeBool = require('normalize-bool');
 const makeSingleInvoker = require('../makeSingleInvoker');
 const { maybeThrow, requestFullUrl } = require('../');
 
-const authorizeUser = ({groups=[], userIds=[], redirectUrl}) =>
+const authorizeUser = ({groups=[], userIds=[], redirectUrl="/login"}) =>
 {
 
   return makeSingleInvoker(({ userService }) => {
@@ -15,12 +15,16 @@ const authorizeUser = ({groups=[], userIds=[], redirectUrl}) =>
 
       debug('authorized', authorized, groups, userIds)
 
-      if (redirectUrl) {
-        // TODO! Check if there is an http-header to use for `origin`
-        res.redirect(`${redirectUrl}?origin=${requestFullUrl(req)}`);
-      }
+      if (!authorized) {
 
-      maybeThrow(!authorized, 'Access denied', 401);
+        if(redirectUrl) {
+          res.redirect(`${redirectUrl}?origin=${req.originalUrl}`);
+        }
+        else {
+          maybeThrow(!authorized, 'Access denied', 401);
+        }
+        return;
+      }
 
       next();
     };

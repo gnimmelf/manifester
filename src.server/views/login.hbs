@@ -30,7 +30,7 @@
           {{label "email" "Enter your e-mail address"}}
           {{input "email" email placeholder="you@example.com" class="form-control text-center"}}
           <small class="form-text text-muted">
-            We will e-mail you a code that you must use to log in.
+            We will e-mail you a code to use to log in.
           </small>
         </div>
 
@@ -61,7 +61,10 @@
     })(jQuery);
 
     ;(function($) {
+      var baseUrl = "{{authpath}}";
+      var siteName = "{{siteName}}";
       var reEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+      var reCode = /^\d+$/;
       var alertElm = $("div.alert");
       var loaderElm = $("div.loader");
       var requestCodeForm = $(".request-code.form");
@@ -98,7 +101,8 @@
             alert("Please wait, authenticating ("+email+")...", "info");
             requestCodeForm.hide();
             loaderElm.show();
-            $.getJSON('{{authpath}}'+email)
+
+            $.post(baseUrl+"request", { email: email })
               .always(function () {
                 loaderElm.hide();
               })
@@ -112,7 +116,7 @@
                 else {
                   // Success
                   validateCodeForm.show();
-                  alert("Check your e-mail for a mail from us!", "success");
+                  alert("Check your e-mail for a mail from "+siteName+"!", "success");
                 }
 
               })
@@ -133,7 +137,8 @@
             alert("Please wait, authenticating ("+code+")...", "info");
             validateCodeForm.hide();
             loaderElm.show();
-            $.getJSON('{{authpath}}'+email+"/"+code)
+
+            $.post(baseUrl+"/exchange", { email: email, code: code })
               .always(function () {
                 loaderElm.hide();
               })
@@ -146,8 +151,10 @@
                 }
                 else {
                   // Success
-                  validateCodeForm.show();
-                  alert("Check your e-mail for a mail from us!", "success");
+                  validateCodeForm.hide();
+                  alert("Redirecting!", "success");
+                  loaderElm.show();
+                  location.redirect(data.redirect)
                 }
 
               })
