@@ -1,4 +1,4 @@
-const debug = require('debug')('middleware:authorizeUser');
+const debug = require('debug')('mf:middleware:authorizeUser');
 const intersect = require('intersect');
 const normalizeBool = require('normalize-bool');
 const makeSingleInvoker = require('../makeSingleInvoker');
@@ -11,7 +11,8 @@ const authorizeUser = ({groups=[], userIds=[], redirectUrl="/login"}) =>
 
     return (req, res, next) =>
     {
-      const authorized = normalizeBool(intersect(userService.groups, groups).length || ~userIds.indexOf(userService.userId));
+      const user = userService.currentUser;
+      const authorized = normalizeBool(user && (intersect(user.groups, groups).length || ~userIds.indexOf(user.userId)));
 
       debug('authorized', authorized, groups, userIds)
 
@@ -23,6 +24,7 @@ const authorizeUser = ({groups=[], userIds=[], redirectUrl="/login"}) =>
         else {
           maybeThrow(!authorized, 'Access denied', 401);
         }
+
         return;
       }
 

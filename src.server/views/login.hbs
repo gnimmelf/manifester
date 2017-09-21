@@ -154,7 +154,9 @@
                   validateCodeForm.hide();
                   alert("Redirecting!", "success");
                   loaderElm.show();
-                  location.redirect(data.redirect)
+                  var matches = window.location.search.match(/(&|\?)origin=(.*?)(&|$)/);
+                  var origin = matches ? matches[2] : "/"
+                  window.location.href = origin;
                 }
 
               })

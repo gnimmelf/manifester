@@ -1,4 +1,4 @@
-const debug = require('debug')('routes:admin');
+const debug = require('debug')('mf:routes:admin');
 const { join } = require('path');
 const { Router } = require('express');
 const {

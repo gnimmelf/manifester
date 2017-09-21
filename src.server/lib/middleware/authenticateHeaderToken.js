@@ -1,4 +1,4 @@
-const debug = require('debug')('middleware:authenticateHeaderToken');
+const debug = require('debug')('mf:middleware:authenticateHeaderToken');
 const makeSingleInvoker = require('../makeSingleInvoker');
 
 const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
@@ -7,8 +7,6 @@ const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
 
   return (req, res, next) =>
   {
-
-
     debug("cookies", req.cookies)
 
     let token = req.headers[tokenKeyName] || req.cookies[tokenKeyName];
@@ -25,6 +23,7 @@ const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
         debug('unauthenticated', err.message)
         req.container.registerValue('userId', undefined)
         delete req.headers[tokenKeyName];
+        delete req.cookies[tokenKeyName];
         next();
       });
   };

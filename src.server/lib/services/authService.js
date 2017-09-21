@@ -1,4 +1,4 @@
-const debug = require('debug')('service:authService');
+const debug = require('debug')('mf:service:authService');
 const { join } = require('path');
 const jwt = require('jsonwebtoken');
 const { makeLogincode, maybeThrow } = require('../');
@@ -7,8 +7,10 @@ const AUTH_FILE = 'auth.json';
 
 module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) => {
 
+  const userDb = dbService.users;
+
   const maybeGetUser = (email) => {
-    const user = dbService.users.get(email);
+    const user = userDb.get(email);
     maybeThrow(!user, 'User not found by given email', 422);
     return user['common.json'];
   }
@@ -24,7 +26,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         const logincode = makeLogincode();
         const siteSettings = siteService.settings;
 
-        dbService.users.set(join(email, AUTH_FILE), 'logincode', logincode);
+        userDb.set(join(email, AUTH_FILE), 'logincode', logincode);
 
         templateService['mail-logincode']
           .render({
@@ -57,18 +59,18 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
         maybeGetUser(email);
 
-        const authData = dbService.users.get(join(email, AUTH_FILE));
+        const authData = userDb.get(join(email, AUTH_FILE));
 
         maybeThrow(!authData.logincode, 'No logincode requested', 422);
         maybeThrow(authData.logincode != logincode, 'Logincode incorrect', 422);
 
-        dbService.users.set(join(email, AUTH_FILE), 'logincode', '');
+        userDb.set(join(email, AUTH_FILE), 'logincode', '');
 
         let authToken;
 
         // Create new token
         authToken = jwt.sign({ email : email, salt: makeLogincode(20) }, hashSecret);
-        dbService.users.set(join(email, AUTH_FILE), 'authToken', authToken);
+        userDb.set(join(email, AUTH_FILE), 'authToken', authToken);
 
         resolve(authToken)
       });
@@ -81,11 +83,15 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
         maybeThrow(!token, 'No token passed', 422);
 
-        jwt.verify(token, hashSecret, (err, decoded) => {
-          maybeThrow(err);
-          resolve(decoded);
-        });
+        const decoded = jwt.verify(token, hashSecret);
+        const authData = userDb.get(join(decoded.email, AUTH_FILE));
 
+        maybeThrow(!authData, 'Token userId not found', 404)
+        maybeThrow(!authData.authToken, 'No matching token found', 401)
+        maybeThrow(authData.authToken != token, 'Token mismatch', 401)
+        // TODO! Implement expiry time
+
+        resolve(decoded);
       });
     },
 

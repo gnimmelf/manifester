@@ -1,4 +1,4 @@
-const debug = require('debug')('apis:authenticate');
+const debug = require('debug')('mf:apis:authenticate');
 
 const { sendApiResponse } = require('../');
 

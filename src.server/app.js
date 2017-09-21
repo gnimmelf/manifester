@@ -1,4 +1,4 @@
-const debug = require('debug')('app');
+const debug = require('debug')('mf:app');
 
 const express = require('express');
 const favicon = require('serve-favicon');
