@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title",
+      "description": "Plain text"
+    },
+    "content": {
+      "type": "string",
+      "title": "Content",
+      "description": "Markdown"
+    },
+    "meta": { "$ref": "./content.meta.json#/properties" }
+  }
+}

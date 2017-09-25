@@ -7,10 +7,9 @@ _Dead simple headless CMS_
 Under leisure development.
 
 ## Tech
-* http://riotjs.com
+* http://brutusin.org/json-forms/
 * https://www.npmjs.com/package/jsonpath
 * https://github.com/BigstickCarpet/json-schema-ref-parser
-* http://brutusin.org/json-forms/
 * https://www.npmjs.com/package/awilix
 * https://www.npmjs.com/package/awilix-express
 
@@ -19,12 +18,11 @@ Under leisure development.
 * https://github.com/chmln/flatpickr
 
 ## Knowledge
-* http://riotjs.com/api/#mixins
 * https://spacetelescope.github.io/understanding-json-schema/basics.html
 * http://objectpath.org/reference.html
-* https://medium.com/@_cmdv_/why-i-chose-to-use-cycle-js-9156173c2752
-* https://cycle.js.org/basic-examples.html
 * https://github.com/pillarjs/understanding-csrf
+* https://github.com/auth0/node-jsonwebtoken
+* https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage
 
 ## Usage
 

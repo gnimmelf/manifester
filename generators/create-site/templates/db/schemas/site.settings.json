@@ -5,7 +5,7 @@
     "siteName": {
       "type": "string",
       "title": "Site name",
-      "description": "Manifester"
+      "description": "Your site name"
     }
   }
 }

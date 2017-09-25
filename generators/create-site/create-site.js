@@ -34,7 +34,8 @@ const store = {};
 
 // Set prompt as green and use the "Replace" text
 prompt.message = colors.green("Package");
-prompt.delimiter = ':';
+prompt.delimiter = ': ';
+prompt.colors = false;
 
 // Ask for variable values
 prompt.start()

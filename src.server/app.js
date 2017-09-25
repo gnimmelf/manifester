@@ -17,9 +17,6 @@ const {
 } = require('./lib');
 
 
-const pathMaps = require('../package.json').appSettings.pathMaps;
-
-
 // Main Express app
 const app = express();
 
@@ -60,13 +57,7 @@ app.use(cookieParser());
 /**
  * Static folders
  */
-Object.keys(pathMaps).forEach(key => {
-  const map = pathMaps[key];
-  const url = join('/', map.url);
-  const dir = upquirePath(map.dir);
-  app.use(url, express.static(dir));
-  debug('path-mappings', key, url, '=>', dir);
-})
+app.use("/public", express.static(join("../", __dirname, "public")));
 
 /**
  * Middleware

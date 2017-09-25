@@ -5,7 +5,7 @@
     "email": {
       "type": "string",
       "title": "E-mail",
-      "description": "Your e-mail-address and username"
+      "description": "Your e-mail-address as username"
     },
     "firstName": {
       "type": "string",

@@ -89,7 +89,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         maybeThrow(!authData, 'Token userId not found', 404)
         maybeThrow(!authData.authToken, 'No matching token found', 401)
         maybeThrow(authData.authToken != token, 'Token mismatch', 401)
-        // TODO! Implement expiry time
+        // TODO! Implement other security measures!
+        // https://github.com/auth0/node-jsonwebtoken
 
         resolve(decoded);
       });
