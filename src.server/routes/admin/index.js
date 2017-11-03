@@ -7,16 +7,25 @@ const { Router } = require('express');
 const {
   upquire,
   makeSingleInvoker,
-  bowerComponentsResources,
 } = require('../../lib');
 const authorize = require('../../lib/middleware/authorizeUser');
 
 const router = Router();
 
-const loginForm = ({ siteService }) => (req, res, next) => {
-  res.render('move-to-own-repo.hbs', { title: siteService.settings.siteName });
+const spa = ({ siteService }) => (req, res, next) => {
+  res.render('single-page-app.hbs', {
+    title: siteService.settings.siteName,
+    scripts: {
+      vendors: [],
+      bundles: ["/public/admin/bundle.js"],
+    },
+    styles: {
+      vendors: [],
+      bundles: ["/public/admin/main.css"],
+    },
+  });
 }
 
-router.get('/', authorize({ groups: ['admins'] }), makeSingleInvoker(loginForm));
+router.get('/', authorize({ groups: ['admins'] }), makeSingleInvoker(spa));
 
 module.exports = router;

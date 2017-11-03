@@ -17,6 +17,12 @@ const invalidateCache = (fsPath) => {
 };
 
 module.exports = ({ dbService }) =>
+/*
+  IMPORTANT!
+  `getSchema` *must* dereference relative on the filesystem, and `getSchemaNames` *must* use the `dbService`.
+  1. If `getSchema` dereferencing (`$RefParser`) uses the `dbService`, the `cwd` will not match relative schema-paths.
+  2. This also makes the schemas starting with `.` hidden, but parsable due to the `ignored: /(^|[\/\\])\../` db-setting behind `dbService`
+*/
 {
   const schemaDb = dbService.schemas;
 
@@ -32,7 +38,6 @@ module.exports = ({ dbService }) =>
 
         maybeThrow(!schemaDb.get(schemaName), `Schema '${schemaName}' not found`, 404)
 
-        // Get it relative on the filesystem, otherwise `$RefParser` can't dereference it...
         const fsPath = getRelFsPath(join(schemaDb.root, schemaName));
 
         if (!cache[fsPath]) {
