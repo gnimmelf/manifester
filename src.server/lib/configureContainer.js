@@ -37,7 +37,8 @@ module.exports = function(mainApp, cwd) {
   const templateService = container.resolve('templateService');
   [
     'mail-logincode.hbs',
-    'login.hbs'
+    'login.hbs',
+    'single-page-app.hbs',
   ].forEach(templateService.set)
 
 

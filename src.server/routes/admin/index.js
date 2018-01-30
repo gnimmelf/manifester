@@ -13,17 +13,19 @@ const authorize = require('../../lib/middleware/authorizeUser');
 const router = Router();
 
 const spa = ({ siteService }) => (req, res, next) => {
-  res.render('single-page-app.hbs', {
+
+  templateService['single-page-app'].render({
     title: siteService.settings.siteName,
     scripts: {
-      vendors: [],
-      bundles: ["/public/admin/bundle.js"],
+      vendors: ["https://code.jquery.com/jquery-2.2.4.min.js"],
+      bundles: ["/public/admin/admin.js"],
     },
     styles: {
       vendors: [],
-      bundles: ["/public/admin/main.css"],
+      bundles: ["/public/admin/index.css"],
     },
-  });
+  })
+  .then(markup => res.send(markup))
 }
 
 router.get('/', authorize({ groups: ['admins'] }), makeSingleInvoker(spa));

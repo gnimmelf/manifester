@@ -16,7 +16,6 @@ const {
   sendApiResponse,
 } = require('./lib');
 
-
 // Main Express app
 const app = express();
 
@@ -37,7 +36,7 @@ app.localApp = express();
  *  View engine setup
  */
 app.set('views', join(__dirname, 'views'));
-app.set('view engine', 'hbs');
+app.set('view engine', 'hbs'); // TODO! Use `jade lang` instead of shitty HBS...
 app.set('json spaces', 2);
 
 
@@ -46,12 +45,6 @@ app.set('json spaces', 2);
  */
 const container = configureContainer(app, join(__dirname, 'lib'));
 app.set('container', container);
-
-
-
-// Register `HandlebardFormHelpers` onto Handlebars (`hbs`)
-require('handlebars-form-helpers').register(require('hbs').handlebars);
-
 
 /**
  * Standard middleware

@@ -17,7 +17,11 @@
     <div data-ui-role="content">
       <app id="app" />
     </div>
-      <!-- App bundle -->
+      {{#if appSettings}}
+        <!-- App settings -->
+        var app = {{{appSettings}}};
+      {{/if}}
+      <!-- App bundles -->
     {{#each scripts.bundles}}
       <script type="text/javascript" src="{{this}}"></script>
     {{/each}}
