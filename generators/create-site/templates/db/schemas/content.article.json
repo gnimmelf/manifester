@@ -12,6 +12,6 @@
       "title": "Content",
       "description": "Markdown"
     },
-    "meta": { "$ref": "./content.meta.json#/properties" }
+    "meta": { "$ref": ".content.meta.json#/properties" }
   }
 }

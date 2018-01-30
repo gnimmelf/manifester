@@ -36,7 +36,7 @@ app.localApp = express();
  *  View engine setup
  */
 app.set('views', join(__dirname, 'views'));
-app.set('view engine', 'hbs'); // TODO! Use `jade lang` instead of shitty HBS...
+app.set('view engine', 'pug');
 app.set('json spaces', 2);
 
 
