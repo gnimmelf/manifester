@@ -8,10 +8,10 @@ module.exports = ({ authService, tokenKeyName }) =>
 
   return {
 
-    requestLogincodeByEmail: (req, res) => {
+    requestLoginCodeByEmail: (req, res) => {
 
       authService.requestLogincodeByEmail(req.body.email)
-        .then(logincode => {
+        .then(loginCode => {
           sendApiResponse(res, { email: req.body.email })
         })
         .catch(err => {
@@ -20,9 +20,9 @@ module.exports = ({ authService, tokenKeyName }) =>
 
     },
 
-    exchangeLogincode2Token: (req, res) => {
+    exchangeLoginCode2Token: (req, res) => {
 
-      authService.exchangeLogincode2Token(req.body.email, req.body.code)
+      authService.exchangeLoginCode2Token(req.body.email, req.body.code)
         .then(token => {
           res.cookie(tokenKeyName, token, {
             httpOnly: true,

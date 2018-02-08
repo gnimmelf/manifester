@@ -1,7 +1,7 @@
 const debug = require('debug')('mf:service:authService');
 const { join } = require('path');
 const jwt = require('jsonwebtoken');
-const { makeLogincode, maybeThrow } = require('../');
+const { makeLoginCode, maybeThrow } = require('../');
 
 const AUTH_FILE = 'auth.json';
 
@@ -17,34 +17,34 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
   return {
 
-    requestLogincodeByEmail: (email) => {
+    requestLoginCodeByEmail: (email) => {
 
       return new Promise((resolve, reject) => {
 
         maybeGetUser(email);
 
-        const logincode = makeLogincode();
+        const loginCode = makeLoginCode();
         const siteSettings = siteService.settings;
 
-        userDb.set(join(email, AUTH_FILE), 'logincode', logincode);
+        userDb.set(join(email, AUTH_FILE), 'loginCode', loginCode);
 
-        templateService['mail-logincode']
+        templateService['mail-login-code']
           .render({
-            logincode: logincode,
+            loginCode: loginCode,
             domainName: siteSettings.siteName
           })
           .then(html => {
 
-            console.log("requestLogincodeByEmail\n", html)
+            console.log("requestLoginCodeByEmail\n", html)
 
             // mailService.sendMail({
             //   senderName: siteSettings.siteName,
             //   recieverEmail: email,
-            //   subjectStr: 'Your requesd logincode',
+            //   subjectStr: 'Your requested loginCode',
             //   textOrHtml: html,
             // });
 
-            resolve(logincode)
+            resolve(loginCode)
           })
           .catch(err => reject(err))
 
@@ -53,7 +53,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
     },
 
 
-    exchangeLogincode2Token: (email, logincode, renewtoken) => {
+    exchangeLoginCode2Token: (email, loginCode, renewtoken) => {
 
       return new Promise((resolve, reject) => {
 
@@ -61,15 +61,15 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
         const authData = userDb.get(join(email, AUTH_FILE));
 
-        maybeThrow(!authData.logincode, 'No logincode requested', 422);
-        maybeThrow(authData.logincode != logincode, 'Logincode incorrect', 422);
+        maybeThrow(!authData.loginCode, 'No login-code requested', 422);
+        maybeThrow(authData.loginCode != loginCode, 'Login-code incorrect', 422);
 
-        userDb.set(join(email, AUTH_FILE), 'logincode', '');
+        userDb.set(join(email, AUTH_FILE), 'loginCode', '');
 
         let authToken;
 
         // Create new token
-        authToken = jwt.sign({ email : email, salt: makeLogincode(20) }, hashSecret);
+        authToken = jwt.sign({ email : email, salt: makeLoginCode(20) }, hashSecret);
         userDb.set(join(email, AUTH_FILE), 'authToken', authToken);
 
         resolve(authToken)

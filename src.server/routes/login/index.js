@@ -18,7 +18,7 @@ const loginForm = ({ siteService }) => (req, res, next) => {
 
     res.send(format(markup, {
       title: 'A manifested site',
-      appSettings: JSON.stringify({authpath: "/api/auth/"}),
+      appSettings: JSON.stringify({authPath: "/api/auth/"}),
       pageBundle: 'login',
     }));
 
@@ -27,6 +27,6 @@ const loginForm = ({ siteService }) => (req, res, next) => {
   }
 }
 
-router.get('/', makeSingleInvoker(loginForm));
+router.get('*', makeSingleInvoker(loginForm));
 
 module.exports = router;

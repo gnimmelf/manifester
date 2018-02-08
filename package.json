@@ -4,8 +4,6 @@
   "private": true,
   "main": "dist.server/app.js",
   "scripts": {
-    "build": "gulp build",
-    "watch": "gulp watch:client",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
