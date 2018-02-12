@@ -11,10 +11,10 @@ const { inspect } = require('./src.server/lib');
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
-app.set('env', process.env.NODE_ENV || 'development');
+app.set('env', process.env.ENV || 'development');
 
 assert(~['production', 'development'].indexOf(app.get('env')),
-    "'NODE_ENV' must be 'production' or 'development' when specified! -Defaults to 'development'");
+    "'ENV' must be 'production' or 'development' when specified! -Defaults to 'development'");
 
 
 // Server

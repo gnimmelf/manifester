@@ -11,14 +11,16 @@ const {
 
 const router = Router();
 
-const loginForm = ({ siteService }) => (req, res, next) => {
+const loginSPA = ({ siteService }) => (req, res, next) => {
 
   try {
     const markup = readFileSync(upquire('/manifester-admin/spa.html', { pathOnly: true }), 'utf8');
 
     res.send(format(markup, {
-      title: 'A manifested site',
-      appSettings: JSON.stringify({authPath: "/api/auth/"}),
+      title: siteService.settings.siteName,
+      appSettings: JSON.stringify({
+        authPath: "/api/auth/",
+      }),
       pageBundle: 'login',
     }));
 
@@ -27,6 +29,6 @@ const loginForm = ({ siteService }) => (req, res, next) => {
   }
 }
 
-router.get('*', makeSingleInvoker(loginForm));
+router.get('*', makeSingleInvoker(loginSPA));
 
 module.exports = router;
