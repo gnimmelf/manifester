@@ -10,7 +10,7 @@ module.exports = ({ authService, tokenKeyName }) =>
 
     requestLoginCodeByEmail: (req, res) => {
 
-      authService.requestLogincodeByEmail(req.body.email)
+      authService.requestLoginCodeByEmail(req.body.email)
         .then(loginCode => {
           sendApiResponse(res, { email: req.body.email })
         })
