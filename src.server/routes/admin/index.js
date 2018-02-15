@@ -8,6 +8,7 @@ const {
   upquire,
   makeSingleInvoker,
 } = require('../../lib');
+const authorize = require('../../lib/middleware/authorizeUser');
 
 const router = Router();
 
@@ -20,9 +21,10 @@ const loginSPA = ({ siteService }) => (req, res, next) => {
       title: siteService.settings.siteName,
       appSettings: JSON.stringify({
         authPath: "/api/auth/",
-        apiPath: "/api",
+        apiPath: "/api/",
       }),
-      pageBundle: 'admin',
+      pageBundleName: "admin",
+      bundlePath: "/public/admin/",
     }));
 
   } catch(err) {
@@ -30,6 +32,6 @@ const loginSPA = ({ siteService }) => (req, res, next) => {
   }
 }
 
-router.get('*', makeSingleInvoker(loginSPA));
+router.get('*', authorize({ groups: ['admins'] }), makeSingleInvoker(loginSPA));
 
 module.exports = router;

@@ -20,8 +20,10 @@ const loginSPA = ({ siteService }) => (req, res, next) => {
       title: siteService.settings.siteName,
       appSettings: JSON.stringify({
         authPath: "/api/auth/",
+        apiPath: "/api/",
       }),
-      pageBundle: 'login',
+      pageBundleName: "login",
+      bundlePath: "/public/admin/",
     }));
 
   } catch(err) {
