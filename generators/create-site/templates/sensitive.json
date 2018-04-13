@@ -11,5 +11,6 @@
       "api_key": "",
       "domain": ""
     }
-  }
+  },
+  "corsPolicy": "*"
 }

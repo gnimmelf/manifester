@@ -37,7 +37,6 @@ module.exports = function(mainApp, cwd) {
   const templateService = container.resolve('templateService');
   [
     'mail-login-code.pug',
-    'single-page-app.pug',
   ].forEach(templateService.set)
 
 

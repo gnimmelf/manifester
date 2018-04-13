@@ -4,6 +4,7 @@ const express = require('express');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
+var cors = require('cors');
 
 const { scopePerRequest } = require('awilix-express');
 const { urlencoded, json } = require('body-parser');
@@ -18,16 +19,6 @@ const {
 
 // Main Express app
 const app = express();
-
-// Cors
-if (app.get('env') !== 'production') {
-  app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });
-}
-
 // Exportable Express app for local development of the "head" in "headless"
 app.localApp = express();
 
@@ -45,6 +36,13 @@ app.set('json spaces', 2);
  */
 const container = configureContainer(app, join(__dirname, 'lib'));
 app.set('container', container);
+
+/**
+ * Cors
+ */
+if (app.get('env') !== 'production') {
+  app.use(cors());
+}
 
 /**
  * Standard middleware
@@ -66,18 +64,10 @@ app.use(require('./lib/middleware/authenticateHeaderToken'));
  * Routes
  */
 
-app.use('/api/auth', require('./routes/authenticate'));
-app.use('/api/schemas', require('./routes/schemas'));
-app.use('/admin', require('./routes/admin'));
-app.use('/login', require('./routes/login'));
+app.use('/api/auth', require('./routes/api.authenticate'));
+//app.use('/api/data', require('./routes/data'));
+app.use('/api/schemas', require('./routes/api.schemas'));
 app.use(app.localApp)
-
-
-/**
- * Static folder
- */
-app.use("/public", express.static(join(__dirname, "../public")));
-
 
 /**
  * Favicon: uncomment after placing your favicon in... TODO! Where? -Should prefer `app.localApp`...

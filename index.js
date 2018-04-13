@@ -84,7 +84,7 @@ function onListening() {
  * Export stuff needed to create client code.
  */
 
-module.exports = Object.assign({}, app.localApp, {
+module.exports = Object.assign(app.localApp, {
   mainApp: app,
   run: ({ localAppPath = dirname(caller()) } = {}) =>  {
 
@@ -111,4 +111,3 @@ module.exports = Object.assign({}, app.localApp, {
     server.on('listening', onListening);
   },
 })
-
