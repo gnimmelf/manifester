@@ -1,9 +1,7 @@
 const path = require('path');
 const join = path.join;
-const jsend = require('jsend')({ strict: false });
-
-const upquire = exports.upquire = require('upquire');
 const RESTfulError = require('./RESTfulError');
+const upquire = exports.upquire = require('upquire');
 const { inspect } = require('util');
 
 exports.inspect = (obj) => console.log(inspect(obj, {colors: true, depth: 5}));
@@ -20,55 +18,14 @@ exports.upquirePath = function(some_path, ...rest)
   return full_path;
 }
 
+exports.isObject = (a) => (!!a) && (a.constructor === Object);
+
 exports.requestFullUrl = (expressRequestObj) =>
 {
   const req = expressRequestObj;
   const secure = req.connection.encrypted || req.headers['x-forwarded-proto'] === 'https'
   return `http${(secure ? 's' : '')}://${req.headers.host}${req.originalUrl}`;
 };
-
-
-exports.addFileExt = (path, ext=".json") => path.endsWith(ext) ? path : `${path}.json`;
-
-
-exports.sendApiResponse = (expressResponseObj, response) =>
-// Send `response` as jSend via `expressResponseObj`
-{
-  let method = 'success';
-  let apiResponse;
-
-  if (response instanceof Error) {
-
-    let data;
-
-    if (!(response instanceof RESTfulError) && RESTfulError.getByTypeOrCode(response.code)) {
-      // Make it a `RESTfulError`
-      data = response.data;
-      response = new RESTfulError(response.code, response.message)
-    }
-    else {
-      response.code = 500;
-    }
-
-
-    method = response.code < 500 ? 'fail' : 'error';
-    apiResponse = {
-      code: response.code,
-      name: response.name,
-      message: response.message || '',
-    };
-    if (apiResponse.name.toLowerCase() === apiResponse.message.toLowerCase() && data) {
-      apiResponse.message = data.toString();
-    }
-
-
-
-    // TODO! Use `morgan` logger?
-    console.error('sendApiResponse', apiResponse||response);
-  }
-  expressResponseObj.json(jsend[method](apiResponse||response));
-}
-
 
 exports.maybeThrow = (predicate, message, RestErrorTypeOrCode) =>
 {
@@ -85,6 +42,7 @@ exports.maybeThrow = (predicate, message, RestErrorTypeOrCode) =>
   }
 }
 
+exports.addFileExt = (path, ext=".json") => path.endsWith(ext) ? path : `${path}.json`;
 
 exports.httpGet = (url) =>
 // https://www.tomas-dvorak.cz/posts/nodejs-request-without-dependencies/

@@ -39,9 +39,13 @@ app.set('container', container);
 
 /**
  * Cors
+ * NOTE! The manifested `localApp` must set it's own CORS when in production (see `../index.js`)
  */
 if (app.get('env') !== 'production') {
-  app.use(cors());
+  app.use(cors({
+    origin: true,
+    credentials: true,
+  }));
 }
 
 /**
@@ -81,13 +85,6 @@ app.use(app.localApp)
  * Downstream errorhandling
  */
 
-// API-error: JSON-response
-app.use('/api', function(err, req, res, next) {
-  err.data = req.protocol + '://' + req.get('host') + req.originalUrl;
-  sendApiResponse(res, err);
-});
-
-
 // Catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -95,6 +92,15 @@ app.use(function(req, res, next) {
   next(err);
 });
 
+// API-error: JSON-response
+app.use('/api', function(err, req, res, next) {
+  if (req.app.get('env') !== 'production' && err.code >= 500) {
+    console.error(err)
+  }
+
+  err.data = req.protocol + '://' + req.get('host') + req.originalUrl;
+  sendApiResponse(res, err);
+});
 
 // Non-API-error: HTML-response
 app.use(function(err, req, res, next) {

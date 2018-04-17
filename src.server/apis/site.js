@@ -1,23 +1,21 @@
-const debug = require('debug')('apis:user');
+const debug = require('debug')('apis:site');
 
 const {
   sendApiResponse,
   requestFullUrl,
   maybeThrow } = require('../lib');
 
-module.exports = ({ userService }) =>
+module.exports = ({ siteService }) =>
 {
 
   return {
 
-    getCurrentUser: (req, res) => {
+    getSettings: (req, res) => {
 
       return new Promise((resolve, reject) => {
-        const userData = userService.currentUser;
+        const settings = siteService.getSettings();
 
-        maybeThrow(!userData, 'Not logged in', 401)
-
-        resolve(userData);
+        resolve(settings);
       })
       .then(data => {
         sendApiResponse(res, data)

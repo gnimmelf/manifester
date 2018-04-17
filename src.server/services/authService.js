@@ -11,7 +11,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
   const maybeGetUser = (email) => {
     const user = userDb.get(email);
-    maybeThrow(!user, 'User not found by given email', 422);
+    maybeThrow(!user, 'No user found by given email', 422);
     return user['common.json'];
   }
 
