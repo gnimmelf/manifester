@@ -1,5 +1,5 @@
 const debug = require('debug')('mf:middleware:authenticateHeaderToken');
-const makeSingleInvoker = require('../makeSingleInvoker');
+const { makeSingleInvoker } = require('../lib');
 
 const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
 {

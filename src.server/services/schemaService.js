@@ -1,7 +1,7 @@
 const debug = require('debug')('mf:services:schemaService');
 const { join, relative } = require('path');
 const assert = require('assert');
-const { maybeThrow, inspect, addFileExt } = require('../');
+const { maybeThrow, inspect, addFileExt } = require('../lib');
 const jp = require('jsonpath');
 const $RefParser = require('json-schema-ref-parser');
 const minimatch = require('minimatch');

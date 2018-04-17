@@ -8,6 +8,7 @@ const { inspect } = require('util');
 
 exports.inspect = (obj) => console.log(inspect(obj, {colors: true, depth: 5}));
 
+exports.upquire = upquire;
 
 exports.upquirePath = function(some_path, ...rest)
 // Find `some_path` somewhere in parent folder structure and resolve it.

@@ -3,7 +3,7 @@ const { Router } = require('express');
 const { makeInvoker } = require('awilix-express');
 
 const router = Router();
-const api = makeInvoker(require('../../lib/apis/schemas'));
+const api = makeInvoker(require('../../apis/schemas'));
 
 const onGlobPatternNext = (req, res, next) => !~req.params.schemaName.indexOf("*") ? next() : next('route');
 

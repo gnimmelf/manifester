@@ -1,7 +1,7 @@
 const debug = require('debug')('mf:services:userService');
 const { join } = require('path');
 const assert = require('assert');
-const { maybeThrow } = require('../../');
+const { maybeThrow } = require('../../lib');
 const jp = require('jsonpath');
 
 // Symbols
@@ -44,6 +44,7 @@ module.exports = ({ dbService, userId }) => {
 
   return {
     currentUser: userId && userDb.get(userId) ? new User(userId) : undefined,
+    users: userDb.get()
   }
 
 };

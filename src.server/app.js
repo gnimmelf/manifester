@@ -34,7 +34,7 @@ app.set('json spaces', 2);
 /**
  * App setup (`awilix1`-container)
  */
-const container = configureContainer(app, join(__dirname, 'lib'));
+const container = configureContainer(app, __dirname);
 app.set('container', container);
 
 /**
@@ -56,8 +56,9 @@ app.use(cookieParser());
 /**
  * Middleware
  */
+
 app.use(scopePerRequest(container));
-app.use(require('./lib/middleware/authenticateHeaderToken'));
+app.use(require('./middleware/authenticateHeaderToken'));
 
 
 /**
@@ -65,8 +66,9 @@ app.use(require('./lib/middleware/authenticateHeaderToken'));
  */
 
 app.use('/api/auth', require('./routes/api.authenticate'));
-//app.use('/api/data', require('./routes/data'));
+app.use('/api/user', require('./routes/api.user'));
 app.use('/api/schemas', require('./routes/api.schemas'));
+app.use('/api/data', require('./routes/api.data'));
 app.use(app.localApp)
 
 /**

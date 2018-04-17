@@ -185,7 +185,7 @@ class Db {
   }
 
 
-  get(relPath, key, reassign)
+  get(relPath, key, reassign=false)
   /*
     Get object in tree by `relPath` or get value from it by `key`
     Arguments:

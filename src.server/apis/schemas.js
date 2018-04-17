@@ -1,6 +1,6 @@
 const debug = require('debug')('apis:schemas');
 
-const { sendApiResponse, requestFullUrl } = require('../');
+const { sendApiResponse, requestFullUrl } = require('../lib');
 
 module.exports = ({ schemaService }) =>
 {
