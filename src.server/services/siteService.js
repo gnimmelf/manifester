@@ -1,7 +1,7 @@
 const debug = require('debug')('services:siteService');
 const { join, relative } = require('path');
 const assert = require('assert');
-const { maybeThrow, inspect, addFileExt } = require('../lib');
+const { maybeThrow } = require('../lib');
 const jp = require('jsonpath');
 const minimatch = require('minimatch');
 

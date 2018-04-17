@@ -46,21 +46,25 @@ exports.sendApiResponse = (expressResponseObj, response) =>
       data = response.data;
       response = new RESTfulError(response.code, response.message)
     }
-
-    if (response instanceof RESTfulError) {
-      method = response.code < 500 ? 'fail' : 'error';
-      apiResponse = {
-        code: response.code,
-        name: response.name,
-        message: response.message || '',
-      };
-      if (apiResponse.name.toLowerCase() === apiResponse.message.toLowerCase() && data) {
-        apiResponse.message = data.toString();
-      }
+    else {
+      response.code = 500;
     }
 
+
+    method = response.code < 500 ? 'fail' : 'error';
+    apiResponse = {
+      code: response.code,
+      name: response.name,
+      message: response.message || '',
+    };
+    if (apiResponse.name.toLowerCase() === apiResponse.message.toLowerCase() && data) {
+      apiResponse.message = data.toString();
+    }
+
+
+
     // TODO! Use `morgan` logger?
-    console.error('DEBUG', response);
+    console.error('sendApiResponse', apiResponse||response);
   }
   expressResponseObj.json(jsend[method](apiResponse||response));
 }

@@ -19,7 +19,7 @@ module.exports = ({ userService }) =>
 
         maybeThrow(!userData, 'Not logged in', 401)
 
-        resolve(data);
+        resolve(userData);
       })
       .then(data => {
         sendApiResponse(res, data)
