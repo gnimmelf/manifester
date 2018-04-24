@@ -23,8 +23,8 @@ module.exports = ({ authService, tokenKeyName }) =>
     exchangeLoginCode2Token: (req, res) => {
 
       authService.exchangeLoginCode2Token(req.body.email, req.body.code)
-        .then(token => {
-          res.cookie(tokenKeyName, token, {
+        .then(payload => {
+          res.cookie(tokenKeyName, payload, {
             httpOnly: true,
             sameSite: "Strict"
           })
@@ -39,8 +39,27 @@ module.exports = ({ authService, tokenKeyName }) =>
       var token = req.params.token;
 
       authService.authenticateToken(token)
+        .then(payload => {
+          sendApiResponse(res, payload);
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
+    },
+
+    invalidateSession: (req, res) => {
+
+      var token = req.cookies[tokenKeyName];
+
+      console.log("invalidateSession", token)
+
+      authService.authenticateToken(token)
         .then(decoded => {
-          sendApiResponse(res, decoded);
+          res.clearCookie(tokenKeyName);
+          return authService.invalidateToken(decoded.email)
+        })
+        .then(payload => {
+          sendApiResponse(res, payload)
         })
         .catch(err => {
           sendApiResponse(res, err)

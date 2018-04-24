@@ -10,6 +10,9 @@ module.exports = (expresspayloadObj, payload) =>
 
   if (payload instanceof Error) {
 
+    // TODO! Use `morgan` logger to log error?
+    console.error(payload);
+
     status = payload.code || 500;
 
     if (!(payload instanceof RESTfulError) && RESTfulError.getByTypeOrCode(payload.code)) {
@@ -23,10 +26,12 @@ module.exports = (expresspayloadObj, payload) =>
       msg: payload.message || '',
       data: payload.data || false,
     };
-    // TODO! Use `morgan` logger to log error?
   }
   else {
-    apiPayload = payload || {};
+    apiPayload = typeof payload == 'string' ? {
+      msg: payload,
+      data: undefined,
+    } : payload || {};
   }
 
   debug(`> apiPayload:${status}`, apiPayload);

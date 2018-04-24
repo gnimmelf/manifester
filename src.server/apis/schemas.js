@@ -7,7 +7,8 @@ module.exports = ({ schemaService }) =>
 
   return {
 
-    getSchema: (req, res) => {
+    getSchema: (req, res) =>
+    {
       debug(req.params.schemaName)
 
       schemaService.getSchema(req.params.schemaName)

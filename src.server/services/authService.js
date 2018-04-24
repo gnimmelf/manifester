@@ -66,10 +66,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
         userDb.set(join(email, AUTH_FILE), 'loginCode', '');
 
-        let authToken;
-
         // Create new token
-        authToken = jwt.sign({ email : email, salt: makeLoginCode(20) }, hashSecret);
+        const authToken = jwt.sign({ email : email, salt: makeLoginCode(20) }, hashSecret);
         userDb.set(join(email, AUTH_FILE), 'authToken', authToken);
 
         resolve(authToken)
@@ -95,6 +93,17 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         resolve(decoded);
       });
     },
+
+     invalidateToken: (email) => {
+
+      return new Promise((resolve, reject) => {
+
+        userDb.delete(join(email, AUTH_FILE), 'authToken');
+
+        resolve("Token invalidated");
+      });
+    },
+
 
   };
 

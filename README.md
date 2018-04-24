@@ -68,8 +68,9 @@ Use at own risk! This is a pet project, so it is justified according to my inter
 ## Login
 ```
 http --session=~/tmp/session.json :3000/api/user/current
-http --session=~/tmp/session.json POST :3000/api/auth/request email=gnimmelf@gmail
+http --session=~/tmp/session.json POST :3000/api/auth/request email=gnimmelf@gmail.com
 http --session=~/tmp/session.json POST :3000/api/auth/exchange
-http --session=~/tmp/session.json POST :3000/api/auth/exchange email=gnimmelf@gmail code=06856
+http --session=~/tmp/session.json POST :3000/api/auth/exchange email=gnimmelf@gmail.com code=06856
 http --session=~/tmp/session.json :3000/api/user/current
+http --session=~/tmp/session.json :3000/api/auth/logout
 ```
