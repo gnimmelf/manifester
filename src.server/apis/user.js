@@ -19,8 +19,8 @@ module.exports = ({ userService, authService, tokenKeyName }) =>
 
         resolve(userData);
       })
-      .then(data => {
-        sendApiResponse(res, data)
+      .then(payload => {
+        sendApiResponse(res, { user: payload })
       })
       .catch(err => {
         sendApiResponse(res, err)
