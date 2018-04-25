@@ -47,24 +47,5 @@ module.exports = ({ authService, tokenKeyName }) =>
         });
     },
 
-    invalidateSession: (req, res) => {
-
-      var token = req.cookies[tokenKeyName];
-
-      console.log("invalidateSession", token)
-
-      authService.authenticateToken(token)
-        .then(decoded => {
-          res.clearCookie(tokenKeyName);
-          return authService.invalidateToken(decoded.email)
-        })
-        .then(payload => {
-          sendApiResponse(res, payload)
-        })
-        .catch(err => {
-          sendApiResponse(res, err)
-        });
-    },
-
   };
 };

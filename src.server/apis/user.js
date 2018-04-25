@@ -5,7 +5,7 @@ const {
   requestFullUrl,
   maybeThrow } = require('../lib');
 
-module.exports = ({ userService }) =>
+module.exports = ({ userService, authService, tokenKeyName }) =>
 {
 
   return {
@@ -26,6 +26,22 @@ module.exports = ({ userService }) =>
         sendApiResponse(res, err)
       });
 
+    },
+
+    invalidateSession: (req, res) => {
+      var token = req.params.token || req.cookies[tokenKeyName];
+
+      authService.authenticateToken(token)
+        .then(decoded => {
+          res.clearCookie(tokenKeyName);
+          return authService.invalidateToken(decoded.email)
+        })
+        .then(payload => {
+          sendApiResponse(res, payload)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
     },
 
   };

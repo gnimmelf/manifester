@@ -10,10 +10,13 @@ module.exports = (expresspayloadObj, payload) =>
 
   if (payload instanceof Error) {
 
-    // TODO! Use `morgan` logger to log error?
-    console.error(payload);
 
     status = payload.code || 500;
+
+    if (status >= 500) {
+      // TODO! Use `morgan` logger to log error?
+      console.error(payload);
+    }
 
     if (!(payload instanceof RESTfulError) && RESTfulError.getByTypeOrCode(payload.code)) {
       // Make it a `RESTfulError`
