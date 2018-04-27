@@ -6,9 +6,9 @@
       "type": "string",
       "title": "Title"
     },
-    "content": {
+    "description": {
       "type": "string",
-      "title": "Content"
+      "title": "Description"
     },
     "meta": { "$ref": ".core.meta.json#/properties" }
   }

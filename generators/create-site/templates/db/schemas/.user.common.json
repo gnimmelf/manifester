@@ -5,7 +5,7 @@
     "email": {
       "type": "string",
       "title": "E-mail",
-      "description": "Your e-mail-address as username"
+      "description": "Your e-mail-address and username"
     },
     "firstName": {
       "type": "string",
@@ -14,6 +14,10 @@
     "lastName": {
       "type": "string",
       "title": "Last name"
+    },
+    "cellPhoneNo": {
+      "type": "string",
+      "title": "Cell phone number"
     }
   }
 }
