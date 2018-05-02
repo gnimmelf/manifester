@@ -14,8 +14,8 @@ module.exports = ({ schemaService }) =>
       schemaService.getSchema(req.params.schemaName)
         .then(schema => {
 
-          // Add `schema.id`, just because.
-          schema.id = requestFullUrl(req);
+          // Add `schema.$id`, just because.
+          schema.$id = requestFullUrl(req);
 
           sendApiResponse(res, { schema: schema })
         })

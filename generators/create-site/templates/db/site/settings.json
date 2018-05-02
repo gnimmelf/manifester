@@ -1,3 +1,8 @@
 {
-  "siteName": "A Manifested Site"
+  "siteName": "A Manifested Site",
+  "groups": [
+    ["admins", "Administrator"],
+    ["editors", "Editor"],
+    ["users", "User"]
+  ]
 }

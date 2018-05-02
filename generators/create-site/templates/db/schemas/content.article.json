@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
     "title": {
@@ -9,7 +9,7 @@
     "content": {
       "type": "string",
       "title": "Content"
-    },
-    "meta": { "$ref": ".core.meta.json#/properties" }
-  }
+    }
+  },
+  "meta": { "$ref": ".core.meta.json#/properties" }
 }

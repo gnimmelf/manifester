@@ -11,3 +11,10 @@ router.get('/:schemaName', onGlobPatternNext, api('getSchema'));
 router.get('/:globpattern?', api('getSchemaNames'));
 
 module.exports = router;
+
+/*
+http --session=~/tmp/session.json POST :3000/api/schemas
+http --session=~/tmp/session.json POST :3000/api/schemas/content.*
+http --session=~/tmp/session.json POST :3000/api/schemas/content.article
+http --session=~/tmp/session.json POST :3000/api/schemas/content.article.json
+*/
