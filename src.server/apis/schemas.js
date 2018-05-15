@@ -1,4 +1,4 @@
-const debug = require('debug')('apis:schemas');
+const debug = require('debug')('mf:api:schemas');
 
 const { sendApiResponse, requestFullUrl } = require('../lib');
 

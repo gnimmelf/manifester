@@ -1,4 +1,4 @@
-const debug = require('debug')('apis:site');
+const debug = require('debug')('mf:api:site');
 
 const {
   sendApiResponse,

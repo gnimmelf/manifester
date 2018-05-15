@@ -1,4 +1,4 @@
-const debug = require('debug')('mf:services:schemaService');
+const debug = require('debug')('mf:service:schemaService');
 const { join, relative } = require('path');
 const assert = require('assert');
 const { maybeThrow, inspect, addFileExt } = require('../lib');

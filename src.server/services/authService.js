@@ -1,6 +1,8 @@
 const debug = require('debug')('mf:service:authService');
 const { join } = require('path');
 const jwt = require('jsonwebtoken');
+const assert = require('assert');
+const intersect = require('intersect');
 const { makeLoginCode, maybeThrow } = require('../lib');
 
 const AUTH_FILE = 'auth.json';
@@ -94,7 +96,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
       });
     },
 
-     invalidateToken: (email) => {
+    invalidateToken: (email) => {
 
       return new Promise((resolve, reject) => {
 
@@ -104,6 +106,25 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
       });
     },
 
+    authorize: (user, schema, operation) => {
+
+      assert(~['read', 'write'].indexOf(operation));
+
+      const userGroups = user ? user.groups : [];
+      const isAdmin = !!~userGroups.indexOf('admin');
+
+      const authorized = isAdmin ? 'admin' : (schema.ACL && Object.entries(schema.ACL).find(([group, permissions]) => {
+          // For each schema.ACL entry, ACL-`group` must be in `userGroups` AND ACL-`permissions` must be all, "*", or include `operation`:
+          const found = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
+          return found ? group : false;
+        }));
+
+      debug('authorized', authorized)
+
+      maybeThrow(!authorized, 'Cannot read data', 401)
+
+      return user;
+    }
 
   };
 

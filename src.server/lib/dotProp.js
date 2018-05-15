@@ -1,4 +1,4 @@
-const debug = require('debug')('dotProp');
+const debug = require('debug')('mf:dotProp');
 
 const dotProp = require('dot-prop');
 const isObj = require('is-obj');

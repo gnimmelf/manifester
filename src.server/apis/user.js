@@ -1,4 +1,4 @@
-const debug = require('debug')('apis:user');
+const debug = require('debug')('mf:api:user');
 
 const {
   sendApiResponse,
@@ -13,11 +13,11 @@ module.exports = ({ userService, authService, tokenKeyName }) =>
     getCurrentUser: (req, res) => {
 
       return new Promise((resolve, reject) => {
-        const userData = userService.currentUser;
+        const user = userService.currentUser;
 
-        maybeThrow(!userData, 'Not logged in', 401)
+        maybeThrow(!user, 'Not logged in', 401)
 
-        resolve(userData);
+        resolve(user);
       })
       .then(payload => {
         sendApiResponse(res, { user: payload })

@@ -1,4 +1,4 @@
-const debug = require('debug')('services:templateService');
+const debug = require('debug')('mf:service:templateService');
 const fs = require('fs');
 const assert = require('assert');
 const {

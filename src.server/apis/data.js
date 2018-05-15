@@ -1,13 +1,12 @@
-const debug = require('debug')('apis:data');
+const debug = require('debug')('mf:api:data');
+const { maybeThrow, sendApiResponse, requestFullUrl, addFileExt } = require('../lib');
 
-const { sendApiResponse, requestFullUrl, addFileExt } = require('../lib');
-
-module.exports = ({ dbService, schemaService }) =>
+module.exports = ({ dbService, schemaService, authService, userService }) =>
 {
 
   const contentDb = dbService.content;
 
-  console.log('Tree:', contentDb.tree)
+
 
   return {
 
@@ -16,16 +15,19 @@ module.exports = ({ dbService, schemaService }) =>
       schemaService.getSchema(req.params.schemaName)
       .then(schema => {
 
-        console.log('schema', schema)
+        debug('schema', schema)
 
-        let relPath = req.params.schemaName.replace(/^content\./, '')
-        if (req.params.fileId) {
-          relPath += addFileExt('/'+req.params.fileId);
-        }
+        const user = authService.authorize(userService.currentUser, schema, 'read');
+
+        const fileId = req.params.fileId;
+
+        const relPath = req.params.schemaName.replace(/^content\./, '')+(fileId ? addFileExt('/'+req.params.fileId) : '');
 
         const data = contentDb.get(relPath);
 
-        return data;
+        maybeThrow(!data, `FileId '${fileId}' not found`, 404);
+
+        return fileId ? data : Object.keys(data);
       })
       .then(data => {
         sendApiResponse(res, data)
@@ -38,15 +40,26 @@ module.exports = ({ dbService, schemaService }) =>
 
     setData: (req, res) => {
 
-      return new Promise((resolve, reject) => {
+      schemaService.getSchema(req.params.schemaName)
+      .then(schema => {
 
-        // set(relPath, key='', value=undefined)
+        const user = authService.authorize(userService.currentUser, schema, 'write');
 
-        const data = contentDb.get(req.params.schemaName)
+        const data = request.body;
 
-        console.log('data', data)
+        console.log('schema', schema, data)
 
-        resolve(data);
+        // TODO! Validate data VS schema
+
+        let relPath = req.params.schemaName.replace(/^content\./, '')
+
+        if (req.params.fileId) {
+          relPath += addFileExt('/'+req.params.fileId);
+        }
+
+        maybeThrow(!true, contentDb.set(relPath, req.params.dottedPath, data), 'Could not update Db', 424);
+
+        return success;
       })
       .then(data => {
         sendApiResponse(res, data)

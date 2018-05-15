@@ -3,7 +3,7 @@
 
   TODO! Check to use the NoSQL DB from total.js (`./nosql.js`)?
  */
-const debug = require('debug')('db');
+const debug = require('debug')('mf:db');
 const assert = require('assert');
 const assign = require('deep-assign');
 const fs = require('fs');

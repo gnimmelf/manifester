@@ -1,4 +1,4 @@
-const debug = require('debug')('repo:nodemailerTransport');
+const debug = require('debug')('mf:repo:nodemailerTransport');
 const assert = require('assert');
 const mailgunTransport = require('nodemailer-mailgun-transport');
 

@@ -73,4 +73,6 @@ http --session=~/tmp/session.json POST :3000/api/auth/exchange
 http --session=~/tmp/session.json POST :3000/api/auth/exchange email=gnimmelf@gmail.com code=06856
 http --session=~/tmp/session.json :3000/api/user/current
 http --session=~/tmp/session.json :3000/api/auth/logout
+
+http --session=~/tmp/session.json :3000/api/data/
 ```

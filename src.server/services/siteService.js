@@ -1,4 +1,4 @@
-const debug = require('debug')('services:siteService');
+const debug = require('debug')('mf:service:siteService');
 const { join, relative } = require('path');
 const assert = require('assert');
 const { maybeThrow } = require('../lib');

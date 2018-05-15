@@ -1,4 +1,4 @@
-const debug = require('debug')('service:mailService');
+const debug = require('debug')('mf:service:mailService');
 const fs = require('fs');
 const { join } = require('path');
 const nodemailer = require('nodemailer');

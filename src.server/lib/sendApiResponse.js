@@ -1,4 +1,4 @@
-const debug = require('debug')('lib:sendApiResponse');
+const debug = require('debug')('mf:sendApiResponse');
 const RESTfulError = require('./RESTfulError');
 const { isObject } = require('./utils');
 
