@@ -3,7 +3,7 @@ const { join } = require('path');
 const jwt = require('jsonwebtoken');
 const assert = require('assert');
 const intersect = require('intersect');
-const { makeLoginCode, maybeThrow } = require('../lib');
+const { makeLoginCode, maybeThrow } = require('../../lib');
 
 const AUTH_FILE = 'auth.json';
 
@@ -119,9 +119,9 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
           return found ? group : false;
         }));
 
-      debug('authorized', authorized)
+      debug(operation.toUpperCase()+': '+(authorized ? 'authorized' : 'unauthorized'), authorized, user ? user : '<not logged in>')
 
-      maybeThrow(!authorized, 'Cannot read data', 401)
+      maybeThrow(!authorized, 'unauthorized', 401)
 
       return user;
     }

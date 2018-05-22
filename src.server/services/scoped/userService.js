@@ -30,11 +30,14 @@ module.exports = ({ dbService, userId }) => {
       if (!this[GROUPS]) {
         const tree = userDb.get('groups.json');
 
-        this[GROUPS] = jp.nodes(tree, "$[*].members")
+        const groups = jp.nodes(tree, "$[*].members")
           // Filter on `userId` in `members`-array
           .filter(({_, value}) => ~value.indexOf(this[USERID]))
           // Map to the group-name part of the json-`path`
           .map(({path, _}) => path[1]);
+
+        // Set groups, automatically add `user`-group
+        this[GROUPS] = groups.concat('user')
       }
 
       return this[GROUPS];

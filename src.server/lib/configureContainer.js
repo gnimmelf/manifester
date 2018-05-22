@@ -32,10 +32,11 @@ module.exports = function(mainApp, cwd) {
   });
 
   /**
-   * Register default templates
+   * Register `templateService & default templates
    */
   const templateService = container.resolve('templateService');
-  [
+
+  ;[
     'mail-login-code.pug',
   ].forEach(templateService.set)
 
