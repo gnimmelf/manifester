@@ -11,6 +11,7 @@ router.post('/:schemaName/:objId/:dottedPath?', api('setData'));
 module.exports = router;
 
 /*
+http --session=~/tmp/session.json :3000/api/data/content.article
 http --session=~/tmp/session.json :3000/api/data/content.article/b-test
 http --session=~/tmp/session.json :3000/api/data/content.article/b-test.json
 */

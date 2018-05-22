@@ -10,7 +10,7 @@ module.exports = ({ dbService }) =>
   const siteDb = dbService.site;
 
   return {
-    get settings() {
+    getSettings() {
       const settings = siteDb.get('settings.json');
       maybeThrow(!settings, `could not get site settings!`);
       return settings;
