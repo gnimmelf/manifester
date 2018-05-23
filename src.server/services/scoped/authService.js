@@ -113,7 +113,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
       const userGroups = user ? user.groups : [];
       const isAdmin = !!~userGroups.indexOf('admin');
-      const isOwner = (owner ? user.userId == owner.userId : false);
+      const isOwner = (owner && user ? user.userId == owner.userId : false);
 
       const authorizedBy = [];
 
