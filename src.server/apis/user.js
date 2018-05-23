@@ -38,7 +38,7 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
       {
         const user = userService.getUserBy('handle', userHandle);
 
-        maybeThrow(!user, `No user found by handle '${userHandle}'`, 401)
+        maybeThrow(!user, `No user found by handle '${userHandle}'`, 404)
 
         debug('getData::owner', user)
 
