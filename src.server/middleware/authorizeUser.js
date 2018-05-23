@@ -7,12 +7,14 @@ const { maybeThrow, requestFullUrl } = require('../');
 const authorizeUser = ({groups=[], userIds=[], redirectUrl="/login"}) =>
 {
 
-  return makeSingleInvoker(({ userService }) => {
+  return makeSingleInvoker(({ userService, authService }) => {
 
     return (req, res, next) =>
     {
       const user = userService.currentUser;
-      const authorized = normalizeBool(user && (intersect(user.groups, groups).length || ~userIds.indexOf(user.userId)));
+
+      // TODO! Update to use `authService`
+      const user = normalizeBool(user && (intersect(user.groups, groups).length || ~userIds.indexOf(user.userId)));
 
       debug('authorized', authorized, groups, userIds)
 
