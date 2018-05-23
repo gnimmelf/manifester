@@ -1,14 +1,14 @@
 const debug = require('debug')('mf:services:userService');
 const { join } = require('path');
 const assert = require('assert');
-const { maybeThrow } = require('../../lib');
 const jp = require('jsonpath');
+const { maybeThrow, addFileExt } = require('../../lib');
 
 // Symbols
 const USERID = Symbol('userId');
 const GROUPS = Symbol('groups');
 
-module.exports = ({ dbService, userId }) => {
+module.exports = ({ dbService, currentUserEmail }) => {
 
   const userDb = dbService.users;
 
@@ -17,7 +17,7 @@ module.exports = ({ dbService, userId }) => {
     constructor(userId)
     {
       this[USERID] = userId;
-      Object.assign(this, userDb.get(join(userId, 'common.json')));
+      Object.assign(this, userDb.get(join(userId, 'user.json')));
     }
 
     get userId()
@@ -42,12 +42,31 @@ module.exports = ({ dbService, userId }) => {
 
       return this[GROUPS];
     }
-
   }
 
+  const getUserBy = (key, value) =>
+  {
+    let user;
+
+    assert(key, 'No key passed!')
+
+    debug('getUserBy', key, value);
+
+    if (value) {
+      const node = jp.nodes(userDb.tree, "$[*]['user.json']")
+        .find(node => node.value[key] == value);
+
+      // The `userId` is the second element of the `node.path`
+      if (node) user = new User(node.path[1])
+    }
+
+    return user;
+  }
+
+
   return {
-    currentUser: userId && userDb.get(userId) ? new User(userId) : undefined,
-    users: userDb.get()
+    currentUser: getUserBy('email', currentUserEmail),
+    getUserBy: getUserBy,
   }
 
 };

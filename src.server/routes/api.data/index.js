@@ -5,7 +5,8 @@ const { makeInvoker } = require('awilix-express');
 const router = Router();
 const api = makeInvoker(require('../../apis/data'));
 
-router.get('/:schemaName/:objId?', api('getData'));
+router.get('/:schemaName/list', api('getObjectIds'));
+router.get('/:schemaName/:objId', api('getData'));
 router.post('/:schemaName/:objId/:dottedPath?', api('setData'));
 
 module.exports = router;

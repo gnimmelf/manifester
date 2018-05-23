@@ -7,11 +7,12 @@ const { makeLoginCode, maybeThrow } = require('../../lib');
 
 const AUTH_FILE = 'auth.json';
 
-module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) => {
-
+module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) =>
+{
   const userDb = dbService.users;
 
-  const maybeGetUser = (email) => {
+  const maybeGetUser = (email) =>
+  {
     const user = userDb.get(email);
     maybeThrow(!user, 'No user found by given email', 422);
     return user['common.json'];
@@ -19,8 +20,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
   return {
 
-    requestLoginCodeByEmail: (email) => {
-
+    requestLoginCodeByEmail: (email) =>
+    {
       return new Promise((resolve, reject) => {
 
         maybeGetUser(email);
@@ -55,8 +56,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
     },
 
 
-    exchangeLoginCode2Token: (email, loginCode, renewtoken) => {
-
+    exchangeLoginCode2Token: (email, loginCode, renewtoken) =>
+    {
       return new Promise((resolve, reject) => {
 
         maybeGetUser(email);
@@ -77,8 +78,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
     },
 
-    authenticateToken: (token) => {
-
+    authenticateToken: (token) =>
+    {
       return new Promise((resolve, reject) => {
 
         maybeThrow(!token, 'No token passed', 422);
@@ -96,8 +97,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
       });
     },
 
-    invalidateToken: (email) => {
-
+    invalidateToken: (email) =>
+    {
       return new Promise((resolve, reject) => {
 
         userDb.delete(join(email, AUTH_FILE), 'authToken');
@@ -106,22 +107,34 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
       });
     },
 
-    authorize: (user, schema, operation) => {
-
+    authorize: (user, schema, operation, owner=null) =>
+    {
       assert(~['read', 'write'].indexOf(operation));
 
       const userGroups = user ? user.groups : [];
       const isAdmin = !!~userGroups.indexOf('admin');
+      const isOwner = (owner ? user.userId == owner.userId : false);
 
-      const authorized = isAdmin ? 'admin' : (schema.ACL && Object.entries(schema.ACL).find(([group, permissions]) => {
+      const authorizedBy = [];
+
+      if (isAdmin) authorizedBy.push('admin');
+      if (isOwner) authorizedBy.push('owner');
+
+      if (!authorizedBy.length && schema.ACL)
+      {
+        const matchGroup = Object.entries(schema.ACL).find(([group, permissions]) =>
+        {
           // For each schema.ACL entry, ACL-`group` must be in `userGroups` AND ACL-`permissions` must be all, "*", or include `operation`:
-          const found = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
-          return found ? group : false;
-        }));
+          const match = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
+          return match ? group : false;
+        })
 
-      debug(operation.toUpperCase()+': '+(authorized ? 'authorized' : 'unauthorized'), authorized, user ? user : '<not logged in>')
+        if (matchGroup) authorizedBy.push(matchGroup);
+      }
 
-      maybeThrow(!authorized, 'unauthorized', 401)
+      debug(operation.toUpperCase()+': '+(authorizedBy.length ? 'authorized' : 'unauthorized'), authorizedBy, user ? user : '<not logged in>')
+
+      maybeThrow(!authorizedBy.length, 'unauthorized', 401)
 
       return user;
     }

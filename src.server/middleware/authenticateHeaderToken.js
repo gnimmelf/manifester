@@ -16,12 +16,12 @@ const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
     authService.authenticateToken(token)
       .then(decoded => {
         debug('autheticated', decoded)
-        req.container.registerValue('userId', decoded.email)
+        req.container.registerValue('currentUserEmail', decoded.email)
         next();
       })
       .catch(err => {
         debug('unauthenticated', err.message)
-        req.container.registerValue('userId', undefined)
+        req.container.registerValue('currentUserEmail', undefined)
         delete req.headers[tokenKeyName];
         delete req.cookies[tokenKeyName];
         next();

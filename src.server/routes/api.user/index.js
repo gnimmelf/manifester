@@ -7,6 +7,8 @@ const api = makeInvoker(require('../../apis/user'));
 
 router.get('/current', api('getCurrentUser'));
 router.get('/logout', api('invalidateSession'));
+//router.get('/:userHandle/data/:schemaName/list', api('getObjectIds'));
+router.get('/:userHandle/data/:schemaName/:objId', api('getData'));
 
 module.exports = router;
 

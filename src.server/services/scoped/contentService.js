@@ -1,5 +1,6 @@
 const debug = require('debug')('mf:service:contentService');
-const { maybeThrow, sendApiResponse, requestFullUrl, addFileExt } = require('../../lib');
+const assert = require('assert');
+const { maybeThrow, addFileExt } = require('../../lib');
 
 module.exports = ({ dbService, schemaService, authService, userService }) =>
 {
@@ -8,35 +9,58 @@ module.exports = ({ dbService, schemaService, authService, userService }) =>
 
   return {
 
-    getData: (schemaName, objId) =>
+    getObjectIds: (schemaName) =>
     {
       return schemaService.getSchema(schemaName)
         .then(schema => {
 
           debug('schema', schema)
 
-          const user = authService.authorize(userService.currentUser, schema, 'read');
+          authService.authorize(userService.currentUser, schema, 'read');
 
-          const relPath = schemaName.replace(/^content\./, '')+(objId ? addFileExt('/'+objId) : '');
+          const relPath = schemaName.replace(/^content\./, '');
 
           const data = contentDb.get(relPath);
 
-          maybeThrow(!data, `objId '${objId}' not found`, 404);
-
-          return objId ? data : Object.keys(data);
+          return Object.keys(data);
         });
     },
 
-    setData: (schemaName, objId) =>
+    getData: (schemaName, objId, owner=null) =>
+    {
+      return schemaService.getSchema(schemaName)
+        .then(schema => {
+
+          debug('schema', schema)
+
+          authService.authorize(userService.currentUser, schema, 'read', owner);
+
+          const [_, dbPart, pathPart] = schemaName.match(/^(.*)\.(.*)/)
+
+          const dbKey = {
+            'content': 'content',
+            'site': 'site',
+            'user': 'users',
+          }[dbPart];
+
+          maybeThrow(!dbKey, 422);
+
+          const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
+
+          const data = dbService[dbKey].get(relPath);
+
+          maybeThrow(!data, `objId '${objId}' not found`, 404);
+
+          return data;
+        });
+    },
+
+    setData: (schemaName, objId, data) =>
     {
       return schemaService.getSchema(req.params.schemaName)
       .then(schema => {
 
-          const user = authService.authorize(userService.currentUser, schema, 'write');
-
-          const data = request.body;
-
-          console.log('schema', schema, data)
+          authService.authorize(userService.currentUser, schema, 'write');
 
           // TODO! Validate data VS schema
 

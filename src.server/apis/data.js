@@ -6,6 +6,19 @@ module.exports = ({ contentService }) =>
 
   return {
 
+    getObjectIds: (req, res) =>
+    {
+      debug('getObjectIds', req.params.schemaName)
+
+      contentService.getObjectIds(req.params.schemaName)
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
+    },
+
     getData: (req, res) =>
     {
       debug('getData', req.params.schemaName, req.params.objId)
