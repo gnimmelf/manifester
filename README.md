@@ -65,6 +65,8 @@ Use at own risk! This is a pet project, so it is justified according to my inter
 
 # HttPie
 
+NOTE! See the individual routes for more examples.
+
 ## Login
 ```
 http --session=~/tmp/session.json :3000/api/user/current

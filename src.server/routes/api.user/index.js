@@ -7,7 +7,7 @@ const api = makeInvoker(require('../../apis/user'));
 
 router.get('/current', api('getCurrentUser'));
 router.get('/logout', api('invalidateSession'));
-//router.get('/:userHandle/data/:schemaName/list', api('getObjectIds'));
+router.get('/:userHandle/data/:schemaName/list', api('getObjectIds'));
 router.get('/:userHandle/data/:schemaName/:objId', api('getData'));
 
 module.exports = router;
@@ -15,4 +15,6 @@ module.exports = router;
 /*
 http --session=~/tmp/session.json :3000/api/user/current
 http --session=~/tmp/session.json :3000/api/user/logout
+http --session=~/tmp/session.json :3000/api/user/gnimmelf/data/user.blog/list
+http --session=~/tmp/session.json :3000/api/user/gnimmelf/data/user.blog/a-test
 */

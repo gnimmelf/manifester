@@ -67,6 +67,10 @@ module.exports = ({ dbService, currentUserEmail }) => {
   return {
     currentUser: getUserBy('email', currentUserEmail),
     getUserBy: getUserBy,
+    listUsers: () => {
+      // TODO!
+      return []
+    }
   }
 
 };

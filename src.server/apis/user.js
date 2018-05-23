@@ -28,6 +28,13 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 
     },
 
+    getObjectIds: (req, res) =>
+    {
+      debug('getObjectIds', req.params)
+
+      // TODO!
+    },
+
     getData: (req, res) =>
     {
       debug('getData', req.params)
@@ -53,6 +60,13 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
       .catch(err => {
         sendApiResponse(res, err);
       });
+    },
+
+    setData: (req, res) =>
+    {
+      debug('getData', req.params)
+
+      // TODO!
     },
 
     invalidateSession: (req, res) =>

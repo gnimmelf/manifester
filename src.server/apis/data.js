@@ -8,7 +8,7 @@ module.exports = ({ contentService }) =>
 
     getObjectIds: (req, res) =>
     {
-      debug('getObjectIds', req.params.schemaName)
+      debug('getObjectIds', req.params)
 
       contentService.getObjectIds(req.params.schemaName)
         .then(data => {
