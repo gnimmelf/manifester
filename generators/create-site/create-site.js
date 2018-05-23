@@ -98,6 +98,12 @@ const parseSuperuser = function()
         default: su.email || undefined,
         required: true,
       },
+      handle: {
+        description: 'your handle/nickname',
+        type: 'string',
+        default: su.handle || undefined,
+        required: true,
+      },
     }
   }, function(err, res) {
     checkErrorVar(err);

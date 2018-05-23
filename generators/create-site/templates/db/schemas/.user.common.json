@@ -1,7 +1,12 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "properties": {
+    "handle": {
+      "type": "string",
+      "title": "Name handler",
+      "description": "A shortname for yourself"
+    },
     "email": {
       "type": "string",
       "title": "E-mail",
