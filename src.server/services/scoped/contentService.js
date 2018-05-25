@@ -63,7 +63,7 @@ module.exports = ({ dbService, schemaService, authService, userService }) =>
     },
 
     setData: (schemaName, objId, data, owner=null) =>
-    // TODO! Fix!
+    // TODO! Install AJV!
     {
       return schemaService.getSchema(req.params.schemaName)
       .then(schema => {

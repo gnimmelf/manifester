@@ -80,9 +80,21 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 
     setData: (req, res) =>
     {
-      debug('getData', req.params)
+      debug('setData', req.params);
 
-      // TODO!
+      const { userHandle, schemaName, objId } = req.params;
+      const data = req.body;
+
+      getUserByHandle(userHandle)
+        .then((owner) => {
+          return contentService.setData(schemaName, objId, data, owner);
+        })
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
     },
 
     invalidateSession: (req, res) =>
