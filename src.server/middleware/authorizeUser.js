@@ -13,7 +13,7 @@ const authorizeUser = ({groups=[], userIds=[], redirectUrl="/login"}) =>
     {
       const user = userService.currentUser;
 
-      // TODO! Update to use `authService`
+      // TODO! Update to use `authService`'s logic
       const user = normalizeBool(user && (intersect(user.groups, groups).length || ~userIds.indexOf(user.userId)));
 
       debug('authorized', authorized, groups, userIds)

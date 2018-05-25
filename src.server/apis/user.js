@@ -8,6 +8,20 @@ const {
 module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 {
 
+  const getUserByHandle = (handle) =>
+  {
+    return new Promise((resolve, reject) =>
+    {
+      const user = userService.getUserBy('handle', handle);
+
+      maybeThrow(!user, `No user found by handle '${handle}'`, 404)
+
+      debug('getUserByHandle', user)
+
+      resolve(user);
+    })
+  }
+
   return {
 
     getCurrentUser: (req, res) =>
@@ -32,7 +46,18 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
     {
       debug('getObjectIds', req.params)
 
-      // TODO!
+      const { userHandle, schemaName } = req.params;
+
+      getUserByHandle(userHandle)
+        .then((owner) => {
+          return contentService.getObjectIds(schemaName, owner);
+        })
+        .then(data => {
+          sendApiResponse(res, data);
+        })
+        .catch(err => {
+          sendApiResponse(res, err);
+        });
     },
 
     getData: (req, res) =>
@@ -41,25 +66,16 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 
       const { userHandle, schemaName, objId } = req.params;
 
-      return new Promise((resolve, reject) =>
-      {
-        const user = userService.getUserBy('handle', userHandle);
-
-        maybeThrow(!user, `No user found by handle '${userHandle}'`, 404)
-
-        debug('getData::owner', user)
-
-        resolve(user);
-      })
-      .then((owner) => {
-        return contentService.getData(schemaName, objId, owner);
-      })
-      .then(data => {
-        sendApiResponse(res, data);
-      })
-      .catch(err => {
-        sendApiResponse(res, err);
-      });
+      getUserByHandle(userHandle)
+        .then((owner) => {
+          return contentService.getData(schemaName, objId, owner);
+        })
+        .then(data => {
+          sendApiResponse(res, data);
+        })
+        .catch(err => {
+          sendApiResponse(res, err);
+        });
     },
 
     setData: (req, res) =>

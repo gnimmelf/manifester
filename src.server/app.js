@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 var cors = require('cors');
 
 const { scopePerRequest } = require('awilix-express');
+
+// TODO! Update ExpressJs!
 const { urlencoded, json } = require('body-parser');
 const { join } = require('path');
 
@@ -25,6 +27,7 @@ app.localApp = express();
 
 /**
  *  View engine setup
+ * -Yes, pug/jade. Tried "all" others, they suck and really hamper coding effiency.
  */
 app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'pug');

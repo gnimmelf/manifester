@@ -10,7 +10,9 @@ module.exports = ({ contentService }) =>
     {
       debug('getObjectIds', req.params)
 
-      contentService.getObjectIds(req.params.schemaName)
+      const { schemaName } = req.params;
+
+      contentService.getObjectIds(schemaName)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -21,9 +23,11 @@ module.exports = ({ contentService }) =>
 
     getData: (req, res) =>
     {
-      debug('getData', req.params.schemaName, req.params.objId)
+      debug('getData', req.params)
 
-      contentService.getData(req.params.schemaName, req.params.objId)
+      const { schemaName, objId } = req.params;
+
+      contentService.getData(schemaName, objId)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -34,9 +38,12 @@ module.exports = ({ contentService }) =>
 
     setData: (req, res) =>
     {
-      debug('setData', req.params.schemaName, req.params.objId)
+      debug('setData', req.params);
 
-      contentService.getData(req.params.schemaName, req.params.objId)
+      const { schemaName, objId } = req.params;
+      const data = req.body;
+
+      contentService.setData(schemaName, objId, data)
         .then(data => {
           sendApiResponse(res, data)
         })

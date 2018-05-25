@@ -2,27 +2,44 @@ const debug = require('debug')('mf:service:contentService');
 const assert = require('assert');
 const { maybeThrow, addFileExt } = require('../../lib');
 
-module.exports = ({ dbService, schemaService, authService, userService }) =>
+const schemaName2parts = (schemaName) =>
 {
+  const [_, dbPart, pathPart] = schemaName.match(/^(.*)\.(.*)/)
 
-  const contentDb = dbService.content;
+  const dbKey = {
+    'content': 'content',
+    'site': 'site',
+    'user': 'users',
+  }[dbPart];
+
+  maybeThrow(!dbKey, 422);
+
+  debug('schemaName2parts', schemaName+' =>', [dbKey, pathPart])
 
   return {
+    dbKey: dbKey,
+    pathPart: pathPart,
+  }
+}
 
-    getObjectIds: (schemaName) =>
+module.exports = ({ dbService, schemaService, authService, userService }) =>
+{
+  return {
+
+    getObjectIds: (schemaName, owner=null) =>
     {
       return schemaService.getSchema(schemaName)
         .then(schema => {
 
-          debug('schema', schema)
+          authService.authorize(userService.currentUser, schema, 'read', owner);
 
-          authService.authorize(userService.currentUser, schema, 'read');
+          const {dbKey, pathPart} = schemaName2parts(schemaName);
 
-          const relPath = schemaName.replace(/^content\./, '');
+          const relPath = (owner ? owner.userId+'/' : '')+ pathPart;
 
-          const data = contentDb.get(relPath);
+          const data = dbService[dbKey].get(relPath);
 
-          return Object.keys(data);
+          return data ? Object.keys(data) : [];
         });
     },
 
@@ -31,19 +48,9 @@ module.exports = ({ dbService, schemaService, authService, userService }) =>
       return schemaService.getSchema(schemaName)
         .then(schema => {
 
-          debug('schema', schema)
-
           authService.authorize(userService.currentUser, schema, 'read', owner);
 
-          const [_, dbPart, pathPart] = schemaName.match(/^(.*)\.(.*)/)
-
-          const dbKey = {
-            'content': 'content',
-            'site': 'site',
-            'user': 'users',
-          }[dbPart];
-
-          maybeThrow(!dbKey, 422);
+          const {dbKey, pathPart} = schemaName2parts(schemaName);
 
           const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
 
@@ -55,24 +62,25 @@ module.exports = ({ dbService, schemaService, authService, userService }) =>
         });
     },
 
-    setData: (schemaName, objId, data) =>
+    setData: (schemaName, objId, data, owner=null) =>
+    // TODO! Fix!
     {
       return schemaService.getSchema(req.params.schemaName)
       .then(schema => {
 
-          authService.authorize(userService.currentUser, schema, 'write');
+          authService.authorize(userService.currentUser, schema, 'write', owner);
 
           // TODO! Validate data VS schema
 
-          let relPath = req.params.schemaName.replace(/^content\./, '')
+          const {dbKey, pathPart} = schemaName2parts(schemaName);
 
-          if (req.params.fileId) {
-            relPath += addFileExt('/'+req.params.fileId);
-          }
+          const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
 
-          maybeThrow(!true, contentDb.set(relPath, req.params.dottedPath, data), 'Could not update Db', 424);
+          const res = dbService[dbKey].set(relPath, req.params.dottedPath, data);
 
-          return success;
+          maybeThrow(!res, 'Could not update Db', 424);
+
+          return res;
         });
     },
 
