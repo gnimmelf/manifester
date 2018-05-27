@@ -27,11 +27,13 @@ exports.requestFullUrl = (expressRequestObj) =>
   return `http${(secure ? 's' : '')}://${req.headers.host}${req.originalUrl}`;
 };
 
-exports.maybeThrow = (predicate, message, RestErrorTypeOrCode) =>
+exports.maybeThrow = (predicate, message, RestErrorTypeOrCode, data) =>
 {
   if (predicate) {
     if (RestErrorTypeOrCode && RESTfulError.getByTypeOrCode(RestErrorTypeOrCode)) {
-      throw new RESTfulError(RestErrorTypeOrCode, message);
+      const err = new RESTfulError(RestErrorTypeOrCode, message);
+      if (data) err.data = data;
+      throw err;
     }
     else if (message) {
       throw new Error(message);

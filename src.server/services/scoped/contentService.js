@@ -4,7 +4,10 @@ const { maybeThrow, addFileExt } = require('../../lib');
 
 //
 
-ajv = new Ajv(); // TODO! options can be passed, e.g. {allErrors: true}
+ajv = new Ajv({
+  allErrors: true,
+  verbose: false,
+}); // TODO! options can be passed, e.g. {allErrors: true}
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 
 const schemaNameMatch = (reSchemaMask, schemaName) => maybeThrow(!schemaName.match(reSchemaMask), null, 404)
@@ -86,11 +89,11 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
 
-          // TODO! Merge new data with any existing data, beware of empty fields!
+          // TODO! Merge new data with any existing data, beware of empty vs unpassed fields!
 
           const valid = ajv.validate(schema, data);
 
-          maybeThrow(!valid, ajv.errors, 400);
+          maybeThrow(!valid, null, 400, ajv.errors);
 
 
           const success = dbService[dbKey].set(relPath, data);

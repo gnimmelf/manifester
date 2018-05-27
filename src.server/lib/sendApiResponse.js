@@ -2,7 +2,7 @@ const debug = require('debug')('mf:sendApiResponse');
 const RESTfulError = require('./RESTfulError');
 const { isObject } = require('./utils');
 
-module.exports = (expresspayloadObj, payload) =>
+module.exports = (expressResponseObj, payload) =>
 {
   debug('> payload', payload);
 
@@ -39,5 +39,5 @@ module.exports = (expresspayloadObj, payload) =>
 
   debug(`> apiPayload:${status}`, apiPayload);
 
-  expresspayloadObj.status(status).json(apiPayload);
+  expressResponseObj.status(status).json(apiPayload);
 }
