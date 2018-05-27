@@ -82,13 +82,16 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           userService.authorizeByACL(schema.ACL, 'write', owner);
 
+          const {dbKey, pathPart} = schemaName2parts(schemaName);
+
+          const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
+
+          // TODO! Merge new data with any existing data, beware of empty fields!
+
           const valid = ajv.validate(schema, data);
 
           maybeThrow(!valid, ajv.errors, 400);
 
-          const {dbKey, pathPart} = schemaName2parts(schemaName);
-
-          const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
 
           const success = dbService[dbKey].set(relPath, data);
 
