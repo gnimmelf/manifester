@@ -9,6 +9,7 @@ Under leisure development.
 ## Tech
 * https://www.npmjs.com/package/jsonpath
 * https://github.com/BigstickCarpet/json-schema-ref-parser
+* https://github.com/epoberezkin/ajv
 * https://www.npmjs.com/package/awilix
 * https://www.npmjs.com/package/awilix-express
 * jSend
@@ -78,3 +79,9 @@ http --session=~/tmp/session.json :3000/api/auth/logout
 
 http --session=~/tmp/session.json :3000/api/data/
 ```
+
+# TODO!
+
+1. Write tests (when proof-of-concept is valid)
+2. Change name from Manifester to CMXpress (package-name reserved on npm...)
+3. Swap generator to Yeoman

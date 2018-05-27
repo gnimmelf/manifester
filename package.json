@@ -10,6 +10,7 @@
     "manifest-a-site": "generators/create-site/create-site.js"
   },
   "dependencies": {
+    "ajv": "^6.5.0",
     "awilix": "^2.4.0",
     "awilix-express": "^0.11.0",
     "body-parser": "~1.17.2",
