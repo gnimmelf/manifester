@@ -8,7 +8,6 @@ var cors = require('cors');
 
 const { scopePerRequest } = require('awilix-express');
 
-// TODO! Update ExpressJs!
 const { urlencoded, json } = require('body-parser');
 const { join } = require('path');
 

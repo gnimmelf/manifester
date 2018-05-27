@@ -1,6 +1,11 @@
 const debug = require('debug')('mf:service:contentService');
-const assert = require('assert');
+const Ajv = require('ajv');
 const { maybeThrow, addFileExt } = require('../../lib');
+
+//
+
+ajv = new Ajv(); // TODO! options can be passed, e.g. {allErrors: true}
+ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 
 const schemaNameMatch = (reSchemaMask, schemaName) => maybeThrow(!schemaName.match(reSchemaMask), null, 404)
 
@@ -49,6 +54,8 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
     getData: (reSchemaMask, schemaName, objId, owner=null) =>
     {
+      schemaNameMatch(reSchemaMask, schemaName);
+
       return schemaService.getSchema(schemaName)
         .then(schema => {
 
@@ -67,26 +74,38 @@ module.exports = ({ dbService, schemaService, userService }) =>
     },
 
     setData: (reSchemaMask, schemaName, objId, data, owner=null) =>
-    // TODO! Install AJV!
     {
-      return schemaService.getSchema(req.params.schemaName)
+      schemaNameMatch(reSchemaMask, schemaName);
+
+      return schemaService.getSchema(schemaName)
       .then(schema => {
 
           userService.authorizeByACL(schema.ACL, 'write', owner);
 
-          // TODO! Validate data VS schema
+          const valid = ajv.validate(schema, data);
+
+          maybeThrow(!valid, ajv.errors, 400);
 
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 
           const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
 
-          const res = dbService[dbKey].set(relPath, req.params.dottedPath, data);
+          const success = dbService[dbKey].set(relPath, data);
 
-          maybeThrow(!res, 'Could not update Db', 424);
+          maybeThrow(!success, 'Could not update Db', 424);
 
-          return res;
+          // Write commits to disk
+          dbService[dbKey].push();
+
+          // Return updated data
+          return data;
         });
     },
+
+    remove: () =>
+    {
+      // TODO!
+    }
 
   };
 

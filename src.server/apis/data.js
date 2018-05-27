@@ -43,7 +43,7 @@ module.exports = ({ contentService }) =>
       const { schemaName, objId } = req.params;
       const data = req.body;
 
-      contentService.setData('^content', schemaName, objId, data)
+      contentService.setData('^content', schemaName, objId, data, )
         .then(data => {
           sendApiResponse(res, data)
         })

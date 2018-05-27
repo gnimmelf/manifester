@@ -10,6 +10,7 @@ router.get('/current/groups', api('getCurrentUserGroups'));
 router.get('/logout', api('invalidateSession'));
 router.get('/:userHandle/data/:schemaName/list', api('getObjectIds'));
 router.get('/:userHandle/data/:schemaName/:objId', api('getData'));
+router.post('/:userHandle/data/:schemaName/:objId/:dottedPath?', api('setData'));
 
 module.exports = router;
 

@@ -68,14 +68,20 @@ module.exports = ({ dbService, currentUserEmail }) => {
   {
     assert(~['read', 'write'].indexOf(operation), `Invalid operation: ${operation}`);
 
+    debug('authorizeByACL', {
+      ACL: ACL,
+      currentUser: currentUser,
+      groups: currentUser ? currentUser.groups : [],
+    })
+
     const userGroups = currentUser ? currentUser.groups : [];
-    const isAdmin = !!~userGroups.indexOf('admin');
+    const isAdmin = !!~userGroups.indexOf('admins');
     const isOwner = (owner && currentUser ? currentUser.userId == owner.userId : false);
 
     const authorizedBy = [];
 
-    if (isAdmin) authorizedBy.push('admin');
-    if (isOwner) authorizedBy.push('owner');
+    if (isAdmin) authorizedBy.push('isAdmin');
+    if (isOwner) authorizedBy.push('isOwner');
 
     if (!authorizedBy.length && ACL)
     {

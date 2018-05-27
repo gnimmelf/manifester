@@ -1,7 +1,7 @@
 /**
   Inspiration: https://github.com/VINTproYKT/node-jsondir-livedb
 
-  TODO! Check to use the NoSQL DB from total.js (`./nosql.js`)?
+  TODO! Check to use the NoSQL DB from total.js (`./nosql.js`) or any other embedded NoSQL db?
  */
 const debug = require('debug')('mf:db');
 const assert = require('assert');
