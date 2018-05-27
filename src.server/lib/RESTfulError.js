@@ -354,8 +354,8 @@ const types = {
 class RESTfulError extends Error {
 
   constructor(typeOrCode, message) {
-    super(message);
     const errorType = RESTfulError.getByTypeOrCode(typeOrCode)
+    super(message || errorType.name);
     Object.assign(this, errorType);
   }
 

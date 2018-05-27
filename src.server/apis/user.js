@@ -26,7 +26,7 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 
     getCurrentUser: (req, res) =>
     {
-       return new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         const user = userService.currentUser;
 
         maybeThrow(!user, 'Not logged in', 401)
@@ -34,12 +34,29 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
         resolve(user);
       })
       .then(payload => {
-        sendApiResponse(res, { user: payload })
+        sendApiResponse(res, payload)
       })
       .catch(err => {
         sendApiResponse(res, err)
       });
 
+    },
+
+    getCurrentUserGroups: (req, res) =>
+    {
+      return new Promise((resolve, reject) => {
+        const user = userService.currentUser;
+
+        maybeThrow(!user, 'Not logged in', 401)
+
+        resolve(user.groups);
+      })
+      .then(payload => {
+        sendApiResponse(res, payload)
+      })
+      .catch(err => {
+        sendApiResponse(res, err)
+      });
     },
 
     getObjectIds: (req, res) =>
@@ -50,7 +67,7 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 
       getUserByHandle(userHandle)
         .then((owner) => {
-          return contentService.getObjectIds(schemaName, owner);
+          return contentService.getObjectIds('^user', schemaName, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -68,7 +85,7 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 
       getUserByHandle(userHandle)
         .then((owner) => {
-          return contentService.getData(schemaName, objId, owner);
+          return contentService.getData('^user', schemaName, objId, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -87,7 +104,7 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
 
       getUserByHandle(userHandle)
         .then((owner) => {
-          return contentService.setData(schemaName, objId, data, owner);
+          return contentService.setData('^user', schemaName, objId, data, owner);
         })
         .then(data => {
           sendApiResponse(res, data)

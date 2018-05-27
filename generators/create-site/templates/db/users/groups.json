@@ -1,12 +1,10 @@
 {
-  "admin": {
-    "members": [
-      "gnimmelf@gmail.com"
-    ]
+  "admins": {
+    "name": "administrators",
+    "members": []
   },
-  "editor": {
-    "members": [
-      "ainalauritsen@gmail.com"
-    ]
+  "editors": {
+    "name": "editors",
+    "members": []
   }
 }

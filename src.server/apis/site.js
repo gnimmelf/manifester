@@ -26,5 +26,20 @@ module.exports = ({ siteService }) =>
 
     },
 
+    getGroups: (req, res) =>
+    {
+      return new Promise((resolve, reject) => {
+        const groups = siteService.getGroups();
+
+        resolve(groups);
+      })
+      .then(data => {
+        sendApiResponse(res, data)
+      })
+      .catch(err => {
+        sendApiResponse(res, err)
+      });
+    },
+
   };
 };

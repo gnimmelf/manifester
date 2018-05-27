@@ -3,8 +3,6 @@ const { makeSingleInvoker } = require('../lib');
 
 const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
 {
-
-
   return (req, res, next) =>
   {
     debug("cookies", req.cookies)

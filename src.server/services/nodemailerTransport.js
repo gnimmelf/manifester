@@ -4,13 +4,15 @@ const mailgunTransport = require('nodemailer-mailgun-transport');
 
 module.exports = ({ emailConfig }) =>
 {
-  debug('No custom `nodemailerTransport` found. -Setting up default (mailgun)');
+  console.log('No custom `nodemailerTransport` found. -Setting up default (mailgun)');
   assert(emailConfig && emailConfig.mailgunAuth, 'Could not set up mailService. `emailConfig.mailgunAuth` not found!')
+
+  const { api_key, domain } = emailConfig.mailgunAuth;
 
   return mailgunTransport({
     auth: {
-      api_key: emailConfig.mailgunAuth.api_key,
-      domain: emailConfig.mailgunAuth.domain,
+      api_key: api_key,
+      domain: domain,
     }
   })
 }

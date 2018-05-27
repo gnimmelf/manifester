@@ -12,7 +12,7 @@ module.exports = ({ contentService }) =>
 
       const { schemaName } = req.params;
 
-      contentService.getObjectIds(schemaName)
+      contentService.getObjectIds('^content', schemaName)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -27,7 +27,7 @@ module.exports = ({ contentService }) =>
 
       const { schemaName, objId } = req.params;
 
-      contentService.getData(schemaName, objId)
+      contentService.getData('^content', schemaName, objId)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -43,7 +43,7 @@ module.exports = ({ contentService }) =>
       const { schemaName, objId } = req.params;
       const data = req.body;
 
-      contentService.setData(schemaName, objId, data)
+      contentService.setData('^content', schemaName, objId, data)
         .then(data => {
           sendApiResponse(res, data)
         })

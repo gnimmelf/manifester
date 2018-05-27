@@ -2,6 +2,8 @@ const debug = require('debug')('mf:service:contentService');
 const assert = require('assert');
 const { maybeThrow, addFileExt } = require('../../lib');
 
+const schemaNameMatch = (reSchemaMask, schemaName) => maybeThrow(!schemaName.match(reSchemaMask), null, 404)
+
 const schemaName2parts = (schemaName) =>
 {
   const [_, dbPart, pathPart] = schemaName.match(/^(.*)\.(.*)/)
@@ -22,16 +24,18 @@ const schemaName2parts = (schemaName) =>
   }
 }
 
-module.exports = ({ dbService, schemaService, authService, userService }) =>
+module.exports = ({ dbService, schemaService, userService }) =>
 {
   return {
 
-    getObjectIds: (schemaName, owner=null) =>
+    getObjectIds: (reSchemaMask, schemaName, owner=null) =>
     {
+      schemaNameMatch(reSchemaMask, schemaName);
+
       return schemaService.getSchema(schemaName)
         .then(schema => {
 
-          authService.authorize(userService.currentUser, schema, 'read', owner);
+          userService.authorizeByACL(schema.ACL, 'read', owner);
 
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 
@@ -43,12 +47,12 @@ module.exports = ({ dbService, schemaService, authService, userService }) =>
         });
     },
 
-    getData: (schemaName, objId, owner=null) =>
+    getData: (reSchemaMask, schemaName, objId, owner=null) =>
     {
       return schemaService.getSchema(schemaName)
         .then(schema => {
 
-          authService.authorize(userService.currentUser, schema, 'read', owner);
+          userService.authorizeByACL(schema.ACL, 'read', owner);
 
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 
@@ -62,13 +66,13 @@ module.exports = ({ dbService, schemaService, authService, userService }) =>
         });
     },
 
-    setData: (schemaName, objId, data, owner=null) =>
+    setData: (reSchemaMask, schemaName, objId, data, owner=null) =>
     // TODO! Install AJV!
     {
       return schemaService.getSchema(req.params.schemaName)
       .then(schema => {
 
-          authService.authorize(userService.currentUser, schema, 'write', owner);
+          userService.authorizeByACL(schema.ACL, 'write', owner);
 
           // TODO! Validate data VS schema
 

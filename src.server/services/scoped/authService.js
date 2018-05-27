@@ -1,21 +1,27 @@
 const debug = require('debug')('mf:service:authService');
 const { join } = require('path');
+const jp = require('jsonpath');
 const jwt = require('jsonwebtoken');
-const assert = require('assert');
-const intersect = require('intersect');
 const { makeLoginCode, maybeThrow } = require('../../lib');
 
 const AUTH_FILE = 'auth.json';
 
 module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) =>
+// NOTE! Cannot inject `userService` into scope here due to circularity with `middleware/authenticateHeaderToken`
 {
   const userDb = dbService.users;
 
-  const maybeGetUser = (email) =>
+  const maybeGetAuthPath = (email) =>
   {
-    const user = userDb.get(email);
-    maybeThrow(!user, 'No user found by given email', 422);
-    return user['common.json'];
+    const query = `$[*]['user.json']`
+    const node = jp.nodes(userDb.tree, query)
+      .find(node => node.value.email == email);
+
+    maybeThrow(!node, 'No user found by given email', 422);
+
+    const userId = node.path[1]
+
+    return join(userId, AUTH_FILE);
   }
 
   return {
@@ -24,12 +30,12 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
     {
       return new Promise((resolve, reject) => {
 
-        maybeGetUser(email);
+        const relPath = maybeGetAuthPath(email);
 
         const loginCode = makeLoginCode();
-        const siteSettings = siteService.settings;
+        const siteSettings = siteService.getSettings();
 
-        userDb.set(join(email, AUTH_FILE), 'loginCode', loginCode);
+        userDb.set(relPath, 'loginCode', loginCode);
 
         templateService['mail-login-code']
           .render({
@@ -60,18 +66,18 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
     {
       return new Promise((resolve, reject) => {
 
-        maybeGetUser(email);
+        const relPath = maybeGetAuthPath(email);
 
-        const authData = userDb.get(join(email, AUTH_FILE));
+        const authData = userDb.get(relPath);
 
         maybeThrow(!authData.loginCode, 'No login-code requested', 422);
         maybeThrow(authData.loginCode != loginCode, 'Login-code incorrect', 422);
 
-        userDb.set(join(email, AUTH_FILE), 'loginCode', '');
+        userDb.set(relPath, 'loginCode', '');
 
         // Create new token
         const authToken = jwt.sign({ email : email, salt: makeLoginCode(20) }, hashSecret);
-        userDb.set(join(email, AUTH_FILE), 'authToken', authToken);
+        userDb.set(relPath, 'authToken', authToken);
 
         resolve(authToken)
       });
@@ -85,9 +91,12 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         maybeThrow(!token, 'No token passed', 422);
 
         const decoded = jwt.verify(token, hashSecret);
-        const authData = userDb.get(join(decoded.email, AUTH_FILE));
 
-        maybeThrow(!authData, 'Token userId not found', 404)
+        const relPath = maybeGetAuthPath(decoded.email);
+
+        const authData = userDb.get(relPath);
+
+        maybeThrow(!authData, 'Token not found', 404)
         maybeThrow(!authData.authToken, 'No matching token found', 401)
         maybeThrow(authData.authToken != token, 'Token mismatch', 401)
         // TODO! Implement other security measures!
@@ -101,43 +110,13 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
     {
       return new Promise((resolve, reject) => {
 
-        userDb.delete(join(email, AUTH_FILE), 'authToken');
+        const relPath = maybeGetAuthPath(decoded.email);
+
+        userDb.delete(relPath, 'authToken');
 
         resolve("Token invalidated");
       });
     },
-
-    authorize: (user, schema, operation, owner=null) =>
-    {
-      assert(~['read', 'write'].indexOf(operation));
-
-      const userGroups = user ? user.groups : [];
-      const isAdmin = !!~userGroups.indexOf('admin');
-      const isOwner = (owner && user ? user.userId == owner.userId : false);
-
-      const authorizedBy = [];
-
-      if (isAdmin) authorizedBy.push('admin');
-      if (isOwner) authorizedBy.push('owner');
-
-      if (!authorizedBy.length && schema.ACL)
-      {
-        const matchGroup = Object.entries(schema.ACL).find(([group, permissions]) =>
-        {
-          // For each schema.ACL entry, ACL-`group` must be in `userGroups` AND ACL-`permissions` must be all, "*", or include `operation`:
-          const match = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
-          return match ? group : false;
-        })
-
-        if (matchGroup) authorizedBy.push(matchGroup);
-      }
-
-      debug(operation.toUpperCase()+': '+(authorizedBy.length ? 'authorized' : 'unauthorized'), authorizedBy, user ? user : '<not logged in>')
-
-      maybeThrow(!authorizedBy.length, 'unauthorized', 401)
-
-      return user;
-    }
 
   };
 

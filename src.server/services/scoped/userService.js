@@ -2,6 +2,7 @@ const debug = require('debug')('mf:services:userService');
 const { join } = require('path');
 const assert = require('assert');
 const jp = require('jsonpath');
+const intersect = require('intersect');
 const { maybeThrow, addFileExt } = require('../../lib');
 
 // Symbols
@@ -63,14 +64,50 @@ module.exports = ({ dbService, currentUserEmail }) => {
     return user;
   }
 
+  const authorizeByACL = (ACL, operation, owner=null) =>
+  {
+    assert(~['read', 'write'].indexOf(operation), `Invalid operation: ${operation}`);
+
+    const userGroups = currentUser ? currentUser.groups : [];
+    const isAdmin = !!~userGroups.indexOf('admin');
+    const isOwner = (owner && currentUser ? currentUser.userId == owner.userId : false);
+
+    const authorizedBy = [];
+
+    if (isAdmin) authorizedBy.push('admin');
+    if (isOwner) authorizedBy.push('owner');
+
+    if (!authorizedBy.length && ACL)
+    {
+      const matchGroup = Object.entries(ACL).find(([group, permissions]) =>
+      {
+        // For each ACL entry, ACL-`group` must be in `userGroups` AND ACL-`permissions` must be "*" for all, or include `operation`:
+        const match = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
+        return match ? group : false;
+      })
+
+      if (matchGroup) authorizedBy.push(matchGroup);
+    }
+
+    debug(operation.toUpperCase()+': '+(authorizedBy.length ? 'authorized' : 'unauthorized'), authorizedBy, currentUser ? currentUser : '<not logged in>')
+
+    maybeThrow(!authorizedBy.length, currentUser ? 'Unauthorized' : 'Not logged in', 401)
+
+    return currentUser;
+  };
+
+  /*
+    Set values for the service
+  */
+  const currentUser = currentUserEmail ? getUserBy('email', currentUserEmail) : undefined;
+
+  const users = [/* TODO! */];
 
   return {
-    currentUser: getUserBy('email', currentUserEmail),
     getUserBy: getUserBy,
-    listUsers: () => {
-      // TODO!
-      return []
-    }
+    authorizeByACL: authorizeByACL,
+    currentUser: currentUser,
+    users: users,
   }
 
 };

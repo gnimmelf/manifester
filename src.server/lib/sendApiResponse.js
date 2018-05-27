@@ -11,7 +11,7 @@ module.exports = (expresspayloadObj, payload) =>
   if (payload instanceof Error) {
 
 
-    status = payload.code || 500;
+    status = isNaN(payload.code) ? 500 : payload.code;
 
     if (status >= 500) {
       // TODO! Use `morgan` logger to log error?
