@@ -152,24 +152,25 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           debug('updateObj', 'dbObj', dbObj);
 
+          // Saturate `data`
           if (dottedPath) {
             // NOTE! `dottedPath` sets a `data`-set at the `dottedPath`
             const value = dotProp.set({}, dottedPath, data);
             debug('updateObj', 'dottedPath', value);
-            saturated = deepAssign({}, dbObj, value);
+            data = deepAssign({}, dbObj, value);
           }
           else {
-            saturated = deepAssign({}, dbObj, data);
+            data = deepAssign({}, dbObj, data);
           }
 
-          debug('updateObj', 'saturated', saturated);
+          debug('updateObj', 'data', data);
 
           // Validate `data` vs `schema`
-          isValid = ajv.validate(schema, saturated);
+          isValid = ajv.validate(schema, data);
           maybeThrow(!isValid, ajv.errors, 400);
 
           // Update Db
-          const success = dbService[dbKey].set(relPath, dottedPath, saturated);
+          const success = dbService[dbKey].set(relPath, data);
           maybeThrow(!success, 'Could not update Db', 424);
 
           // Write commits to disk
