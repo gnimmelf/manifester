@@ -1,7 +1,9 @@
 const debug = require('debug')('mf:api:data');
 const { maybeThrow, sendApiResponse, requestFullUrl, addFileExt } = require('../lib');
 
-module.exports = ({ contentService }) =>
+const CONTENT_SCHEMA_MASK = '^content';
+
+module.exports = ({ dataService }) =>
 {
 
   return {
@@ -10,9 +12,7 @@ module.exports = ({ contentService }) =>
     {
       debug('getObjectIds', req.params)
 
-      const { schemaName } = req.params;
-
-      contentService.getObjectIds('^content', schemaName)
+      dataService.getObjectIds(CONTENT_SCHEMA_MASK, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -21,13 +21,11 @@ module.exports = ({ contentService }) =>
         });
     },
 
-    getData: (req, res) =>
+    getObj: (req, res) =>
     {
-      debug('getData', req.params)
+      debug('getObj', req.params)
 
-      const { schemaName, objId } = req.params;
-
-      contentService.getData('^content', schemaName, objId)
+      dataService.getObj(CONTENT_SCHEMA_MASK, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -36,14 +34,13 @@ module.exports = ({ contentService }) =>
         });
     },
 
-    setData: (req, res) =>
+    setObj: (req, res) =>
     {
-      debug('setData', req.params);
+      debug('setObj', req.params);
 
-      const { schemaName, objId } = req.params;
-      const data = req.body;
+      let serviceFnName;
 
-      contentService.setData('^content', schemaName, objId, data, )
+      dataService[req.params.objId ? 'updateObj' : 'createObj'](CONTENT_SCHEMA_MASK, req.body, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })

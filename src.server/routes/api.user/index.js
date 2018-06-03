@@ -5,12 +5,14 @@ const { makeInvoker } = require('awilix-express');
 const router = Router();
 const api = makeInvoker(require('../../apis/user'));
 
-router.get('/current', api('getCurrentUser'));
+router.get('/current',        api('getCurrentUser'));
 router.get('/current/groups', api('getCurrentUserGroups'));
-router.get('/logout', api('invalidateSession'));
-router.get('/:userHandle/data/:schemaName/list', api('getObjectIds'));
-router.get('/:userHandle/data/:schemaName/:objId', api('getData'));
-router.post('/:userHandle/data/:schemaName/:objId/:dottedPath?', api('setData'));
+router.get('/logout',         api('invalidateSession'));
+// User-data
+router.get('/:userHandle/data/:schemaName/list',                  api('getObjectIds'));
+router.get('/:userHandle/data/:schemaName/:objId',                api('getObj'));
+router.post('/:userHandle/data/:schemaName/:objId/:dottedPath?',  api('setObj'));
+router.delete('/:userHandle/data/:schemaName/:objId/:dottedPath?',   api('setObj'));
 
 module.exports = router;
 

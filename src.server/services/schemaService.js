@@ -2,8 +2,9 @@ const debug = require('debug')('mf:service:schemaService');
 const { join, relative } = require('path');
 const assert = require('assert');
 const { maybeThrow, inspect, addFileExt } = require('../lib');
-const jp = require('jsonpath');
 const $RefParser = require('json-schema-ref-parser');
+
+
 const minimatch = require('minimatch');
 
 const cache = {};
@@ -40,12 +41,26 @@ module.exports = ({ dbService }) =>
 
         const fsPath = getRelFsPath(join(schemaDb.root, schemaName));
 
-        if (!cache[fsPath]) {
-          debug("added to cache", fsPath);
-          cache[fsPath] = $RefParser.dereference(fsPath);
+        if (cache[fsPath]) {
+          resolve(cache[fsPath]);
         }
+        else {
+          $RefParser.dereference(fsPath)
+            .then(schema => {
 
-        resolve(cache[fsPath]);
+              // Force no additional properties
+              schema.additionalProperties = false,
+
+              // Validate `schema`
+              // TODO! Make properly: required ["ACL", "title", "idProperty"]
+              maybeThrow(!schema.idProperty, `Invalid schema: No 'idProperty' found on '${schemaName}'`, 424);
+
+              cache[fsPath] = schema;
+              debug("added to cache", fsPath);
+              resolve(schema);
+
+            });
+        }
       });
     },
 

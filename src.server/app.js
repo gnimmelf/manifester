@@ -12,7 +12,6 @@ const { urlencoded, json } = require('body-parser');
 const { join } = require('path');
 
 const {
-  upquirePath,
   configureContainer,
   inspect,
   sendApiResponse,
@@ -34,7 +33,7 @@ app.set('json spaces', 2);
 
 
 /**
- * App setup (`awilix1`-container)
+ * App setup (`awilix`-container)
  */
 const container = configureContainer(app, __dirname);
 app.set('container', container);

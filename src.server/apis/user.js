@@ -5,7 +5,9 @@ const {
   requestFullUrl,
   maybeThrow } = require('../lib');
 
-module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
+const USER_SCHEMA_MASK = '^user';
+
+module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 {
 
   const getUserByHandle = (handle) =>
@@ -59,61 +61,6 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
       });
     },
 
-    getObjectIds: (req, res) =>
-    {
-      debug('getObjectIds', req.params)
-
-      const { userHandle, schemaName } = req.params;
-
-      getUserByHandle(userHandle)
-        .then((owner) => {
-          return contentService.getObjectIds('^user', schemaName, owner);
-        })
-        .then(data => {
-          sendApiResponse(res, data);
-        })
-        .catch(err => {
-          sendApiResponse(res, err);
-        });
-    },
-
-    getData: (req, res) =>
-    {
-      debug('getData', req.params)
-
-      const { userHandle, schemaName, objId } = req.params;
-
-      getUserByHandle(userHandle)
-        .then((owner) => {
-          return contentService.getData('^user', schemaName, objId, owner);
-        })
-        .then(data => {
-          sendApiResponse(res, data);
-        })
-        .catch(err => {
-          sendApiResponse(res, err);
-        });
-    },
-
-    setData: (req, res) =>
-    {
-      debug('setData', req.params);
-
-      const { userHandle, schemaName, objId } = req.params;
-      const data = req.body;
-
-      getUserByHandle(userHandle)
-        .then((owner) => {
-          return contentService.setData('^user', schemaName, objId, data, owner);
-        })
-        .then(data => {
-          sendApiResponse(res, data)
-        })
-        .catch(err => {
-          sendApiResponse(res, err)
-        });
-    },
-
     invalidateSession: (req, res) =>
     {
       var token = req.params.token || req.cookies[tokenKeyName];
@@ -128,6 +75,54 @@ module.exports = ({ userService, authService, contentService, tokenKeyName }) =>
         })
         .catch(err => {
           sendApiResponse(res, err);
+        });
+    },
+
+    getObjectIds: (req, res) =>
+    {
+      debug('getObjectIds', req.params)
+
+      getUserByHandle(req.params.userHandle)
+        .then((owner) => {
+          return dataService.getObjectIds(USER_SCHEMA_MASK, req.params, owner);
+        })
+        .then(data => {
+          sendApiResponse(res, data);
+        })
+        .catch(err => {
+          sendApiResponse(res, err);
+        });
+    },
+
+    getObj: (req, res) =>
+    {
+      debug('getObj', req.params)
+
+      getUserByHandle(req.params.userHandle)
+        .then((owner) => {
+          return dataService.getObj(USER_SCHEMA_MASK, req.params, owner);
+        })
+        .then(data => {
+          sendApiResponse(res, data);
+        })
+        .catch(err => {
+          sendApiResponse(res, err);
+        });
+    },
+
+    setObj: (req, res) =>
+    {
+      debug('setObj', req.params);
+
+      getUserByHandle(req.params.userHandle)
+        .then((owner) => {
+          return dataService.setObj(USER_SCHEMA_MASK, req.body, req.params, owner);
+        })
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
         });
     },
 

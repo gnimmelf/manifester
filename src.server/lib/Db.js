@@ -1,7 +1,7 @@
 /**
   Inspiration: https://github.com/VINTproYKT/node-jsondir-livedb
 
-  TODO! Check to use the NoSQL DB from total.js (`./nosql.js`) or any other embedded NoSQL db?
+  TODO! Check to use the NoSQL DB from total.js (`./nosql.js`) or any other "embedded (JS?) NoSQL" db?
  */
 const debug = require('debug')('mf:db');
 const assert = require('assert');
@@ -12,7 +12,6 @@ const chokidar = require('chokidar');
 const { join, dirname, resolve } = require('path');
 const { isFunction } = require('util');
 
-const jp = require('jsonpath');
 const isObj = require('is-obj');
 const writeFile = require('write-file-atomic').sync;
 const deleteFile = require('delete').sync;
@@ -185,7 +184,7 @@ class Db {
   }
 
 
-  get(relPath, key, reassign=false)
+  get(relPath, key, reassign=true)
   /*
     Get object in tree by `relPath` or get value from it by `key`
     Arguments:
@@ -198,7 +197,7 @@ class Db {
 
     const dotPath = makeDotPath(relPath);
     const value = dotProp.get(this.tree, dotJoin(dotPath, key));
-    return (reassign ? Object.assign({}, value) : value);
+    return reassign ? (value ? Object.assign({}, value) : false) : value;
   }
 
 

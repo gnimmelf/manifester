@@ -1,6 +1,6 @@
 const debug = require('debug')('mf:service:authService');
 const { join } = require('path');
-const jp = require('jsonpath');
+const jsonPath = require('jsonpath');
 const jwt = require('jsonwebtoken');
 const { makeLoginCode, maybeThrow } = require('../../lib');
 
@@ -14,7 +14,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
   const maybeGetAuthPath = (email) =>
   {
     const query = `$[*]['user.json']`
-    const node = jp.nodes(userDb.tree, query)
+    const node = jsonPath.nodes(userDb.tree, query)
       .find(node => node.value.email == email);
 
     maybeThrow(!node, 'No user found by given email', 422);

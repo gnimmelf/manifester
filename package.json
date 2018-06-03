@@ -27,6 +27,7 @@
     "express": "^4.16.3",
     "intersect": "^1.0.1",
     "is-obj": "^1.0.1",
+    "js-pointer": "^3.0.1",
     "jsend": "^1.0.2",
     "json-schema-ref-parser": "^3.1.2",
     "jsonpath": "^1.0.0",

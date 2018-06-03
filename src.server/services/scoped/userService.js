@@ -1,13 +1,21 @@
 const debug = require('debug')('mf:services:userService');
 const { join } = require('path');
 const assert = require('assert');
-const jp = require('jsonpath');
+const jsonPath = require('jsonpath');
 const intersect = require('intersect');
 const { maybeThrow, addFileExt } = require('../../lib');
 
 // Symbols
 const USERID = Symbol('userId');
 const GROUPS = Symbol('groups');
+
+const OPERATIONS = ['create', 'read', 'update', 'delete'];
+
+const validateOperation = (operation) => assert(~OPERATIONS.indexOf(operation), `Invalid operation: ${operation}`);
+const validatePermissions = (permissions) => permissions.forEach(permission => {
+  // TODO! Not necessary?
+  assert(~OPERATIONS.concat('*').indexOf(permission), `Invalid operation: ${permission}`);
+});
 
 module.exports = ({ dbService, currentUserEmail }) => {
 
@@ -31,7 +39,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
       if (!this[GROUPS]) {
         const tree = userDb.get('groups.json');
 
-        const groups = jp.nodes(tree, "$[*].members")
+        const groups = jsonPath.nodes(tree, "$[*].members")
           // Filter on `userId` in `members`-array
           .filter(({_, value}) => ~value.indexOf(this[USERID]))
           // Map to the group-name part of the json-`path`
@@ -54,7 +62,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
     debug('getUserBy', key, value);
 
     if (value) {
-      const node = jp.nodes(userDb.tree, "$[*]['user.json']")
+      const node = jsonPath.nodes(userDb.tree, "$[*]['user.json']")
         .find(node => node.value[key] == value);
 
       // The `userId` is the second element of the `node.path`
@@ -66,7 +74,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
   const authorizeByACL = (ACL, operation, owner=null) =>
   {
-    assert(~['read', 'write'].indexOf(operation), `Invalid operation: ${operation}`);
+    validateOperation(operation);
 
     debug('authorizeByACL', {
       ACL: ACL,
@@ -87,6 +95,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
     {
       const matchGroup = Object.entries(ACL).find(([group, permissions]) =>
       {
+        validatePermissions(permissions);
         // For each ACL entry, ACL-`group` must be in `userGroups` AND ACL-`permissions` must be "*" for all, or include `operation`:
         const match = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
         return match ? group : false;
