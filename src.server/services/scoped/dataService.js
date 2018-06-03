@@ -1,9 +1,14 @@
 const debug = require('debug')('mf:service:contentService');
 const Ajv = require('ajv');
 const jsonPointer = require('js-pointer');
-const deepAssign = require('deep-assign');
 const slug = require('slug');
-const { maybeThrow, addFileExt, dotProp } = require('../../lib');
+const {
+  maybeThrow,
+  addFileExt,
+  dotProp,
+  objDiff,
+  deepAssign
+} = require('../../lib');
 
 // Set up Ajv
 ajv = new Ajv({
@@ -179,8 +184,8 @@ module.exports = ({ dbService, schemaService, userService }) =>
           // Return updated data
           return {
             updated: {
+              data: objDiff.updatedDiff(dbObj, data),
               objId: objId,
-              data: data,
             }
           };;
         });
