@@ -1,10 +1,18 @@
 {
   "admins": {
     "name": "administrators",
+    "members": [
+      "gnimmelf"
+    ]
+  },
+  "managers": {
+    "name": "site managers",
     "members": []
   },
   "editors": {
     "name": "editors",
-    "members": []
+    "members": [
+      "ainalauritsen"
+    ]
   }
 }

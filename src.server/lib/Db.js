@@ -197,7 +197,22 @@ class Db {
 
     const dotPath = makeDotPath(relPath);
     const value = dotProp.get(this.tree, dotJoin(dotPath, key));
-    return reassign ? (value ? Object.assign({}, value) : false) : value;
+
+    let retVal;
+
+    if (!reassign || typeof value != 'object') {
+      // Primitives
+      retVal = {
+        key: key,
+        value: value,
+      };
+    }
+    else {
+      // Object or array
+      retVal = value ? Object.assign({}, value) : false;
+    }
+
+    return retVal;
   }
 
 

@@ -15,14 +15,14 @@ module.exports = ({ localAppPath }) =>
   Promise.all([
     new Db({
       root: ensureDir(join(localAppPath, 'db/schemas')),
-    }).promise.then(db => dbs['schemas'] = db),
+    }).promise.then(db => dbs['schema'] = db),
     new Db({
       root: ensureDir(join(localAppPath, 'db/site')),
     }).promise.then(db => dbs['site'] = db),
     new Db({
       root: ensureDir(join(localAppPath, 'db/users')),
       instantPush: true,
-    }).promise.then(db => dbs['users'] = db),
+    }).promise.then(db => dbs['user'] = db),
     new Db({
       root: ensureDir(join(localAppPath, 'db/content')),
     }).promise.then(db => dbs['content'] = db),

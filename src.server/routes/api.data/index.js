@@ -6,7 +6,7 @@ const router = Router();
 const api = makeInvoker(require('../../apis/data'));
 
 router.get('/:schemaName/list',                   api('getObjectIds'));
-router.get('/:schemaName/:objId',                 api('getObj'));
+router.get('/:schemaName/:objId/:dottedPath?',    api('getObj'));
 router.post('/:schemaName/:objId?/:dottedPath?',  api('setObj'));
 router.delete('/:schemaName/:objId/:dottedPath?', api('deleteObj'))
 

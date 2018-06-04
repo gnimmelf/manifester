@@ -2,8 +2,12 @@
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "title": "Account details",
-  "required": ["email", "firstName", "lastName", "cellPhoneNo"],
+  "ACL": {
+    "*": ["read"]
+  },
+  "required": ["handle", "email", "firstName", "lastName", "cellPhoneNo"],
   "properties": {
     "$ref": ".user.common.json#/properties"
-  }
+  },
+  "idProperty": false,
 }

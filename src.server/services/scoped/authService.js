@@ -9,7 +9,7 @@ const AUTH_FILE = 'auth.json';
 module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) =>
 // NOTE! Cannot inject `userService` into scope here due to circularity with `middleware/authenticateHeaderToken`
 {
-  const userDb = dbService.users;
+  const userDb = dbService.user;
 
   const maybeGetAuthPath = (email) =>
   {

@@ -3,17 +3,19 @@
   "type": "object",
   "title": "Product",
   "ACL": {
-    "editor": ["*"]
+    "editors": ["*"]
   },
+  "required": ["title", "content"],
   "properties": {
     "title": {
       "type": "string",
       "title": "Title"
     },
-    "description": {
+    "content": {
       "type": "string",
       "title": "Description"
     }
   },
+  "idProperty": "#/title",
   "meta": { "$ref": ".core.meta.json#/properties" }
 }

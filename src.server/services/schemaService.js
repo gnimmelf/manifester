@@ -17,7 +17,7 @@ const invalidateCache = (fsPath) => {
   delete cache[fsPath];
 };
 
-module.exports = ({ dbService }) =>
+module.exports = ({ dbService, userService }) =>
 /*
   IMPORTANT!
   `getSchema` *must* dereference relative on the filesystem, and `getSchemaNames` *must* use the `dbService`.
@@ -25,14 +25,14 @@ module.exports = ({ dbService }) =>
   2. This also makes the schemas starting with `.` hidden, but parsable due to the `ignored: /(^|[\/\\])\../` db-setting behind `dbService`
 */
 {
-  const schemaDb = dbService.schemas;
+  const schemaDb = dbService.schema;
 
   schemaDb.watcher.on('change', invalidateCache);
   schemaDb.watcher.on('unlink', invalidateCache);
 
   return {
 
-    getSchema: (schemaName) =>
+    getSchema: (schemaName, operation='read') =>
     {
       return new Promise((resolve, reject) => {
         schemaName = addFileExt(schemaName, ".json");
@@ -53,21 +53,29 @@ module.exports = ({ dbService }) =>
 
               // Validate `schema`
               // TODO! Make properly: required ["ACL", "title", "idProperty"]
-              maybeThrow(!schema.idProperty, `Invalid schema: No 'idProperty' found on '${schemaName}'`, 424);
+              maybeThrow(schema.idProperty == undefined, `Invalid schema: No 'idProperty' found on '${schemaName}'`, 424);
 
               cache[fsPath] = schema;
               debug("added to cache", fsPath);
               resolve(schema);
 
-            });
+            })
+            .catch(err => reject(err));
         }
+      })
+      .then(schema => {
+        userService.authorizeByACL(schema.ACL, operation);
+        return schema;
       });
     },
 
-    getSchemaNames: (globpattern="*") =>
+    getSchemaNames: (globpattern='*', operation='read') =>
     {
       return new Promise((resolve, reject) => {
-        const schemaNames = Object.keys(schemaDb.tree).filter(schemaName => minimatch(schemaName, globpattern));
+        const schemaNames = Object.entries(schemaDb.tree)
+          .filter(([schemaName, schema]) => minimatch(schemaName, globpattern))
+          .filter(([schemaName, schema]) => userService.authorizeByACL(schema.ACL, operation, {supressError: true}))
+          .map(([schemaName, schema]) => schemaName);
 
         schemaNames.sort();
 

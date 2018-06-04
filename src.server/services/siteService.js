@@ -8,7 +8,7 @@ const minimatch = require('minimatch');
 module.exports = ({ dbService }) =>
 {
   const siteDb = dbService.site;
-  const userDb = dbService.users;
+  const userDb = dbService.user;
 
   return {
     getSettings() {

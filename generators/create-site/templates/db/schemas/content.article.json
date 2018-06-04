@@ -3,9 +3,10 @@
   "type": "object",
   "title": "Article",
   "ACL": {
-    "editor": ["*"],
+    "editors": ["*"],
     "*": ["read"]
   },
+  "required": ["title", "content"],
   "properties": {
     "title": {
       "type": "string",

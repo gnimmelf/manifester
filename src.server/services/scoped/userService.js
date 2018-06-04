@@ -19,7 +19,7 @@ const validatePermissions = (permissions) => permissions.forEach(permission => {
 
 module.exports = ({ dbService, currentUserEmail }) => {
 
-  const userDb = dbService.users;
+  const userDb = dbService.user;
 
   class User {
 
@@ -72,7 +72,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
     return user;
   }
 
-  const authorizeByACL = (ACL, operation, owner=null) =>
+  const authorizeByACL = (ACL, operation, {owner=null, supressError=false}={}) =>
   {
     validateOperation(operation);
 
@@ -106,7 +106,9 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
     debug(operation.toUpperCase()+': '+(authorizedBy.length ? 'authorized' : 'unauthorized'), authorizedBy, currentUser ? currentUser : '<not logged in>')
 
-    maybeThrow(!authorizedBy.length, currentUser ? 'Unauthorized' : 'Not logged in', 401)
+    if (!supressError) {
+      maybeThrow(!authorizedBy.length, currentUser ? 'Unauthorized' : 'Not logged in', 401)
+    }
 
     return currentUser;
   };
