@@ -5,14 +5,20 @@ const { makeInvoker } = require('awilix-express');
 const router = Router();
 const api = makeInvoker(require('../../apis/user'));
 
-router.get('/current',        api('getCurrentUser'));
+const authorizeRequest = require('../../middleware/authorizeRequest');
+
+// Groups
+router.get('/list', authorizeRequest({"manager": ["read"]}), api('getUsers'));
+router.get('/groups', authorizeRequest({"user": ["read"]}), api('getGroups'));
+// User
+router.get('/current', api('getCurrentUser'));
 router.get('/current/groups', api('getCurrentUserGroups'));
-router.get('/logout',         api('invalidateSession'));
+router.get('/logout', api('invalidateSession'));
 // User-data
-router.get('/:userHandle/data/:schemaName/list',                    api('getObjectIds'));
-router.get('/:userHandle/data/:schemaName/:objId',                  api('getObj'));
-router.post('/:userHandle/data/:schemaName/:objId/:dottedPath?',    api('setObj'));
-router.delete('/:userHandle/data/:schemaName/:objId/:dottedPath?',  api('setObj'));
+router.get('/:userHandle/data/:schemaName/list', api('getObjectIds'));
+router.get('/:userHandle/data/:schemaName/:objId', api('getObj'));
+router.post('/:userHandle/data/:schemaName/:objId/:dottedPath?', api('setObj'));
+router.delete('/:userHandle/data/:schemaName/:objId/:dottedPath?', api('setObj'));
 
 module.exports = router;
 

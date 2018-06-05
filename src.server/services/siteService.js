@@ -1,24 +1,64 @@
 const debug = require('debug')('mf:service:siteService');
-const { join, relative } = require('path');
-const assert = require('assert');
-const { maybeThrow } = require('../lib');
-const jsonPath = require('jsonpath');
-const minimatch = require('minimatch');
 
-module.exports = ({ dbService }) =>
+const {
+  isObject,
+  inspect,
+  addFileExt,
+  maybeThrow,
+} = require('../lib');
+
+const parseParams = (params) => {
+  inspect(params)
+  const parsed = isObject(params[0]) ? params[0] : {
+    siteSchemaSuffix: params[0],
+    dottedPath: params[0],
+  };
+
+  parsed.schemaName = 'site.'+parsed.siteSchemaSuffix;
+
+  return parsed;
+};
+
+module.exports = ({ dbService, schemaService }) =>
 {
+
   const siteDb = dbService.site;
-  const userDb = dbService.user;
 
   return {
 
-    getGroups: () =>
+    getObj: (...params) =>
     {
-      const groups = jsonPath.nodes(userDb.get('groups.json'), "$[*].name")
-        .map(({path, value}) => ({key: path[1], name: value}));
+      const {schemaName, siteSchemaSuffix, dottedPath} = parseParams(params);
 
-      return groups;
+      return schemaService.getSchema(schemaName, 'read')
+        .then(schema => {
+
+          const relPath =  addFileExt(siteSchemaSuffix);
+
+          const data = siteDb.get(relPath, dottedPath);
+
+          maybeThrow(!data, null, 404);
+
+          return data;
+        });
     },
 
+    setObj: (data, ...params) =>
+    // TODO! Fixme!
+    {
+      const {schemaName, siteSchemaSuffix, dottedPath} = parseParams(params);
+
+      return schemaService.getSchema(schemaName, 'read')
+        .then(schema => {
+
+          const relPath =  addFileExt(siteSchemaSuffix);
+
+          const data = siteDb.set(relPath, dottedPath, data);
+
+          maybeThrow(!data, null, 404);
+
+          return data;
+        });
+    }
   };
 };

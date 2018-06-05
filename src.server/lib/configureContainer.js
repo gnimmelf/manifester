@@ -21,6 +21,7 @@ module.exports = function(mainApp, cwd) {
 
   container.registerValue('mainApp', mainApp)
   container.registerValue('tokenKeyName', 'XSRF-TOKEN');
+  container.registerValue('currentUserEmail', undefined);
 
   container.loadModules([
     ['services/*.js', Lifetime.SINGLETON],

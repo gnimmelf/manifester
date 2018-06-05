@@ -7,7 +7,6 @@ const { makeLoginCode, maybeThrow } = require('../../lib');
 const AUTH_FILE = 'auth.json';
 
 module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) =>
-// NOTE! Cannot inject `userService` into scope here due to circularity with `middleware/authenticateHeaderToken`
 {
   const userDb = dbService.user;
 
@@ -33,7 +32,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         const relPath = maybeGetAuthPath(email);
 
         const loginCode = makeLoginCode();
-        const siteSettings = siteService.getSettings();
+        const siteSettings = siteService.getObj('settings');
 
         userDb.set(relPath, 'loginCode', loginCode);
 

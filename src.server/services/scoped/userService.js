@@ -72,6 +72,23 @@ module.exports = ({ dbService, currentUserEmail }) => {
     return user;
   }
 
+  const getUsers = () =>
+  // TODO! Fixme!
+  {
+    const users = jsonPath.nodes(userDb.get('groups.json'), "$[*].name")
+      .map(({path, value}) => ({key: path[1], name: value}));
+
+    return users;
+  }
+
+  const getGroups = () =>
+  {
+    const groups = jsonPath.nodes(userDb.get('groups.json'), "$[*].name")
+      .map(({path, value}) => ({key: path[1], name: value}));
+
+    return groups;
+  }
+
   const authorizeByACLg = (ACLg, operation, {owner=null, supressError=false}={}) =>
   {
     validateOperation(operation);
@@ -118,13 +135,12 @@ module.exports = ({ dbService, currentUserEmail }) => {
   */
   const currentUser = currentUserEmail ? getUserBy('email', currentUserEmail) : undefined;
 
-  const users = [/* TODO! */];
-
   return {
     getUserBy: getUserBy,
     authorizeByACLg: authorizeByACLg,
     currentUser: currentUser,
-    users: users,
+    getUsers: getUsers,
+    getGroups: getGroups,
   }
 
 };

@@ -26,6 +26,20 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
   return {
 
+    getGroups: (req, res) =>
+    {
+      return new Promise((resolve, reject) => {
+        const groups = userService.getGroups();
+        resolve(groups);
+      })
+      .then(data => {
+        sendApiResponse(res, data)
+      })
+      .catch(err => {
+        sendApiResponse(res, err)
+      });
+    },
+
     getCurrentUser: (req, res) =>
     {
       return new Promise((resolve, reject) => {

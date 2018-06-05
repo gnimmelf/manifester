@@ -78,6 +78,8 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           const relPath = (owner ? owner.userId+'/' : '') + pathPart + (objId ? addFileExt('/'+objId) : '');
 
+          debug('getObj', relPath);
+
           const data = dbService[dbKey].get(relPath, dottedPath);
 
           maybeThrow(!data, `ObjId '${objId}' not found`, 404);

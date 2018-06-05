@@ -2,29 +2,16 @@ const debug = require('debug')('mf:api:site');
 
 const {
   sendApiResponse,
-  requestFullUrl,
-  maybeThrow } = require('../lib');
+} = require('../lib');
 
-const RE_SITE_SCHEMA_MASK = new RegExp(/^site\./);
-
-module.exports = ({ siteService, schemaService }) =>
+module.exports = ({ schemaService, siteService }) =>
+/*
+  NOTE! All site-data are "singletons"
+  -So per "site.*"-schema, there is only one corresponding data-file designated by the suffix after "site.".
+*/
 {
 
   return {
-
-    getGroups: (req, res) =>
-    {
-      return new Promise((resolve, reject) => {
-        const groups = siteService.getGroups();
-        resolve(groups);
-      })
-      .then(data => {
-        sendApiResponse(res, data)
-      })
-      .catch(err => {
-        sendApiResponse(res, err)
-      });
-    },
 
     getObjectIds: (req, res) =>
     {
@@ -40,23 +27,30 @@ module.exports = ({ siteService, schemaService }) =>
     },
 
     getObj: (req, res) =>
-    // TODO! Fixme! Singleton, one data-file per schema
     {
       debug('getObj', req.params)
+
+      siteService.getObj(req.params)
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
     },
 
     setObj: (req, res) =>
     // TODO! Fixme! Singleton, one data-file per schema
     {
       debug('setObj', req.params);
+
+      siteService.setObj(req.params)
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendAp
     },
-
-    deleteObj: (req, res) =>
-    // TODO! Fixme! Singleton, one data-file per schema
-    {
-      debug('setObj', req.params);
-    }
-
 
   };
 };
