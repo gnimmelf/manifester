@@ -1,4 +1,4 @@
-const debug = require('debug')('mf:services:userService');
+const debug = require('debug')('mf:service:userService');
 const { join } = require('path');
 const assert = require('assert');
 const jsonPath = require('jsonpath');
@@ -9,11 +9,11 @@ const { maybeThrow, addFileExt } = require('../../lib');
 const USERID = Symbol('userId');
 const GROUPS = Symbol('groups');
 
-const OPERATIONS = ['create', 'read', 'update', 'delete'];
 
+// TODO! These validations should be part of the schema-definitions?
+const OPERATIONS = ['create', 'read', 'update', 'delete'];
 const validateOperation = (operation) => assert(~OPERATIONS.indexOf(operation), `Invalid operation: ${operation}`);
 const validatePermissions = (permissions) => permissions.forEach(permission => {
-  // TODO! Not necessary?
   assert(~OPERATIONS.concat('*').indexOf(permission), `Invalid operation: ${permission}`);
 });
 
@@ -72,12 +72,12 @@ module.exports = ({ dbService, currentUserEmail }) => {
     return user;
   }
 
-  const authorizeByACL = (ACL, operation, {owner=null, supressError=false}={}) =>
+  const authorizeByACLg = (ACLg, operation, {owner=null, supressError=false}={}) =>
   {
     validateOperation(operation);
 
-    debug('authorizeByACL', {
-      ACL: ACL,
+    debug('authorizeByACLg', {
+      ACLg: ACLg,
       currentUser: currentUser,
       groups: currentUser ? currentUser.groups : [],
     })
@@ -91,12 +91,12 @@ module.exports = ({ dbService, currentUserEmail }) => {
     if (isAdmin) authorizedBy.push('isAdmin');
     if (isOwner) authorizedBy.push('isOwner');
 
-    if (!authorizedBy.length && ACL)
+    if (!authorizedBy.length && ACLg)
     {
-      const matchGroup = Object.entries(ACL).find(([group, permissions]) =>
+      const matchGroup = Object.entries(ACLg).find(([group, permissions]) =>
       {
         validatePermissions(permissions);
-        // For each ACL entry, ACL-`group` must be in `userGroups` AND ACL-`permissions` must be "*" for all, or include `operation`:
+        // For each ACLg entry, ACLg-`group` must be in `userGroups` AND ACLg-`permissions` must be "*" for all, or include `operation`:
         const match = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
         return match ? group : false;
       })
@@ -122,7 +122,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
   return {
     getUserBy: getUserBy,
-    authorizeByACL: authorizeByACL,
+    authorizeByACLg: authorizeByACLg,
     currentUser: currentUser,
     users: users,
   }

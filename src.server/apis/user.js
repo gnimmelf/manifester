@@ -5,7 +5,7 @@ const {
   requestFullUrl,
   maybeThrow } = require('../lib');
 
-const USER_SCHEMA_MASK = '^user';
+const RE_RE_USER_SCHEMA_MASK = new RegExp(/^user\./);
 
 module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 {
@@ -84,7 +84,7 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       getUserByHandle(req.params.userHandle)
         .then((owner) => {
-          return dataService.getObjectIds(USER_SCHEMA_MASK, req.params, owner);
+          return dataService.getObjectIds(RE_USER_SCHEMA_MASK, req.params, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -100,7 +100,7 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       getUserByHandle(req.params.userHandle)
         .then((owner) => {
-          return dataService.getObj(USER_SCHEMA_MASK, req.params, owner);
+          return dataService.getObj(RE_USER_SCHEMA_MASK, req.params, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -116,7 +116,7 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       getUserByHandle(req.params.userHandle)
         .then((owner) => {
-          return dataService.setObj(USER_SCHEMA_MASK, req.body, req.params, owner);
+          return dataService.setObj(RE_USER_SCHEMA_MASK, req.body, req.params, owner);
         })
         .then(data => {
           sendApiResponse(res, data)

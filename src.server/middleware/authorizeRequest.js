@@ -3,7 +3,7 @@ const intersect = require('intersect');
 const normalizeBool = require('normalize-bool');
 const { maybeThrow, requestFullUrl, makeSingleInvoker } = require('../lib');
 
-const authorizeRequest = (ACL, redirectUrl='') =>
+const authorizeRequest = (ACLg, redirectUrl='') =>
 {
 
   return makeSingleInvoker(({ userService }) => {
@@ -15,7 +15,7 @@ const authorizeRequest = (ACL, redirectUrl='') =>
       const operation = ~['POST', 'PUT', 'DELETE'].indexOf(req.method.toUpperCase()) ? 'write' : 'read';
 
       try {
-        userService.authorizeByACL(ACL, operation)
+        userService.authorizeByACLg(ACLg, operation)
       }
       catch(err) {
         if(redirectUrl) {

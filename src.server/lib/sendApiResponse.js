@@ -37,7 +37,7 @@ module.exports = (expressResponseObj, payload) =>
     } : payload || {};
   }
 
-  debug(`> apiPayload:${status}`, apiPayload);
+  debug(`> apiPayload: ${status}`, apiPayload);
 
   expressResponseObj.status(status).json(apiPayload);
 }

@@ -1,4 +1,4 @@
-const debug = require('debug')('mf:service:contentService');
+const debug = require('debug')('mf:service:dataService');
 const Ajv = require('ajv');
 const jsonPointer = require('js-pointer');
 const slug = require('slug');
@@ -18,7 +18,7 @@ ajv = new Ajv({
 });
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 
-const schemaNameMatch = (reSchemaNameMask, schemaName) => maybeThrow(!schemaName.match(reSchemaNameMask), null, 404)
+const schemaNameMatch = (reSchemaNameMask, schemaName) => maybeThrow(!reSchemaNameMask.test(schemaName), null, 404)
 
 const schemaName2parts = (schemaName) =>
 {
@@ -46,12 +46,14 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
     getObjectIds: (reSchemaNameMask, {schemaName}, owner=null) =>
     {
+      debug('getObjectIds', reSchemaNameMask, schemaName, owner)
+
       schemaNameMatch(reSchemaNameMask, schemaName);
 
       return schemaService.getSchema(schemaName)
         .then(schema => {
 
-          userService.authorizeByACL(schema.ACL, 'read', {owner: owner});
+          userService.authorizeByACLg(schema.ACLg, 'read', {owner: owner});
 
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 
@@ -65,20 +67,18 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
     getObj: (reSchemaNameMask, {schemaName, objId, dottedPath}, owner=null) =>
     {
+      debug('getObj >', reSchemaNameMask, schemaName, objId, dottedPath, owner);
+
       schemaNameMatch(reSchemaNameMask, schemaName);
 
-      return schemaService.getSchema(schemaName)
+      return schemaService.getSchema(schemaName, 'read', {owner: owner})
         .then(schema => {
-
-          userService.authorizeByACL(schema.ACL, 'read', {owner: owner});
 
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 
           const relPath = (owner ? owner.userId+'/' : '') + pathPart + (objId ? addFileExt('/'+objId) : '');
 
           const data = dbService[dbKey].get(relPath, dottedPath);
-
-          debug('getObj', data)
 
           maybeThrow(!data, `ObjId '${objId}' not found`, 404);
 
@@ -92,14 +92,11 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
       schemaNameMatch(reSchemaNameMask, schemaName);
 
-      return schemaService.getSchema(schemaName)
-      .then(schema => {
+      return schemaService.getSchema(schemaName, 'create', {owner: owner})
+        .then(schema => {
 
           let isValid;
           const {dbKey, pathPart} = schemaName2parts(schemaName);
-
-          // Authorize
-          userService.authorizeByACL(schema.ACL, 'create', {owner: owner});
 
           // Validate `data` vs `schema`
           isValid = ajv.validate(schema, data);
@@ -139,14 +136,11 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
       schemaNameMatch(reSchemaNameMask, schemaName);
 
-      return schemaService.getSchema(schemaName)
-      .then(schema => {
+      return schemaService.getSchema(schemaName, 'update', {owner: owner})
+        .then(schema => {
 
           let isValid, saturated;
           const {dbKey, pathPart} = schemaName2parts(schemaName);
-
-          // Authorize
-          userService.authorizeByACL(schema.ACL, 'create', {owner: owner});
 
           // Set db-`relPath`
           const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
@@ -195,12 +189,8 @@ module.exports = ({ dbService, schemaService, userService }) =>
     {
       schemaNameMatch(reSchemaNameMask, schemaName);
 
-      return schemaService.getSchema(schemaName)
+      return schemaService.getSchema(schemaName, 'delete', {owner: owner})
       .then(schema => {
-
-        const operation = 'delete';
-
-        userService.authorizeByACL(schema.ACL, operation, {owner: owner});
 
         const {dbKey, pathPart} = schemaName2parts(schemaName);
 

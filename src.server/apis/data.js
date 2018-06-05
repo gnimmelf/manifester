@@ -1,7 +1,7 @@
 const debug = require('debug')('mf:api:data');
 const { maybeThrow, sendApiResponse, requestFullUrl, addFileExt } = require('../lib');
 
-const CONTENT_SCHEMA_MASK = '^content';
+const RE_CONTENT_SCHEMA_MASK = new RegExp(/^content\./);
 
 module.exports = ({ dataService }) =>
 {
@@ -12,7 +12,7 @@ module.exports = ({ dataService }) =>
     {
       debug('getObjectIds', req.params)
 
-      dataService.getObjectIds(CONTENT_SCHEMA_MASK, req.params)
+      dataService.getObjectIds(RE_CONTENT_SCHEMA_MASK, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -25,7 +25,7 @@ module.exports = ({ dataService }) =>
     {
       debug('getObj', req.params)
 
-      dataService.getObj(CONTENT_SCHEMA_MASK, req.params)
+      dataService.getObj(RE_CONTENT_SCHEMA_MASK, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -40,7 +40,7 @@ module.exports = ({ dataService }) =>
 
       let serviceFnName;
 
-      dataService[req.params.objId ? 'updateObj' : 'createObj'](CONTENT_SCHEMA_MASK, req.body, req.params)
+      dataService[req.params.objId ? 'updateObj' : 'createObj'](RE_CONTENT_SCHEMA_MASK, req.body, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })

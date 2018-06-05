@@ -11,8 +11,8 @@ router.get('/:schemaName',                    api('getSchema'));
 module.exports = router;
 
 /*
-http --session=~/tmp/session.json POST :3000/api/schemas/list
-http --session=~/tmp/session.json POST :3000/api/schemas/content.*
-http --session=~/tmp/session.json POST :3000/api/schemas/content.article
-http --session=~/tmp/session.json POST :3000/api/schemas/content.article.json
+http --session=~/tmp/session.json POST :3000/api/schema/list
+http --session=~/tmp/session.json POST :3000/api/schema/list/content.*
+http --session=~/tmp/session.json POST :3000/api/schema/content.article
+http --session=~/tmp/session.json POST :3000/api/schema/content.article.json
 */

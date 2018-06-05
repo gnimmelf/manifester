@@ -32,7 +32,7 @@ module.exports = ({ dbService, userService }) =>
 
   return {
 
-    getSchema: (schemaName, operation='read') =>
+    getSchema: (schemaName, operation='read', {owner=null, supressError=false}={}) =>
     {
       return new Promise((resolve, reject) => {
         schemaName = addFileExt(schemaName, ".json");
@@ -52,7 +52,7 @@ module.exports = ({ dbService, userService }) =>
               schema.additionalProperties = false,
 
               // Validate `schema`
-              // TODO! Make properly: required ["ACL", "title", "idProperty"]
+              // TODO! Make properly: required ["ACLg", "title", "idProperty"]
               maybeThrow(schema.idProperty == undefined, `Invalid schema: No 'idProperty' found on '${schemaName}'`, 424);
 
               cache[fsPath] = schema;
@@ -64,7 +64,7 @@ module.exports = ({ dbService, userService }) =>
         }
       })
       .then(schema => {
-        userService.authorizeByACL(schema.ACL, operation);
+        userService.authorizeByACLg(schema.ACLg, operation, {owner: owner});
         return schema;
       });
     },
@@ -74,7 +74,7 @@ module.exports = ({ dbService, userService }) =>
       return new Promise((resolve, reject) => {
         const schemaNames = Object.entries(schemaDb.tree)
           .filter(([schemaName, schema]) => minimatch(schemaName, globpattern))
-          .filter(([schemaName, schema]) => userService.authorizeByACL(schema.ACL, operation, {supressError: true}))
+          .filter(([schemaName, schema]) => userService.authorizeByACLg(schema.ACLg, operation, {supressError: true}))
           .map(([schemaName, schema]) => schemaName);
 
         schemaNames.sort();
