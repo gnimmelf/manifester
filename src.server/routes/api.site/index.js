@@ -10,8 +10,8 @@ const api = makeInvoker(require('../../apis/site'));
 router.get('/groups', authorizeRequest({"user": ["read"]}), api('getGroups'));
 // Site-data
 router.get('/list',                                    api('getObjectIds'));
-router.get('/:schemaName/:dottedPath?',                api('getObj'));
-router.post('/:schemaName/:dottedPath?',               api('setObj'));
-router.delete('/:schemaName/:dottedPath?',             api('setObj'));
+router.get('/:siteSchemaPart/:dottedPath?',                api('getObj'));
+router.post('/:siteSchemaPart/:dottedPath?',               api('setObj'));
+router.delete('/:siteSchemaPart/:dottedPath?',             api('setObj'));
 
 module.exports = router;

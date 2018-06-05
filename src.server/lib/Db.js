@@ -72,7 +72,6 @@ const pushCommits = (instance) => {
 
   const commits = Array.from(new Set(instance.commits));
 
-
   commits.forEach(commit => {
     if (commit.action == 'write') {
       // Write file @ `absPath` with value from `instance.get(path)`

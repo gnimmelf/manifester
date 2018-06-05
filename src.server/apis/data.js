@@ -38,8 +38,6 @@ module.exports = ({ dataService }) =>
     {
       debug('setObj', req.params);
 
-      let serviceFnName;
-
       dataService[req.params.objId ? 'updateObj' : 'createObj'](RE_CONTENT_SCHEMA_MASK, req.body, req.params)
         .then(data => {
           sendApiResponse(res, data)
@@ -48,6 +46,19 @@ module.exports = ({ dataService }) =>
           sendApiResponse(res, err)
         });
     },
+
+    deleteObj: (req, res) =>
+    {
+      debug('deleteObj', req.params);
+
+      dataService.deleteObj(RE_CONTENT_SCHEMA_MASK, req.body, req.params)
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
+    }
 
   };
 };

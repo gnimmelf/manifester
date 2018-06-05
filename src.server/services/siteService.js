@@ -20,17 +20,5 @@ module.exports = ({ dbService }) =>
       return groups;
     },
 
-
-    getObj: (reSchemaNameMask, {schemaName, objId, dottedPath}, owner=null) =>
-    // TODO! Fixme! Singleton, one data-file per schema
-    {
-      debug('getObj', data)
-    },
-
-    createObj: (reSchemaNameMask, data, {schemaName}, owner=null) =>
-    // TODO! Fixme! Singleton, one data-file per schema
-    {
-      debug('createObj', data)
-    }
   };
 };

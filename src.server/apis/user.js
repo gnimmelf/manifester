@@ -126,5 +126,21 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
         });
     },
 
+    deleteObj: (req, res) =>
+    {
+      debug('deleteObj', req.params);
+
+      getUserByHandle(req.params.userHandle)
+        .then((owner) => {
+          return dataService.deleteObj(RE_USER_SCHEMA_MASK, req.body, req.params, owner);
+        })
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
+    }
+
   };
 };

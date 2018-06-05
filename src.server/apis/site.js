@@ -40,43 +40,23 @@ module.exports = ({ siteService, schemaService }) =>
     },
 
     getObj: (req, res) =>
+    // TODO! Fixme! Singleton, one data-file per schema
     {
       debug('getObj', req.params)
-
-      let { schemaName } = req.params;
-
-      schemaName = RE_SITE_SCHEMA_MASK.test(schemaName) ? schemaName : 'site.'+schemaName;
-
-      dataService.getObj(RE_SITE_SCHEMA_MASK, {
-        ...req.params,
-        schemaName: schemaName,
-        objId: schemaName.replace(RE_SITE_SCHEMA_MASK, ''),
-      })
-      .then(data => {
-        sendApiResponse(res, data)
-      })
-      .catch(err => {
-        sendApiResponse(res, err)
-      });
     },
 
     setObj: (req, res) =>
+    // TODO! Fixme! Singleton, one data-file per schema
     {
       debug('setObj', req.params);
-
-      let serviceFnName;
-
-      dataService[req.params.objId ? 'updateObj' : 'createObj'](SITE_SCHEMA_MASK, req.body, {
-        ...req.params,
-        objId: (req.params.schemaName || '').replace(RE_SITE_SCHEMA_MASK, ''),
-      })
-      .then(data => {
-        sendApiResponse(res, data)
-      })
-      .catch(err => {
-        sendApiResponse(res, err)
-      });
     },
+
+    deleteObj: (req, res) =>
+    // TODO! Fixme! Singleton, one data-file per schema
+    {
+      debug('setObj', req.params);
+    }
+
 
   };
 };

@@ -18,7 +18,7 @@ ajv = new Ajv({
 });
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 
-const schemaNameMatch = (reSchemaNameMask, schemaName) => maybeThrow(!reSchemaNameMask.test(schemaName), null, 404)
+const schemaNameMatch = (reSchemaNameMask, schemaName) => maybeThrow(!schemaName.match(reSchemaNameMask), null, 404)
 
 const schemaName2parts = (schemaName) =>
 {
@@ -115,7 +115,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           // Update Db
           const success = dbService[dbKey].set(relPath, data);
-          maybeThrow(!success, 'Could not update Db', 424);
+          maybeThrow(!success, 'Could not create object', 424);
 
           // Write commits to disk
           dbService[dbKey].push();
@@ -168,7 +168,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           // Update Db
           const success = dbService[dbKey].set(relPath, data);
-          maybeThrow(!success, 'Could not update Db', 424);
+          maybeThrow(!success, 'Could not update object', 424);
 
           // Write commits to disk
           dbService[dbKey].push();
@@ -183,29 +183,26 @@ module.exports = ({ dbService, schemaService, userService }) =>
         });
     },
 
-    delObj: (reSchemaNameMask, {schemaName, objId, dottedPath=null}, owner=null) =>
-    // TODO! `dottedPath`?
-    // TODO! Fixme!
+    deleteObj: (reSchemaNameMask, {schemaName, objId}, owner=null) =>
     {
       schemaNameMatch(reSchemaNameMask, schemaName);
 
       return schemaService.getSchema(schemaName, 'delete', {owner: owner})
       .then(schema => {
 
+        let isValid;
         const {dbKey, pathPart} = schemaName2parts(schemaName);
 
-        const relPath = (owner ? owner.userId+'/' : '')+ pathPart + (objId ? addFileExt('/'+objId) : '');
+        const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
 
         const success = dbService[dbKey].delete(relPath);
 
-        maybeThrow(!success, 'Could not update Db', 424);
+        maybeThrow(!success, 'Could not delete object', 424);
 
         // Write commits to disk
         dbService[dbKey].push();
 
-        // TODO! Return what?
         return success;
-
       });
 
     },
