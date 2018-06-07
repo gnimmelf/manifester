@@ -60,7 +60,6 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
 
     },
 
-
     exchangeLoginCode2Token: (email, loginCode, renewtoken) =>
     {
       return new Promise((resolve, reject) => {
@@ -109,7 +108,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
     {
       return new Promise((resolve, reject) => {
 
-        const relPath = maybeGetAuthPath(decoded.email);
+        const relPath = maybeGetAuthPath(email);
 
         userDb.delete(relPath, 'authToken');
 

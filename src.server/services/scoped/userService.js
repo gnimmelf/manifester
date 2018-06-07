@@ -21,8 +21,11 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
   const userDb = dbService.user;
 
-  class User {
+  // Session variables
+  let currentUser, userList, groupList;
 
+  class User
+  {
     constructor(userId)
     {
       this[USERID] = userId;
@@ -51,7 +54,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
       return this[GROUPS];
     }
-  }
+  };
 
   const getUserBy = (key, value) =>
   {
@@ -72,25 +75,41 @@ module.exports = ({ dbService, currentUserEmail }) => {
     return user;
   }
 
-  const getUsers = () =>
-  // TODO! Fixme!
+  const getCurrentUser = () =>
   {
-    const users = jsonPath.nodes(userDb.get('groups.json'), "$[*].name")
-      .map(({path, value}) => ({key: path[1], name: value}));
+    if (currentUser == undefined) {
+      currentUser = currentUserEmail ? getUserBy('email', currentUserEmail) : false;
+    }
 
-    return users;
+    debug('getCurrentUser', currentUser)
+
+    return currentUser;
   }
 
-  const getGroups = () =>
+  const getUserList = () =>
   {
-    const groups = jsonPath.nodes(userDb.get('groups.json'), "$[*].name")
-      .map(({path, value}) => ({key: path[1], name: value}));
+    if (userList == undefined) {
+      const userList = jsonPath.nodes(userDb.tree, "$[*]['user.json']")
+        .map(node => node.path[1]);
+    }
+    return userList;
+  }
 
-    return groups;
+  const getGroupList = () =>
+  {
+    if (groupList == undefined) {
+      groupList = jsonPath.nodes(userDb.get('groups.json'), "$[*].name")
+        .map(({path, value}) => ({key: path[1], name: value}));
+    }
+    return groupList;
   }
 
   const authorizeByACLg = (ACLg, operation, {owner=null, supressError=false}={}) =>
   {
+    const currentUser = getCurrentUser();
+
+    debug('currentUser', currentUserEmail, currentUser);
+
     validateOperation(operation);
 
     debug('authorizeByACLg', {
@@ -130,17 +149,14 @@ module.exports = ({ dbService, currentUserEmail }) => {
     return currentUser;
   };
 
-  /*
-    Set values for the service
-  */
-  const currentUser = currentUserEmail ? getUserBy('email', currentUserEmail) : undefined;
-
   return {
+    // Functions
     getUserBy: getUserBy,
     authorizeByACLg: authorizeByACLg,
-    currentUser: currentUser,
-    getUsers: getUsers,
-    getGroups: getGroups,
+    // Getters
+    get currentUser() { return getCurrentUser() },
+    get users() { return getUserList() },
+    get groups() { return getGroupList() },
   }
 
 };

@@ -51,7 +51,7 @@ module.exports = ({ dataService }) =>
     {
       debug('deleteObj', req.params);
 
-      dataService.deleteObj(RE_CONTENT_SCHEMA_MASK, req.body, req.params)
+      dataService.deleteObj(RE_CONTENT_SCHEMA_MASK, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })

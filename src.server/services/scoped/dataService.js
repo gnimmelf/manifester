@@ -203,7 +203,6 @@ module.exports = ({ dbService, schemaService, userService }) =>
           // Check that it exists
           maybeThrow(!dbObj, `ObjId '${objId}' not found`, 404);
 
-
           if (dottedPath) {
             // De-saturate `dbObj` by deleting `dottedPath`
             dotProp.delete(dbObj, dottedPath)

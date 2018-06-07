@@ -8,8 +8,8 @@ const api = makeInvoker(require('../../apis/user'));
 const authorizeRequest = require('../../middleware/authorizeRequest');
 
 // Groups
-router.get('/list', authorizeRequest({"manager": ["read"]}), api('getUsers'));
-router.get('/groups', authorizeRequest({"user": ["read"]}), api('getGroups'));
+router.get('/list', authorizeRequest({"manager": ["read"]}), api('getUserList'));
+router.get('/groups', authorizeRequest({"user": ["read"]}), api('getGroupList'));
 // User
 router.get('/current', api('getCurrentUser'));
 router.get('/current/groups', api('getCurrentUserGroups'));
