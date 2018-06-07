@@ -212,7 +212,7 @@ class Db {
 
     if (typeof value != 'object') {
       // `value` is a primitive (string, number, bool...), disregard `clone`-option
-      retVal = raw ? value : { data: value };
+      retVal = raw ? value : { [key]: value };
     }
     else {
       // `value` is `object`

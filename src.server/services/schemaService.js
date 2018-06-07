@@ -37,7 +37,7 @@ module.exports = ({ dbService, userService }) =>
       return new Promise((resolve, reject) => {
         schemaName = addFileExt(schemaName, ".json");
 
-        maybeThrow(!schemaDb.get(schemaName), `Schema '${schemaName}' not found`, 404)
+        maybeThrow(!schemaDb.get(schemaName, {raw:true}), `Schema '${schemaName}' not found`, 404)
 
         const fsPath = getRelFsPath(join(schemaDb.root, schemaName));
 
