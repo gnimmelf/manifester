@@ -32,14 +32,14 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         const relPath = maybeGetAuthPath(email);
 
         const loginCode = makeLoginCode();
-        const siteSettings = siteService.getSettings('settings');
+        const siteSettings = siteService.getSettings();
 
         userDb.set(relPath, 'loginCode', loginCode);
 
         templateService['mail-login-code']
           .render({
+            ...siteSettings,
             loginCode: loginCode,
-            domainName: siteSettings.siteName
           })
           .then(html => {
 

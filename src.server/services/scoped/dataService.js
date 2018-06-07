@@ -80,7 +80,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           debug('getObj', relPath);
 
-          const data = dbService[dbKey].get(relPath, dottedPath, {raw: parseInt(raw)});
+          const data = dbService[dbKey].get(relPath, dottedPath, {raw: !!parseInt(raw)});
 
           maybeThrow(!data, `ObjId '${objId}' not found`, 404);
 

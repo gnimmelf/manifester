@@ -219,7 +219,7 @@ class Db {
       retVal = clone ? Object.assign({}, value) : value;
     }
 
-    console.log('OPTIONS', options, relPath, key, typeof value, '=>', retVal)
+    //console.log('OPTIONS', options, relPath, key, typeof value, '=>', retVal)
 
     return retVal;
   }
