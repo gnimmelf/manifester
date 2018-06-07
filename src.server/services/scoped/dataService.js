@@ -65,7 +65,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
         });
     },
 
-    getObj: (reSchemaNameMask, {schemaName, objId, dottedPath}, owner=null) =>
+    getObj: (reSchemaNameMask, {schemaName, objId, dottedPath, raw=true}, owner=null) =>
     {
       debug('getObj >', reSchemaNameMask, schemaName, objId, dottedPath, owner);
 
@@ -80,7 +80,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           debug('getObj', relPath);
 
-          const data = dbService[dbKey].get(relPath, dottedPath);
+          const data = dbService[dbKey].get(relPath, dottedPath, {primitiveAsObject: !parseInt(raw)});
 
           maybeThrow(!data, `ObjId '${objId}' not found`, 404);
 
@@ -97,11 +97,10 @@ module.exports = ({ dbService, schemaService, userService }) =>
       return schemaService.getSchema(schemaName, 'create', {owner: owner})
         .then(schema => {
 
-          let isValid;
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 
           // Validate `data` vs `schema`
-          isValid = ajv.validate(schema, data);
+          const isValid = ajv.validate(schema, data);
           maybeThrow(!isValid, ajv.errors, 400);
 
           // Set `objId` based on `idProperty`
@@ -141,31 +140,33 @@ module.exports = ({ dbService, schemaService, userService }) =>
       return schemaService.getSchema(schemaName, 'update', {owner: owner})
         .then(schema => {
 
-          let isValid, saturated;
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 
           // Set db-`relPath`
           const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
 
-          // Get object from db
-          const dbObj = dbService[dbKey].get(relPath);
+          // Get object-clone from db
+          const dbObj = dbService[dbKey].get(relPath, {clone: true});
 
           // Check that it exists
           maybeThrow(!dbObj, `ObjId '${objId}' not found`, 404);
 
           // Saturate `data`
           if (dottedPath) {
-            // Extract `value` from data, or use `data` `when` value is not found
+
+            // Extract `value` from `data`, or use entire `data`-object `when` value is not found
             const value = dotProp.set({}, dottedPath, data.value || data);
+
             debug('updateObj', 'dottedPath', `${dottedPath} = ${value}`);
+
             data = deepAssign({}, dbObj, value);
           }
           else {
             data = deepAssign({}, dbObj, data);
           }
 
-          // Validate `data` vs `schema`
-          isValid = ajv.validate(schema, data);
+          // Validate saturated `data` vs `schema`
+          const isValid = ajv.validate(schema, data);
           maybeThrow(!isValid, ajv.errors, 400);
 
           // Update Db
@@ -185,27 +186,42 @@ module.exports = ({ dbService, schemaService, userService }) =>
         });
     },
 
-    deleteObj: (reSchemaNameMask, {schemaName, objId}, owner=null) =>
+    deleteObj: (reSchemaNameMask, {schemaName, objId, dottedPath}, owner=null) =>
     {
       schemaNameMatch(reSchemaNameMask, schemaName);
 
       return schemaService.getSchema(schemaName, 'delete', {owner: owner})
-      .then(schema => {
+        .then(schema => {
 
-        let isValid;
-        const {dbKey, pathPart} = schemaName2parts(schemaName);
+          const {dbKey, pathPart} = schemaName2parts(schemaName);
 
-        const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
+          const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
 
-        const success = dbService[dbKey].delete(relPath);
+          // Get object-clone from db
+          const dbObj = dbService[dbKey].get(relPath, {clone: true});
 
-        maybeThrow(!success, 'Could not delete object', 424);
+          // Check that it exists
+          maybeThrow(!dbObj, `ObjId '${objId}' not found`, 404);
 
-        // Write commits to disk
-        dbService[dbKey].push();
 
-        return success;
-      });
+          if (dottedPath) {
+            // De-saturate `dbObj` by deleting `dottedPath`
+            dotProp.delete(dbObj, dottedPath)
+
+            // Validate `dbObj` vs `schema`
+            const isValid = ajv.validate(schema, dbObj);
+            maybeThrow(!isValid, ajv.errors, 400);
+          }
+
+          // Update Db
+          const success = dbService[dbKey].delete(relPath, dottedPath);
+          maybeThrow(!success, 'Could not delete object', 424);
+
+          // Write commits to disk
+          dbService[dbKey].push();
+
+          return success;
+        });
 
     },
 

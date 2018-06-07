@@ -7,6 +7,8 @@ const isObj = require('is-obj');
 const dotProp_set = dotProp.set;
 dotProp.set = (obj, path, value) => {
 
+  path = path || '';
+
   debug(path+':before', dotProp.get(obj, path));
 
   if (path) {

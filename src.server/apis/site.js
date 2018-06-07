@@ -40,7 +40,6 @@ module.exports = ({ schemaService, siteService }) =>
     },
 
     setObj: (req, res) =>
-    // TODO! Fixme! Singleton, one data-file per schema
     {
       debug('setObj', req.params);
 
@@ -49,7 +48,8 @@ module.exports = ({ schemaService, siteService }) =>
           sendApiResponse(res, data)
         })
         .catch(err => {
-          sendAp
+          sendApiResponse(res, err)
+        });
     },
 
   };

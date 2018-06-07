@@ -44,7 +44,6 @@ module.exports = ({ dbService, schemaService }) =>
     },
 
     setObj: (data, ...params) =>
-    // TODO! Fixme!
     {
       const {schemaName, siteSchemaSuffix, dottedPath} = parseParams(params);
 

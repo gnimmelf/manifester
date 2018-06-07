@@ -6,7 +6,7 @@ const router = Router();
 const api = makeInvoker(require('../../apis/schema'));
 
 router.get('/list/:globpattern?/:operation?', api('getSchemaNames'));
-router.get('/:schemaName',                    api('getSchema'));
+router.get('/:schemaName', api('getSchema'));
 
 module.exports = router;
 

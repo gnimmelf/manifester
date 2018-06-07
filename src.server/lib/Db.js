@@ -183,39 +183,48 @@ class Db {
   }
 
 
-  get(relPath, key, reassign=true)
+  get(relPath, key=undefined, options={})
   /*
-    Get object in tree by `relPath` or get value from it by `key`
+    Get object in tree by `relPath`, and maybe get value from it by `key`
     Arguments:
     + relPath - relative path to file
     + key - (optional) key to get the value of (will be evaluated)
-    + reassign - (optional) make it a new object, i.e. without reference
+    + options - (optional)
   */
   {
     if (!relPath) return this.tree;
+
+    options = {clone:false, primitiveAsObject:true, ...options};
+
+    if (typeof key == 'object') {
+      // Assume `key` holds `options`, so swap
+      options = {...options, ...key};
+      key = undefined;
+    }
+
+    const {clone, primitiveAsObject} = options;
+
+    console.log('OPTIONS', options, relPath, key)
 
     const dotPath = makeDotPath(relPath);
     const value = dotProp.get(this.tree, dotJoin(dotPath, key));
 
     let retVal;
 
-    if (!reassign || typeof value != 'object') {
-      // Primitives
-      retVal = {
-        key: key,
-        value: value,
-      };
+    if (typeof value != 'object') {
+      // `value` is a primitive (string, number, bool...), disregard `clone`-option
+      retVal = primitiveAsObject ? { key: key, value: value } : value;
     }
     else {
-      // Object or array
-      retVal = value ? Object.assign({}, value) : false;
+      // `value` is `object`
+      retVal = clone ? Object.assign({}, value) : value;
     }
 
     return retVal;
   }
 
 
-  set(relPath, key='', value=undefined)
+  set(relPath, key=undefined, value=undefined)
   /*
     Set `key`'s value in db, create file if it doesn't exist
     Arguments:
@@ -229,7 +238,7 @@ class Db {
     if (key && value == undefined) {
       // Assume `key` holds `value`, so swap
       value = key;
-      key = '';
+      key = undefined;
     }
 
     const dotPath = makeDotPath(relPath);
