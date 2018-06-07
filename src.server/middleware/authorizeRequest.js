@@ -3,31 +3,33 @@ const intersect = require('intersect');
 const normalizeBool = require('normalize-bool');
 const { maybeThrow, requestFullUrl, makeSingleInvoker } = require('../lib');
 
-const authorizeRequest = (ACLg, redirectUrl='') =>
+const authorizeRequest = (allowedGroups, redirectUrl='') =>
+// TODO! Check lowest `user.groups[x].accessLevel` vs. highest `allowedGroups[x].accessLevel`
+// TODO! Transfer `accessLevel`-logic to `userService.authorizeByACLg()`
 {
 
   return makeSingleInvoker(({ userService }) => {
 
     return (req, res, next) =>
     {
-      const user = userService.currentUser;
+      if (allowedGroups.length) {
 
-      const operation = ~['POST', 'PUT', 'DELETE'].indexOf(req.method.toUpperCase()) ? 'write' : 'read';
+        const user = userService.currentUser;
 
-      try {
-        userService.authorizeByACLg(ACLg, operation)
-      }
-      catch(err) {
-        if(redirectUrl) {
+        const authorized = !!(user && intersect(user.groups, allowedGroups).length);
+
+        if (!authorized && redirectUrl) {
           res.redirect(`${redirectUrl}?origin=${req.originalUrl}`);
+          return;
         }
-        else {
-          throw(err);
-        }
+
+        maybeThrow(!authorized, user ? 'Unauthorized' : 'Not logged in', 401);
       }
 
       next();
     };
+
+
 
   });
 

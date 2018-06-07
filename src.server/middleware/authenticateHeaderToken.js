@@ -1,32 +1,35 @@
 const debug = require('debug')('mf:middleware:authenticateHeaderToken');
-const { makeSingleInvoker } = require('../lib');
+const { asValue, asFunction } = require('awilix');
+const { makeSingleInvoker, maybeThrow } = require('../lib');
 
-const authenticateHeaderToken = ({ authService, tokenKeyName }) =>
+const AUTH_FILE = 'auth.json';
+
+module.exports = makeSingleInvoker(({ tokenKeyName, hashSecret, authService, userService }) =>
 {
+
   return (req, res, next) =>
   {
     debug("cookies", req.cookies)
 
     let token = req.headers[tokenKeyName] || req.cookies[tokenKeyName];
 
-    debug(tokenKeyName, token);
-
     authService.authenticateToken(token)
       .then(decoded => {
-        debug('autheticated', decoded)
-        req.container.registerValue('currentUserEmail', decoded.email)
+        debug('autheticated', decoded.email);
+
+        // TODO! Not too happy about this one, but most dependencies are circular, so no other way in...
+        const currentUser = userService.setCurrentUserBy('email', decoded.email);
+
         next();
       })
       .catch(err => {
         debug('unauthenticated', err.message)
-        req.container.registerValue('currentUserEmail', undefined)
+
         delete req.headers[tokenKeyName];
         delete req.cookies[tokenKeyName];
+
         next();
       });
   };
 
-};
-
-
-module.exports = makeSingleInvoker(authenticateHeaderToken);
+});

@@ -19,13 +19,14 @@ module.exports = function(mainApp, cwd) {
 
   const container = createContainer();
 
-  container.registerValue('mainApp', mainApp)
-  container.registerValue('tokenKeyName', 'XSRF-TOKEN');
-  container.registerValue('currentUserEmail', undefined);
+  container.register({
+    'mainApp': asValue(mainApp),
+    'tokenKeyName': asValue('XSRF-TOKEN'),
+  });
 
   container.loadModules([
-    ['services/*.js', Lifetime.SINGLETON],
-    ['services/scoped/*.js', Lifetime.SCOPED],
+    ['services/*.js', Lifetime.SCOPED],
+    ['services/repos/*.js', Lifetime.SINGLETON],
   ]
   , {
     formatName: 'camelCase',

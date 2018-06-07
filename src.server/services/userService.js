@@ -3,7 +3,7 @@ const { join } = require('path');
 const assert = require('assert');
 const jsonPath = require('jsonpath');
 const intersect = require('intersect');
-const { maybeThrow, addFileExt } = require('../../lib');
+const { maybeThrow, addFileExt } = require('../lib');
 
 // Symbols
 const USERID = Symbol('userId');
@@ -17,11 +17,11 @@ const validatePermissions = (permissions) => permissions.forEach(permission => {
   assert(~OPERATIONS.concat('*').indexOf(permission), `Invalid operation: ${permission}`);
 });
 
-module.exports = ({ dbService, currentUserEmail }) => {
+module.exports = ({ dbService }) => {
 
   const userDb = dbService.user;
 
-  // Session variables
+  // Scoped variables
   let currentUser, userList, groupList;
 
   class User
@@ -62,7 +62,6 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
     assert(key, 'No key passed!')
 
-    debug('getUserBy', key, value);
 
     if (value) {
       const node = jsonPath.nodes(userDb.tree, "$[*]['user.json']")
@@ -72,18 +71,9 @@ module.exports = ({ dbService, currentUserEmail }) => {
       if (node) user = new User(node.path[1])
     }
 
+    debug('getUserBy', key, value, '=>', user.email);
+
     return user;
-  }
-
-  const getCurrentUser = () =>
-  {
-    if (currentUser == undefined) {
-      currentUser = currentUserEmail ? getUserBy('email', currentUserEmail) : false;
-    }
-
-    debug('getCurrentUser', currentUser)
-
-    return currentUser;
   }
 
   const getUserList = () =>
@@ -106,17 +96,7 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
   const authorizeByACLg = (ACLg, operation, {owner=null, supressError=false}={}) =>
   {
-    const currentUser = getCurrentUser();
-
-    debug('currentUser', currentUserEmail, currentUser);
-
     validateOperation(operation);
-
-    debug('authorizeByACLg', {
-      ACLg: ACLg,
-      currentUser: currentUser,
-      groups: currentUser ? currentUser.groups : [],
-    })
 
     const userGroups = currentUser ? currentUser.groups : [];
     const isAdmin = !!~userGroups.indexOf('admins');
@@ -140,7 +120,11 @@ module.exports = ({ dbService, currentUserEmail }) => {
       if (matchGroup) authorizedBy.push(matchGroup);
     }
 
-    debug(operation.toUpperCase()+': '+(authorizedBy.length ? 'authorized' : 'unauthorized'), authorizedBy, currentUser ? currentUser : '<not logged in>')
+    debug('authorizeByACLg', operation.toUpperCase(), {
+      user: (currentUser ? `${currentUser.email} [${currentUser.groups}]` : '<Not logged in>'),
+      authorizedBy: authorizedBy.length ? authorizedBy : 'Unauthorized!',
+      ACLg: ACLg,
+    });
 
     if (!supressError) {
       maybeThrow(!authorizedBy.length, currentUser ? 'Unauthorized' : 'Not logged in', 401)
@@ -151,10 +135,14 @@ module.exports = ({ dbService, currentUserEmail }) => {
 
   return {
     // Functions
+    setCurrentUserBy: (key, value) => {
+      debug('setCurrentUserBy', key, value, `(was '${currentUser && currentUser.email})'`);
+      currentUser = getUserBy(key, value);
+    },
     getUserBy: getUserBy,
     authorizeByACLg: authorizeByACLg,
     // Getters
-    get currentUser() { return getCurrentUser() },
+    get currentUser() { return currentUser },
     get users() { return getUserList() },
     get groups() { return getGroupList() },
   }

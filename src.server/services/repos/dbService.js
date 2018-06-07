@@ -1,11 +1,9 @@
 const { join } = require('path');
 const mkdirp = require('mkdirp').sync;
 const loopWhile = require('deasync').loopWhile;
-const { Db } = require('../lib');
-
+const { Db } = require('../../lib');
 
 const ensureDir = (path) => { mkdirp(path); return path }
-
 
 module.exports = ({ localAppPath }) =>
 {

@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "ajv": "^6.5.0",
-    "awilix": "^2.4.0",
-    "awilix-express": "^0.11.0",
+    "awilix": "^3.0.8",
+    "awilix-express": "^1.1.0",
     "body-parser": "^1.18.3",
     "caller": "^1.0.1",
     "chokidar": "^1.7.0",

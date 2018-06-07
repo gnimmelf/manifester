@@ -5,6 +5,7 @@ const http = require('http');
 const { join, dirname, resolve } = require('path');
 const assert = require('assert');
 const caller = require('caller');
+const { asValue } = require('awilix');
 const app = require('./src.server/app');
 const { inspect } = require('./src.server/lib');
 
@@ -97,10 +98,10 @@ module.exports = Object.assign(app.localApp, {
 
     const sensitive = require(join(localAppPath, 'sensitive.json'));
 
-    app.get('container').registerValue({
-      localAppPath: localAppPath,
-      hashSecret: sensitive.hashSecret,
-      emailConfig: sensitive.emailConfig,
+    app.get('container').register({
+      localAppPath: asValue(localAppPath),
+      hashSecret: asValue(sensitive.hashSecret),
+      emailConfig: asValue(sensitive.emailConfig),
     });
 
     // inspect(app.get('container').registrations)

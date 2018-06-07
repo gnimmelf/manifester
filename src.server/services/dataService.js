@@ -8,7 +8,7 @@ const {
   dotProp,
   objDiff,
   deepAssign
-} = require('../../lib');
+} = require('../lib');
 
 // Set up Ajv
 ajv = new Ajv({
