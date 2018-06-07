@@ -32,7 +32,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         const relPath = maybeGetAuthPath(email);
 
         const loginCode = makeLoginCode();
-        const siteSettings = siteService.getObj('settings');
+        const siteSettings = siteService.getSettings('settings');
 
         userDb.set(relPath, 'loginCode', loginCode);
 

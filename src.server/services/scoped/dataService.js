@@ -65,7 +65,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
         });
     },
 
-    getObj: (reSchemaNameMask, {schemaName, objId, dottedPath, raw=true}, owner=null) =>
+    getObj: (reSchemaNameMask, {schemaName, objId, dottedPath, raw}, owner=null) =>
     {
       debug('getObj >', reSchemaNameMask, schemaName, objId, dottedPath, owner);
 
@@ -80,7 +80,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           debug('getObj', relPath);
 
-          const data = dbService[dbKey].get(relPath, dottedPath, {primitiveAsObject: !parseInt(raw)});
+          const data = dbService[dbKey].get(relPath, dottedPath, {raw: parseInt(raw)});
 
           maybeThrow(!data, `ObjId '${objId}' not found`, 404);
 
@@ -154,7 +154,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
           // Saturate `data`
           if (dottedPath) {
 
-            // Extract `value` from `data`, or use entire `data`-object `when` value is not found
+            // Extract `value` from `data`, or use entire `data`-object when `value`-prop not found
             const value = dotProp.set({}, dottedPath, data.value || data);
 
             debug('updateObj', 'dottedPath', `${dottedPath} = ${value}`);

@@ -194,7 +194,7 @@ class Db {
   {
     if (!relPath) return this.tree;
 
-    options = {clone:false, primitiveAsObject:true, ...options};
+    options = {clone:false, raw:false, ...options};
 
     if (typeof key == 'object') {
       // Assume `key` holds `options`, so swap
@@ -202,9 +202,8 @@ class Db {
       key = undefined;
     }
 
-    const {clone, primitiveAsObject} = options;
+    const {clone, raw} = options;
 
-    console.log('OPTIONS', options, relPath, key)
 
     const dotPath = makeDotPath(relPath);
     const value = dotProp.get(this.tree, dotJoin(dotPath, key));
@@ -213,12 +212,14 @@ class Db {
 
     if (typeof value != 'object') {
       // `value` is a primitive (string, number, bool...), disregard `clone`-option
-      retVal = primitiveAsObject ? { key: key, value: value } : value;
+      retVal = raw ? value : { data: value };
     }
     else {
       // `value` is `object`
       retVal = clone ? Object.assign({}, value) : value;
     }
+
+    console.log('OPTIONS', options, relPath, key, typeof value, '=>', retVal)
 
     return retVal;
   }

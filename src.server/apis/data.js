@@ -23,9 +23,9 @@ module.exports = ({ dataService }) =>
 
     getObj: (req, res) =>
     {
-      debug('getObj', {...req.params, ...req.query})
+      debug('getObj', req.params)
 
-      dataService.getObj(RE_CONTENT_SCHEMA_MASK, {...req.params, ...req.query})
+      dataService.getObj(RE_CONTENT_SCHEMA_MASK, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
