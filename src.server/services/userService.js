@@ -95,6 +95,7 @@ module.exports = ({ dbService }) => {
   }
 
   const authorizeByACLg = (ACLg, operation, {owner=null, supressError=false}={}) =>
+  // TODO! Check lowest `user.groups[x].accessLevel` vs. highest `allowedGroups[x].accessLevel` for the current `operation`
   {
     validateOperation(operation);
 
