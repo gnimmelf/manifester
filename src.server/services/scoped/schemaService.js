@@ -1,11 +1,13 @@
 const debug = require('debug')('mf:service:schemaService');
 const { join, relative } = require('path');
 const assert = require('assert');
-const { maybeThrow, inspect, addFileExt } = require('../lib');
 const $RefParser = require('json-schema-ref-parser');
-
-
 const minimatch = require('minimatch');
+const {
+  maybeThrow,
+  inspect,
+  addFileExt
+} = require('../../lib');
 
 const cache = {};
 
@@ -17,7 +19,7 @@ const invalidateCache = (fsPath) => {
   delete cache[fsPath];
 };
 
-module.exports = ({ dbService, userService }) =>
+module.exports = ({ dbService, accessService, userService }) =>
 /*
   IMPORTANT!
   `getSchema` *must* dereference relative on the filesystem, and `getSchemaNames` *must* use the `dbService`.
@@ -64,7 +66,7 @@ module.exports = ({ dbService, userService }) =>
         }
       })
       .then(schema => {
-        userService.authorizeByACLg(schema.ACLg, operation, {owner: owner});
+        accessService.authorize(userService.currentUser, schema.ACLg, operation, {owner: owner});
         return schema;
       });
     },
@@ -74,7 +76,7 @@ module.exports = ({ dbService, userService }) =>
       return new Promise((resolve, reject) => {
         const schemaNames = Object.entries(schemaDb.tree)
           .filter(([schemaName, schema]) => minimatch(schemaName, globpattern))
-          .filter(([schemaName, schema]) => userService.authorizeByACLg(schema.ACLg, operation, {supressError: true}))
+          .filter(([schemaName, schema]) => accessService.authorize(userService.currentUser, schema.ACLg, operation, {supressError: true}))
           .map(([schemaName, schema]) => schemaName);
 
         schemaNames.sort();

@@ -12,3 +12,9 @@ router.get('/:siteSchemaSuffix/:dottedPath?', api('getObj'));
 router.post('/:siteSchemaSuffix/:dottedPath?', api('setObj'));
 
 module.exports = router;
+
+/*
+http --session=~/tmp/gnimmelf.json :3000/api/site/settings.private/title
+http --session=~/tmp/gnimmelf.json :3000/api/site/groups
+http --session=~/tmp/gnimmelf.json :3000/api/site/groups/0
+*/

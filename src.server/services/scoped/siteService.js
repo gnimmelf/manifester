@@ -1,11 +1,8 @@
 const debug = require('debug')('mf:service:siteService');
-
 const {
-  isObject,
-  inspect,
   addFileExt,
   maybeThrow,
-} = require('../lib');
+} = require('../../lib');
 
 const getSiteSchemaName = (siteSchemaSuffix) => 'site.'+siteSchemaSuffix;
 

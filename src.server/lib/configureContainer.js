@@ -25,8 +25,8 @@ module.exports = function(mainApp, cwd) {
   });
 
   container.loadModules([
-    ['services/*.js', Lifetime.SCOPED],
-    ['services/repos/*.js', Lifetime.SINGLETON],
+    ['services/scoped/*.js', Lifetime.SCOPED],
+    ['services/singleton/*.js', Lifetime.SINGLETON],
   ]
   , {
     formatName: 'camelCase',

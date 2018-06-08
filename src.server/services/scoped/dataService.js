@@ -8,10 +8,10 @@ const {
   dotProp,
   objDiff,
   deepAssign
-} = require('../lib');
+} = require('../../lib');
 
 // Set up Ajv
-ajv = new Ajv({
+const ajv = new Ajv({
   allErrors: true,
   jsonPointers: true,
   removeAdditional: true,
@@ -40,7 +40,7 @@ const schemaName2parts = (schemaName) =>
   }
 }
 
-module.exports = ({ dbService, schemaService, userService }) =>
+module.exports = ({ dbService, schemaService }) =>
 {
   return {
 
@@ -50,10 +50,8 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
       schemaNameMatch(reSchemaNameMask, schemaName);
 
-      return schemaService.getSchema(schemaName)
+      return schemaService.getSchema(schemaName, 'read', {owner: owner})
         .then(schema => {
-
-          userService.authorizeByACLg(schema.ACLg, 'read', {owner: owner});
 
           const {dbKey, pathPart} = schemaName2parts(schemaName);
 

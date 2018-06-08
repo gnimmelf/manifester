@@ -2,8 +2,10 @@ const debug = require('debug')('mf:service:userService');
 const { join } = require('path');
 const assert = require('assert');
 const jsonPath = require('jsonpath');
-const intersect = require('intersect');
-const { maybeThrow, addFileExt } = require('../lib');
+const {
+  maybeThrow,
+  addFileExt
+} = require('../../lib');
 
 // Symbols
 const USERID = Symbol('userId');
@@ -82,46 +84,6 @@ module.exports = ({ dbService }) => {
     return userList;
   }
 
-  const authorizeByACLg = (ACLg, operation, {owner=null, supressError=false}={}) =>
-  // TODO! For the current `operation`: Check `min(user.groups[x].accessLevel)` <= `max(groups[x].accessLevel)`
-  {
-    validateOperation(operation);
-
-    const userGroups = currentUser ? currentUser.groups : [];
-    const isAdmin = !!~userGroups.indexOf('admins');
-    const isOwner = (owner && currentUser ? currentUser.userId == owner.userId : false);
-
-    const authorizedBy = [];
-
-    if (isAdmin) authorizedBy.push('isAdmin');
-    if (isOwner) authorizedBy.push('isOwner');
-
-    if (!authorizedBy.length && ACLg)
-    {
-      const matchGroup = Object.entries(ACLg).find(([group, permissions]) =>
-      {
-        validatePermissions(permissions);
-        // For each ACLg entry, ACLg-`group` must be in `userGroups` AND ACLg-`permissions` must be "*" for all, or include `operation`:
-        const match = (group == '*' || (!!~userGroups.indexOf(group))) && intersect(permissions, ['*', operation]).length;
-        return match ? group : false;
-      })
-
-      if (matchGroup) authorizedBy.push(matchGroup);
-    }
-
-    debug('authorizeByACLg', operation.toUpperCase(), {
-      user: (currentUser ? `${currentUser.email} [${currentUser.groups}]` : '<Not logged in>'),
-      authorizedBy: authorizedBy.length ? authorizedBy : 'Unauthorized!',
-      ACLg: ACLg,
-    });
-
-    if (!supressError) {
-      maybeThrow(!authorizedBy.length, currentUser ? 'Unauthorized' : 'Not logged in', 401)
-    }
-
-    return currentUser;
-  };
-
   return {
     // Functions
     setCurrentUserBy: (key, value) => {
@@ -129,7 +91,6 @@ module.exports = ({ dbService }) => {
       currentUser = getUserBy(key, value);
     },
     getUserBy: getUserBy,
-    authorizeByACLg: authorizeByACLg,
     // Getters
     get currentUser() { return currentUser },
     get users() { return getUserList() },
