@@ -20,26 +20,43 @@ module.exports = ({ dbService }) =>
     [IS_PARSED]: true,
   });
 
-  const getRestrictionLevel = (allowedGroups=[]) => allowedGroups.reduce((currentLevel, group) =>
+  const getRestrictionLevel = (allowedGroups=[]) =>
   /*
     Zero is most secure `accessLevel`, so
     - Start with zero and increase the level to the maximum `accessLevel` of the groups
   */
   {
-    const accessGroup = accessGroups.find(accessGroup => accessGroup.key == group);
-    return (accessGroup ? Math.max(accessGroup.accessLevel, currentLevel) : currentLevel);
-  }, 0);
+    let restrictionLevel = 0;
 
-  const getAccessLevel = (userGroups=[]) => userGroups.reduce((currentLevel, group) =>
+    if (~allowedGroups.indexOf("*")) {
+      // wildcard means everybody, eg any and no group
+      restrictionLevel = Number.MAX_SAFE_INTEGER;
+    }
+    else {
+      allowedGroups.reduce((currentLevel, group) =>  {
+        const accessGroup = accessGroups.find(accessGroup => accessGroup.key == group);
+        return (accessGroup ? Math.max(accessGroup.accessLevel, currentLevel) : currentLevel);
+      }, restrictionLevel);
+    }
+
+    return restrictionLevel;
+  };
+
+  const getAccessLevel = (userGroups=[]) =>
   /*
     `MAX_SAFE_INTEGER` is lest secure `accessLevel`, so
     - Start with `MAX_SAFE_INTEGER` and decrease the level to the minimum `accessLevel` of the groups
   */
   {
-    const accessGroup = accessGroups.find(x => x.key == group);
-    return (accessGroup ? Math.min(accessGroup.accessLevel, currentLevel) : currentLevel);
-  }, Number.MAX_SAFE_INTEGER);
+    let accessLevel = Number.MAX_SAFE_INTEGER;
 
+    accessLevel = userGroups.reduce((currentLevel, group) => {
+      const accessGroup = accessGroups.find(x => x.key == group);
+      return (accessGroup ? Math.min(accessGroup.accessLevel, currentLevel) : currentLevel);
+    }, accessLevel);
+
+    return accessLevel;
+  }
 
   const authorizeByGroups = (user, allowedGroups=[]) =>
   {
@@ -81,7 +98,7 @@ module.exports = ({ dbService }) =>
         .filter(([groupKey, permissions]) => !!intersect(permissions, [operation, "*"]).length)
         .map(([groupKey, permissions]) => groupKey)
 
-      // TODO! What about `{"*": ["read"]}`!!!!
+      // TODO! What about wildcard groupKey, `{"*": ["read"]}`?
 
       //isAuthorized = getAccessLevel(user.groups) <= getRestrictionLevel(allowedGroups);
       isAuthorized = authorizeByGroups(user, allowedGroups);
