@@ -82,8 +82,6 @@ module.exports = ({ dbService }) =>
   };
 
   const authorizeByACLg = (user, ACLg={}, operation, {owner=null, supressError=false}={}) =>
-  // TODO! What about `{"*": ["read"]}`!!!!
-  // TODO! Fixme!
   {
     user = parseUser(user);
     owner = parseUser(owner);
@@ -98,10 +96,8 @@ module.exports = ({ dbService }) =>
         .filter(([groupKey, permissions]) => !!intersect(permissions, [operation, "*"]).length)
         .map(([groupKey, permissions]) => groupKey)
 
-      // TODO! What about wildcard groupKey, `{"*": ["read"]}`?
-
-      //isAuthorized = getAccessLevel(user.groups) <= getRestrictionLevel(allowedGroups);
-      isAuthorized = authorizeByGroups(user, allowedGroups);
+      //isAuthorized = getAccessLevel(user.groups) <= getRestrictionLevel(allowedGroups); // Brief
+      isAuthorized = authorizeByGroups(user, allowedGroups); // Verbose
     }
 
     if (!supressError) {

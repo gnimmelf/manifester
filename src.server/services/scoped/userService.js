@@ -11,14 +11,6 @@ const {
 const USERID = Symbol('userId');
 const GROUPS = Symbol('groups');
 
-
-// TODO! These validations should be part of the schema-definitions?
-const OPERATIONS = ['create', 'read', 'update', 'delete'];
-const validateOperation = (operation) => assert(~OPERATIONS.indexOf(operation), `Invalid operation: ${operation}`);
-const validatePermissions = (permissions) => permissions.forEach(permission => {
-  assert(~OPERATIONS.concat('*').indexOf(permission), `Invalid operation: ${permission}`);
-});
-
 module.exports = ({ dbService }) => {
 
   const userDb = dbService.user;

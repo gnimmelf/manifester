@@ -21,6 +21,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
     }),
 
     getObj: ({siteSchemaSuffix, objId, dottedPath, raw}) =>
+    // TODO! Move into "singleton" data-service?
     {
       const schemaName = getSiteSchemaName(siteSchemaSuffix);
 
@@ -38,6 +39,7 @@ module.exports = ({ dbService, schemaService, userService }) =>
     },
 
     setObj: (data, {siteSchemaSuffix, objId, dottedPath}) =>
+    // TODO! Move into "singleton" data-service?
     {
       maybeThrow(!(objId && dottedPath), `Missing params, 'objId' and 'dottedPath' required`, 400);
 
