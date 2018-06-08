@@ -29,11 +29,11 @@ module.exports = ({ dbService }) =>
     let restrictionLevel = 0;
 
     if (~allowedGroups.indexOf("*")) {
-      // wildcard means everybody, eg any and no group
+      // Wildcard means everybody, eg. any and no group
       restrictionLevel = Number.MAX_SAFE_INTEGER;
     }
     else {
-      allowedGroups.reduce((currentLevel, group) =>  {
+      restrictionLevel = allowedGroups.reduce((currentLevel, group) =>  {
         const accessGroup = accessGroups.find(accessGroup => accessGroup.key == group);
         return (accessGroup ? Math.max(accessGroup.accessLevel, currentLevel) : currentLevel);
       }, restrictionLevel);
