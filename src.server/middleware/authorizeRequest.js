@@ -8,7 +8,7 @@ const authorizeRequest = (allowedGroups, redirectUrl='') =>
 // TODO! Transfer `accessLevel`-logic to `userService.authorizeByACLg()`
 {
 
-  return makeSingleInvoker(({ userService }) => {
+  return makeSingleInvoker(({ userService, siteService }) => {
 
     return (req, res, next) =>
     {
