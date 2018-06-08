@@ -4,7 +4,7 @@ const normalizeBool = require('normalize-bool');
 const { maybeThrow, requestFullUrl, makeSingleInvoker } = require('../lib');
 
 const authorizeRequest = (allowedGroups, redirectUrl='') =>
-// TODO! Check lowest `user.groups[x].accessLevel` vs. highest `allowedGroups[x].accessLevel`
+// TODO! Check `min(user.groups[x].accessLevel)` <= `max(allowedGroups[x].accessLevel)`
 // TODO! Transfer `accessLevel`-logic to `userService.authorizeByACLg()`
 {
 

@@ -52,5 +52,31 @@ module.exports = ({ schemaService, siteService }) =>
         });
     },
 
+    getGroupList: (req, res) =>
+    {
+      debug('getGroupList', req.params);
+
+      siteService.getGroupList(req.params)
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
+      },
+
+    getGroup: (req, res) =>
+    {
+      debug('getGroup', req.params);
+
+      siteService.getGroup(req.params)
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
+    }
+
   };
 };

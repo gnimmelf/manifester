@@ -1,0 +1,17 @@
+[
+  {
+    "key": "admin",
+    "name": "administrators",
+    "accessLevel": 0
+  },
+  {
+    "key": "manager",
+    "name": "site managers",
+    "accessLevel": 100
+  },
+  {
+    "key": "editor",
+    "accessLevel": 200,
+    "name": "editors"
+  }
+]

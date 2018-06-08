@@ -2,18 +2,14 @@
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "title": "Site settings",
-  "ACL": {
-    "*": ["read"],
-    "managers": ["update"]
+  "ACLg": {
+    "user": ["read"]
   },
   "properties": {
     "siteName": {
       "type": "string",
       "title": "Site name",
       "description": "Your site name"
-    },
-    "groups": {
-      "type": "array"
     }
   },
   "idProperty": false

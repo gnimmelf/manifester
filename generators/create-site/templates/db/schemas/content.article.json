@@ -2,8 +2,8 @@
   "$schema": "http://json-schema.org/draft-06/schema#",
   "type": "object",
   "title": "Article",
-  "ACL": {
-    "editors": ["*"],
+  "ACLg": {
+    "editor": ["*"],
     "*": ["read"]
   },
   "required": ["title", "content"],
@@ -17,5 +17,6 @@
       "title": "Content"
     }
   },
+  "idProperty": "#/title",
   "meta": { "$ref": ".core.meta.json#/properties" }
 }

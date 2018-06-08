@@ -39,19 +39,6 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
       });
     },
 
-    getGroupList: (req, res) =>
-    {
-      return new Promise((resolve, reject) => {
-        resolve(userService.groups);
-      })
-      .then(data => {
-        sendApiResponse(res, data)
-      })
-      .catch(err => {
-        sendApiResponse(res, err)
-      });
-    },
-
     getCurrentUser: (req, res) =>
     {
       return new Promise((resolve, reject) => {

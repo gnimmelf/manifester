@@ -75,6 +75,17 @@ module.exports = ({ dbService, schemaService, userService }) =>
 
           return data;
         });
-    }
+    },
+
+    getGroupList: () =>
+    {
+
+    },
+
+    getGroup: () =>
+    {
+
+    },
+
   };
 };

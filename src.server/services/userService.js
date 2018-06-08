@@ -22,7 +22,7 @@ module.exports = ({ dbService }) => {
   const userDb = dbService.user;
 
   // Scoped variables
-  let currentUser, userList, groupList;
+  let currentUser, userList;
 
   class User
   {
@@ -40,13 +40,7 @@ module.exports = ({ dbService }) => {
     get groups()
     {
       if (!this[GROUPS]) {
-        const tree = userDb.get('groups.json');
-
-        const groups = jsonPath.nodes(tree, "$[*].members")
-          // Filter on `userId` in `members`-array
-          .filter(({_, value}) => ~value.indexOf(this[USERID]))
-          // Map to the group-name part of the json-`path`
-          .map(({path, _}) => path[1]);
+        const groups = userDb.get(join(this[USERID], 'auth.json'), 'groups');
 
         // Set groups, automatically add `user`-group
         this[GROUPS] = groups.concat('user')
@@ -79,23 +73,17 @@ module.exports = ({ dbService }) => {
   const getUserList = () =>
   {
     if (userList == undefined) {
-      const userList = jsonPath.nodes(userDb.tree, "$[*]['user.json']")
-        .map(node => node.path[1]);
+      userList = jsonPath.nodes(userDb.tree, "$[*]['user.json']")
+        .map(node => ({
+          handle: node.path[1],
+          name: `${node.value.firstName} ${node.value.lastName}`,
+        }));
     }
     return userList;
   }
 
-  const getGroupList = () =>
-  {
-    if (groupList == undefined) {
-      groupList = jsonPath.nodes(userDb.get('groups.json'), "$[*].name")
-        .map(({path, value}) => ({key: path[1], name: value}));
-    }
-    return groupList;
-  }
-
   const authorizeByACLg = (ACLg, operation, {owner=null, supressError=false}={}) =>
-  // TODO! Check lowest `user.groups[x].accessLevel` vs. highest `allowedGroups[x].accessLevel` for the current `operation`
+  // TODO! For the current `operation`: Check `min(user.groups[x].accessLevel)` <= `max(groups[x].accessLevel)`
   {
     validateOperation(operation);
 
@@ -145,7 +133,6 @@ module.exports = ({ dbService }) => {
     // Getters
     get currentUser() { return currentUser },
     get users() { return getUserList() },
-    get groups() { return getGroupList() },
   }
 
 };
