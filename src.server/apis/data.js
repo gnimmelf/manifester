@@ -10,9 +10,7 @@ module.exports = ({ dataService }) =>
     {
       debug('getObjectIds', req.params)
 
-      const { dbKey, ...params } = req.params;
-
-      dataService.getObjectIds(dbKey, params)
+      dataService.getObjectIds('content', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -25,9 +23,7 @@ module.exports = ({ dataService }) =>
     {
       debug('getObj', req.params)
 
-      const { dbKey, ...params } = req.params;
-
-      dataService.getObj(dbKey, params)
+      dataService.getObj('content', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -40,9 +36,7 @@ module.exports = ({ dataService }) =>
     {
       debug('setObj', req.params);
 
-      const { dbKey, ...params } = req.params;
-
-      dataService[req.params.objId ? 'updateObj' : 'createObj'](req.body, dbKey, params)
+      dataService[req.params.objId ? 'updateObj' : 'createObj'](req.body, 'content', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -55,9 +49,7 @@ module.exports = ({ dataService }) =>
     {
       debug('deleteObj', req.params);
 
-      const { dbKey, ...params } = req.params;
-
-      dataService.deleteObj(dbKey, params)
+      dataService.deleteObj('content', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
