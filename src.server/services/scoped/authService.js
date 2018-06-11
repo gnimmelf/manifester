@@ -9,7 +9,7 @@ const {
 
 const AUTH_FILE = 'auth.json';
 
-module.exports = ({ dbService, templateService, mailService, hashSecret, siteService }) =>
+module.exports = ({ dbService, templateService, mailService, hashSecret, dataService }) =>
 {
   const userDb = dbService.user;
 
@@ -35,7 +35,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, siteSer
         const relPath = maybeGetAuthPath(email);
 
         const loginCode = makeLoginCode();
-        const siteSettings = siteService.getSettings();
+        const siteSettings = dataService.internal.getSettings();
 
         userDb.set(relPath, 'loginCode', loginCode);
 

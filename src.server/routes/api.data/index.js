@@ -3,12 +3,19 @@ const { Router } = require('express');
 const { makeInvoker } = require('awilix-express');
 
 const router = Router();
-const api = makeInvoker(require('../../apis/data'));
+const apiData = makeInvoker(require('../../apis/data'));
+const apiSingleton = makeInvoker(require('../../apis/singleton'));
 
-router.get('/:schemaName/list', api('getObjectIds'));
-router.get('/:schemaName/:objId/:dottedPath?', api('getObj'));
-router.post('/:schemaName/:objId?/:dottedPath?', api('setObj'));
-router.delete('/:schemaName/:objId/:dottedPath?', api('deleteObj'))
+// Data
+router.get('/:dbKey/:schemaNameSuffix/list', apiData('getObjectIds'));
+router.get('/:dbKey/:schemaNameSuffix/:objId/:dottedPath?', apiData('getObj'));
+router.post('/:dbKey/:schemaNameSuffix/:objId?/:dottedPath?', apiData('setObj'));
+router.delete('/:dbKey/:schemaNameSuffix/:objId/:dottedPath?', apiData('deleteObj'))
+
+// Singletons
+router.get('/singleton/:dbKey/list', apiSingleton('getObjectIds'));
+router.get('/singleton/:dbKey/:schemaNameSuffix/:dottedPath?', apiSingleton('getObj'));
+router.post('/singleton/:dbKey/:schemaNameSuffix/:dottedPath?', apiSingleton('setObj'));
 
 module.exports = router;
 

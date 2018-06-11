@@ -4,10 +4,12 @@ const {
   sendApiResponse,
 } = require('../lib');
 
-module.exports = ({ schemaService, siteService }) =>
+const RE_SCHEMA_NAME_MASK = new RegExp(/^site\./);
+
+module.exports = ({ schemaService, dataService }) =>
 /*
   NOTE! All site-data are "singletons"
-  -So per "site.*"-schema, there is only one corresponding data-file designated by the suffix after "site.".
+  -So per "site.*"-schema, there is only one corresponding ".json"-data-file designated by the suffix after "site.".
 */
 {
 
@@ -30,7 +32,7 @@ module.exports = ({ schemaService, siteService }) =>
     {
       debug('getObj', req.params)
 
-      siteService.getObj(req.params)
+      dataService.singleton.getObj(RE_SCHEMA_NAME_MASK, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -43,7 +45,7 @@ module.exports = ({ schemaService, siteService }) =>
     {
       debug('setObj', req.params);
 
-      siteService.setObj(req.params)
+      dataService.singleton.setObj(RE_SCHEMA_NAME_MASK, req.body, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })

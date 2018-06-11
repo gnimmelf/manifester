@@ -13,10 +13,10 @@ router.get('/current', api('getCurrentUser'));
 router.get('/current/groups', api('getCurrentUserGroups'));
 router.get('/logout', api('invalidateSession'));
 // User-data
-router.get('/:userHandle/data/:schemaName/list', api('getObjectIds'));
-router.get('/:userHandle/data/:schemaName/:objId', api('getObj'));
-router.post('/:userHandle/data/:schemaName/:objId/:dottedPath?', api('setObj'));
-router.delete('/:userHandle/data/:schemaName/:objId/:dottedPath?', api('setObj'));
+router.get('/:userHandle/data/:schemaNameSuffix/list', api('getObjectIds'));
+router.get('/:userHandle/data/:schemaNameSuffix/:objId', api('getObj'));
+router.post('/:userHandle/data/:schemaNameSuffix/:objId/:dottedPath?', api('setObj'));
+router.delete('/:userHandle/data/:schemaNameSuffix/:objId/:dottedPath?', api('setObj'));
 
 module.exports = router;
 

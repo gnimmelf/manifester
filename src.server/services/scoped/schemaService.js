@@ -24,7 +24,7 @@ module.exports = ({ dbService, accessService, userService }) =>
   IMPORTANT!
   `getSchema` *must* dereference relative on the filesystem, and `getSchemaNames` *must* use the `dbService`.
   1. If `getSchema` dereferencing (`$RefParser`) uses the `dbService`, the `cwd` will not match relative schema-paths.
-  2. This also makes the schemas starting with `.` hidden, but parsable due to the `ignored: /(^|[\/\\])\../` db-setting behind `dbService`
+  2. This also makes the schemas starting with "." hidden, but parsable due to the `ignored: /(^|[\/\\])\../` db-setting behind `dbService`
 */
 {
   const schemaDb = dbService.schema;
@@ -54,7 +54,7 @@ module.exports = ({ dbService, accessService, userService }) =>
               schema.additionalProperties = false,
 
               /*
-                TODO! Validate `schema`
+                TODO! Validate `schema` (AJV?)
                 - Make properly: required ["ACLg", "title", "idProperty"]
                   - `idProperty can be `false` for "singleton"-schemas, like `site.*`-schemas & data...
                 - Figure out how to validate the schemas themselves, agains my own schema "extension"?

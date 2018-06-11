@@ -10,52 +10,21 @@ const {
   deepAssign
 } = require('../../lib');
 
-// Set up Ajv
-const ajv = new Ajv({
-  allErrors: true,
-  jsonPointers: true,
-  removeAdditional: true,
-});
-ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
-
-const schemaNameMatch = (reSchemaNameMask, schemaName) => maybeThrow(!schemaName.match(reSchemaNameMask), null, 404)
-
-const schemaName2parts = (schemaName) =>
+module.exports = ({ dbService, apiService, schemaService }) =>
 {
-  const [_, dbPart, pathPart] = schemaName.match(/^(.*)\.(.*)/)
-
-  const dbKey = {
-    'content': 'content',
-    'site': 'site',
-    'user': 'user',
-  }[dbPart];
-
-  maybeThrow(!dbKey, 422);
-
-  debug('schemaName2parts', schemaName+' =>', [dbKey, pathPart])
 
   return {
-    dbKey: dbKey,
-    pathPart: pathPart,
-  }
-}
 
-module.exports = ({ dbService, schemaService }) =>
-{
-  return {
-
-    getObjectIds: (reSchemaNameMask, {schemaName}, owner=null) =>
+    getObjectIds: (dbKey, {schemaNameSuffix}, owner=null) =>
     {
-      debug('getObjectIds', reSchemaNameMask, schemaName, owner)
+      debug('getObjectIds', dbKey, schemaNameSuffix, owner)
 
-      schemaNameMatch(reSchemaNameMask, schemaName);
+      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'read', {owner: owner})
         .then(schema => {
 
-          const {dbKey, pathPart} = schemaName2parts(schemaName);
-
-          const relPath = (owner ? owner.userId+'/' : '') + pathPart;
+          const relPath = (owner ? owner.userId+'/' : '') + schemaNameSuffix;
 
           const data = dbService[dbKey].get(relPath);
 
@@ -63,18 +32,16 @@ module.exports = ({ dbService, schemaService }) =>
         });
     },
 
-    getObj: (reSchemaNameMask, {schemaName, objId, dottedPath, raw}, owner=null) =>
+    getObj: (dbKey, {schemaNameSuffix, objId, dottedPath, raw}, owner=null) =>
     {
-      debug('getObj >', reSchemaNameMask, schemaName, objId, dottedPath, owner);
+      debug('getObj >', dbKey, schemaNameSuffix, objId, dottedPath, owner);
 
-      schemaNameMatch(reSchemaNameMask, schemaName);
+      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'read', {owner: owner})
         .then(schema => {
 
-          const {dbKey, pathPart} = schemaName2parts(schemaName);
-
-          const relPath = (owner ? owner.userId+'/' : '') + pathPart + (objId ? addFileExt('/'+objId) : '');
+          const relPath = (owner ? owner.userId+'/' : '') + schemaNameSuffix + (objId ? addFileExt('/'+objId) : '');
 
           debug('getObj', relPath);
 
@@ -86,18 +53,17 @@ module.exports = ({ dbService, schemaService }) =>
         });
     },
 
-    createObj: (reSchemaNameMask, data, {schemaName}, owner=null) =>
+    createObj: (dbKey, data, {schemaNameSuffix}, owner=null) =>
     {
-      debug('createObj', data)
+      debug('getObj >', data, dbKey, schemaNameSuffix, owner);
 
-      schemaNameMatch(reSchemaNameMask, schemaName);
+      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'create', {owner: owner})
         .then(schema => {
 
-          const {dbKey, pathPart} = schemaName2parts(schemaName);
-
           // Validate `data` vs `schema`
+          const ajv = apiService.makeAJV();
           const isValid = ajv.validate(schema, data);
           maybeThrow(!isValid, ajv.errors, 400);
 
@@ -107,7 +73,7 @@ module.exports = ({ dbService, schemaService }) =>
           maybeThrow(!objId, `Expected "${schema.idProperty}" to create objId`, 400);
 
           // Set db-`relPath`
-          const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
+          const relPath = (owner ? owner.userId+'/' : '') + schemaNameSuffix + addFileExt('/'+objId);
 
           // Check if `objId` already exists
           maybeThrow(dbService[dbKey].get(relPath), `objId '${idPropertyValue}' already exists`, 400);
@@ -129,19 +95,17 @@ module.exports = ({ dbService, schemaService }) =>
         });
     },
 
-    updateObj: (reSchemaNameMask, data, {schemaName, objId, dottedPath=null}, owner=null) =>
+    updateObj: (dbKey, data, {schemaNameSuffix, objId, dottedPath=null}, owner=null) =>
     {
-      debug('updateObj', data)
+      debug('updateObj >', data, dbKey, schemaNameSuffix, owner);
 
-      schemaNameMatch(reSchemaNameMask, schemaName);
+      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'update', {owner: owner})
         .then(schema => {
 
-          const {dbKey, pathPart} = schemaName2parts(schemaName);
-
           // Set db-`relPath`
-          const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
+          const relPath = (owner ? owner.userId+'/' : '') + schemaNameSuffix + addFileExt('/'+objId);
 
           // Get object-clone from db
           const dbObj = dbService[dbKey].get(relPath, {clone: true});
@@ -184,16 +148,16 @@ module.exports = ({ dbService, schemaService }) =>
         });
     },
 
-    deleteObj: (reSchemaNameMask, {schemaName, objId, dottedPath}, owner=null) =>
+    deleteObj: (dbKey, {schemaNameSuffix, objId, dottedPath}, owner=null) =>
     {
-      schemaNameMatch(reSchemaNameMask, schemaName);
+      debug('deleteObj >', data, dbKey, schemaNameSuffix, owner);
+
+      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'delete', {owner: owner})
         .then(schema => {
 
-          const {dbKey, pathPart} = schemaName2parts(schemaName);
-
-          const relPath = (owner ? owner.userId+'/' : '') + pathPart + addFileExt('/'+objId);
+          const relPath = (owner ? owner.userId+'/' : '') + schemaNameSuffix + addFileExt('/'+objId);
 
           // Get object-clone from db
           const dbObj = dbService[dbKey].get(relPath, {clone: true});

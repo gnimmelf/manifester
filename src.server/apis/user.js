@@ -95,9 +95,11 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
     {
       debug('getObjectIds', req.params)
 
-      getUserByHandle(req.params.userHandle)
+      const { userHandle, ...params } = req.params;
+
+      getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.getObjectIds(RE_USER_SCHEMA_MASK, req.params, owner);
+          return dataService.getObjectIds('user', params, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -111,9 +113,11 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
     {
       debug('getObj', req.params)
 
-      getUserByHandle(req.params.userHandle)
+      const { userHandle, ...params } = req.params;
+
+      getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.getObj(RE_USER_SCHEMA_MASK, req.params, owner);
+          return dataService.getObj('user', params, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -127,9 +131,11 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
     {
       debug('setObj', req.params);
 
-      getUserByHandle(req.params.userHandle)
+      const { userHandle, ...params } = req.params;
+
+      getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.setObj(RE_USER_SCHEMA_MASK, req.body, req.params, owner);
+          return dataService.setObj('user', req.body, params, owner);
         })
         .then(data => {
           sendApiResponse(res, data)
@@ -143,9 +149,11 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
     {
       debug('deleteObj', req.params);
 
-      getUserByHandle(req.params.userHandle)
+      const { userHandle, ...params } = req.params;
+
+      getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.deleteObj(RE_USER_SCHEMA_MASK, req.body, req.params, owner);
+          return dataService.deleteObj('user', params, owner);
         })
         .then(data => {
           sendApiResponse(res, data)
