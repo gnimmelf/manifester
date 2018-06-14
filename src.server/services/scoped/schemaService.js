@@ -51,7 +51,7 @@ module.exports = ({ dbService, accessService, userService }) =>
             .then(schema => {
 
               // Force no additional properties
-              schema.additionalProperties = false,
+              schema.additionalProperties = false;
 
               /*
                 TODO! Validate `schema` (AJV?)
@@ -59,6 +59,7 @@ module.exports = ({ dbService, accessService, userService }) =>
                   - `idProperty can be `false` for "singleton"-schemas, like `site.*`-schemas & data...
                 - Figure out how to validate the schemas themselves, agains my own schema "extension"?
               */
+
               if (!schema.isSingleton) {
                 maybeThrow(!schema.idProperty, `Invalid schema: No 'idProperty' found on '${schemaName}'`, 424);
               }

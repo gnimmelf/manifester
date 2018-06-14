@@ -133,9 +133,11 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       const { userHandle, ...params } = req.params;
 
+      const method = req.params.objId ? 'updateObj' : 'createObj';
+
       getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.setObj('user', req.body, params, owner);
+          return dataService[method]('user', req.body, params, owner);
         })
         .then(data => {
           sendApiResponse(res, data)
