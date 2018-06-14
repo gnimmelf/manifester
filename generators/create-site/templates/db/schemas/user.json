@@ -9,5 +9,5 @@
   "properties": {
     "$ref": ".user.common.json#/properties"
   },
-  "idProperty": false
+  "isSingleton": true
 }

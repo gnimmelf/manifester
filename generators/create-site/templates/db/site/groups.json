@@ -13,5 +13,10 @@
     "key": "editor",
     "accessLevel": 200,
     "name": "editors"
+  },
+  {
+    "key": "user",
+    "accessLevel": 10000,
+    "name": "users"
   }
 ]

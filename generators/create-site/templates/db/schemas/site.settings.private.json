@@ -6,11 +6,11 @@
     "user": ["read"]
   },
   "properties": {
-    "siteName": {
-      "type": "string",
-      "title": "Site name",
-      "description": "Your site name"
+    "allowUserData": {
+      "type": "boolean",
+      "title": "allowUserData",
+      "description": "Activate/deactivate user-data REST api"
     }
   },
-  "idProperty": false
+  "isSingleton": true
 }

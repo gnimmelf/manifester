@@ -9,14 +9,13 @@ const { asValue } = require('awilix');
 const app = require('./src.server/app');
 const { inspect } = require('./src.server/lib');
 
-const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
 app.set('env', process.env.ENV || process.env.NODE_ENV || 'development');
 
 assert(~['production', 'development'].indexOf(app.get('env')),
     "'(NODE_)ENV' must be 'production' or 'development' when specified! -Defaults to 'development'");
 
+
+const DEFAULT_PORT = 3000;
 
 // Server
 let server;
@@ -87,14 +86,20 @@ function onListening() {
 
 module.exports = Object.assign(app.localApp, {
   mainApp: app,
-  run: ({ localAppPath = dirname(caller()), listenOnPort = true } = {}) =>  {
+  run: ({ localAppPath = dirname(caller()), createServer = true } = {}) =>  {
 
     assert(localAppPath, 'required!')
 
     localAppPath = resolve(localAppPath);
 
+    const port = normalizePort(process.env.PORT || DEFAULT_PORT);
+
+    app.set('port', port);
+
+
     console.log('\nlocalPath', localAppPath);
     console.log('ENV', app.get('env'));
+    console.log('listenOnPort', );
 
     const sensitive = require(join(localAppPath, 'sensitive.json'));
 
@@ -105,11 +110,11 @@ module.exports = Object.assign(app.localApp, {
     });
 
     // inspect(app.get('container').registrations)
-    if (!!parseInt(listenOnPort)) {
+    if (createServer) {
       server = http.createServer(app);
-      server.listen(isNaN(listenOnPort) ? port : listenOnPort);
       server.on('error', onError);
       server.on('listening', onListening);
+      server.listen(port);
     }
   },
 })

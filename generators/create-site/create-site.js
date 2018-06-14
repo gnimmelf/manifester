@@ -14,7 +14,7 @@ const mkdirp = require('mkdirp').sync;
 const slug = require('slug');
 const omit = require('omit');
 
-const prompt = require('prompt');
+const { prompt } = require('inquirer');
 const shell = require('shelljs');
 const colors = require("colors/safe");
 
@@ -37,9 +37,6 @@ prompt.message = colors.green("Package");
 prompt.delimiter = ': ';
 prompt.colors = false;
 
-// Ask for variable values
-prompt.start()
-
 const checkErrorVar = function(err, message) {
   if (err) {
     console.error(err);
@@ -53,7 +50,7 @@ const nextStep = (function()
   steps = [
     'parseSuperuser',
     'parsePackageJson',
-    'parseMailgun',
+    'parseEmailConfig',
     'parseHashSecret',
     'maybeMkProjectdir',
     'verifySettings',
@@ -78,88 +75,99 @@ const parseSuperuser = function()
 {
   const su = sensitive_json.superuser;
 
-  prompt.get({
-    properties: {
-      firstName: {
-        description: 'your first name',
-        type: 'string',
-        default: su.firstName || undefined,
-        required: true,
-      },
-      lastName: {
-        description: 'your last name',
-        type: 'string',
-        default: su.lastName || undefined,
-        required: true,
-      },
-      email: {
-        description: 'your email-address',
-        type: 'string',
-        default: su.email || undefined,
-        required: true,
-      },
-      handle: {
-        description: 'your handle/nickname',
-        type: 'string',
-        default: su.handle || undefined,
-        required: true,
-      },
-    }
-  }, function(err, res) {
-    checkErrorVar(err);
+  prompt([
+    {
+      type: 'input',
+      name: 'firstName',
+      message: "Your first name",
+      default: (res) => su.firstName,
+      validate: ((val, res) => !!val)
+    },
+    {
+      type: 'input',
+      name: 'lastName',
+      message: "Your last name",
+      default: (res) => su.lastName,
+      validate: ((val, res) => !!val)
+    },
+    {
+      type: 'input',
+      name: 'email',
+      message: "Your email-address",
+      default: (res) => su.email,
+      validate: ((val, res) => !!val)
+    },
+    {
+      type: 'input',
+      name: 'handle',
+      message: "Your username/handle",
+      default: (res) => slug(res.email.split('@').shift()),
+      validate: ((val, res) => !!val)
+    },
+  ])
+  .then(res => {
     Object.assign(su, res)
     nextStep();
   });
+
 }
 
 
-const parseMailgun = function()
+const parseEmailConfig = function()
 {
-  prompt.get({
-    properties: {
-      senderEmail: {
-        description: 'Server sender email-address',
-        required: true,
-        default: "post@example.com",
-      },
-      useMailgun: {
-        description: 'Set up mailgun as nodemailer transport? [Yes|No]',
-        message: 'Must respond yes or no',
-        type: 'string',
-        default: 'yes',
-        pattern: yes_no_pattern
-      },
-      apiKey: {
-        description: 'mailgun api key',
-        required: true,
-        ask: function() {
-          // only ask for proxy credentials if a proxy was set
-          return prompt.history('useMailgun').value.match(yes_pattern);
-        }
-      },
-      domain: {
-        description: 'mailgun domain',
-        required: true,
-        default: "example.com",
-        ask: function() {
-          // only ask for proxy credentials if a proxy was set
-          return prompt.history('useMailgun').value.match(yes_pattern);
-        }
-      },
-    }
-  }, function(err, res) {
-    checkErrorVar(err);
+  const emailConfig = sensitive_json.emailConfig;
 
-    sensitive_json.emailConfig.senderEmail = res.senderEmail;
+  prompt([
+    {
+      type: 'input',
+      name: 'senderEmail',
+      message: "Server sender email-address",
+      default: (res) => emailConfig.senderEmail,
+      validate: ((val, res) => !!val)
+    },
+    {
+      type: 'confirm',
+      name: 'useMailgun',
+      message: "Set up mailgun as nodemailer transport?",
+      default: (res) => true,
+    }
+  ])
+  .then(res => {
+    emailConfig.senderEmail = res.senderEmail;
 
     if (res.useMailgun) {
-      sensitive_json.emailConfig.mailgunAuth = {
-        api_key: res.apiKey,
-        domain: res.domain
-      }
+
+      const mailgunAuth = emailConfig.mailgunAuth
+
+      prompt([
+        {
+          type: 'input',
+          name: 'apiKey',
+          message: "Mailgun api key",
+          default: (res) => mailgunAuth.api_key,
+          validate: ((val, res) => !!val)
+        },
+        {
+          type: 'input',
+          name: 'domain',
+          message: "Mailgun domain",
+          default: (res) => mailgunAuth.domain,
+          validate: ((val, res) => !!val)
+        },
+      ])
+      .then(res => {
+        Object.assign(mailgunAuth, {
+          api_key: res.apiKey,
+          domain: res.domain
+        })
+        nextStep();
+      });
+
     }
-    nextStep();
-  });
+    else {
+      nextStep();
+    }
+  })
 }
 
 
@@ -172,38 +180,25 @@ const parseHashSecret = function()
 
 const parsePackageJson = function()
 {
-  const schema = {
-    properties: {}
-  };
-
-  Object.assign(schema.properties, Object.keys(package_json).reduce((acc, k) => {
-    if (util.isString(package_json[k])) {
-
-      const match = package_json[k].match(/\[(.*?)\]/)
-
-      if (match) {
-        acc[k] = {
-          required: true,
-          description: k,
-          type: 'string',
-          message: k+' is required!',
-        };
-
-        if (match[1].toLowerCase() !== k) {
-          acc[k].default = match[1];
-        }
-      }
-    }
-
-    return acc;
-  }, {}));
+  let question;
+  const defaults = {};
 
   // Set `author.default` to `superUser` identity
   const su = sensitive_json.superuser;
-  schema.properties.author.default = `${su.firstName} ${su.lastName} <${su.email}>`
+  defaults.author = `${su.firstName} ${su.lastName} <${su.email}>`
 
-  prompt.get(schema, function(err, res) {
-    checkErrorVar(err);
+  const questions = Object.keys(package_json)
+    .filter(key => (typeof package_json[key] == 'string' ? package_json[key].match(/\[(.*?)\]/) : false))
+    .map(key => [ key, package_json[key].match(/\[(.*?)\]/)[1] ])
+    .map(([key, pkgDefault]) => ({
+      type: 'input',
+      name: key,
+      message: `Package.json ${key}`,
+      default: (res) => defaults[key] || pkgDefault,
+      validate: ((val, res) => !!val)
+    }));
+
+  prompt(questions).then(res => {
     Object.assign(package_json, res);
     nextStep();
   });
@@ -212,52 +207,60 @@ const parsePackageJson = function()
 
 const maybeMkProjectdir = function()
 {
-  prompt.get({
-    properties: {
-      mkdir: {
-        description: 'create project folder here? [Yes|No]',
-        message: 'Must respond yes or no',
-        type: 'string',
-        default: 'yes',
-        pattern: yes_no_pattern
-      },
-      projectDir: {
-        description: 'project folder name',
-        required: true,
-        default: slug(package_json.name).toLowerCase(),
-        ask: function() {
-          // only ask for proxy credentials if a proxy was set
-          return prompt.history('mkdir').value.match(yes_pattern);
-        }
-      }
+
+  store.project_path = '';
+
+  prompt([
+    {
+      type: 'confirm',
+      name: 'mkdir',
+      message: "Create project folder here?",
+      default: (res) => true,
+    },
+  ])
+  .then(res => {
+
+    if (res.mkdir) {
+
+      prompt([
+        {
+          type: 'input',
+          name: 'projectDir',
+          message: "Project folder name",
+          default: (res) => slug(package_json.name).toLowerCase(),
+          validate: ((val, res) => !!val)
+        },
+      ])
+      .then(res => {
+        store.project_path = join(localPath, res.projectDir);
+        nextStep();
+      })
     }
-  }, function(err, res) {
-    checkErrorVar(err);
-    store.project_path = join(localPath, res.projectDir || '')
-    nextStep()
-  });
-}
+    else {
+      nextStep();
+    }
+
+  })
+
+};
 
 
 const verifySettings = function()
 {
   console.info(`Verify: creating at path "${store.project_path}"`)
-  prompt.get({
-    properties: {
-      continue: {
-        description: 'proceed with project creation? [Yes|No]',
-        message: 'Must respond yes or no',
-        type: 'string',
-        default: 'yes',
-        pattern: yes_no_pattern
-      }
-    }
-  }, function(err, res) {
-    checkErrorVar(err);
-    if (res.continue.match(yes_pattern)) {
+  prompt([
+    {
+      type: 'confirm',
+      name: 'mkdir',
+      message: "Proceed with project creation?",
+      default: (res) => true,
+    },
+  ])
+  .then(res => {
+    if (res.mkdir) {
       nextStep();
     }
-  })
+  });
 }
 
 
@@ -282,7 +285,7 @@ const installPackages = function()
 {
   // Npm Linking
   console.info('Linking to manifester...');
-  shell.exec(`npm link manifester`, { silent: true, cwd: store.project_path }, function(err, stdout, stderr) {
+  shell.exec(`npm link manifester -S`, { silent: false, cwd: store.project_path }, function(err, stdout, stderr) {
     checkErrorVar(err, 'Could not link to manifester. Make sure you have npm-linked it allready!');
     nextStep();
   })
@@ -293,19 +296,17 @@ const createAdminUser = function()
 {
 
   const users_dir = join(store.project_path, 'db/users');
-  const groups_path = join(users_dir, 'groups.json');
-  const superuser_common_path = join(users_dir, sensitive_json.superuser.email, 'common.json');
+
+  const superuser_path = join(store.project_path, 'db/users', sensitive_json.superuser.handle);
 
   // Mkdirp the deepest dir
-  mkdirp(dirname(superuser_common_path));
+  mkdirp(dirname(superuser_path));
 
-  // Add superuser user
-  fs.writeFileSync(superuser_common_path, JSON.stringify(sensitive_json.superuser, null, 2));
+  // Add superuser `user.json`
+  fs.writeFileSync(join(superuser_path, 'user.json'), JSON.stringify(sensitive_json.superuser, null, 2));
 
-  // Add superuser to admins
-  const groups = require(groups_path);
-  groups.admins.members.push(sensitive_json.superuser.email);
-  fs.writeFileSync(groups_path, JSON.stringify(groups, null, 2));
+  // Add superuser `auth.json`
+  fs.writeFileSync(join(superuser_path, 'auth.json'), JSON.stringify({"groups": ["admin"]}, null, 2));
 
   nextStep();
 }

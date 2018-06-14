@@ -15,5 +15,6 @@
       "title": "Content"
     }
   },
+  "idProperty": "#/title",
   "meta": { "$ref": ".core.meta.json#/properties" }
 }

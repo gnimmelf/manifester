@@ -11,7 +11,12 @@
       "type": "string",
       "title": "Site name",
       "description": "Your site name"
+    },
+    "domainName": {
+      "type": "string",
+      "title": "Domain name",
+      "description": "Your site name"
     }
   },
-  "idProperty": false
+  "isSingleton": true
 }
