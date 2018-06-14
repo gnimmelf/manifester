@@ -8,8 +8,8 @@
   "emailConfig": {
     "senderEmail": "post@example.com",
     "mailgunAuth": {
-      "api_key": "",
-      "domain": ""
+      "api_key": "key-1234123412341234",
+      "domain": "example.com"
     }
   },
   "corsPolicy": "*"

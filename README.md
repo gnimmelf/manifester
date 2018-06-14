@@ -86,8 +86,9 @@ http --session=~/tmp/session.json :3000/api/data/
 # TODO!
 
 1. Write tests (when proof-of-concept is valid)
-2. Change name from Manifester to "CMXpress" (package-name reserved on npm...)
+2. Secure all string-schema fields by patterns
+3. Change name from Manifester to "CMXpress" (package-name reserved on npm...)
    - Or "CMXpresson"
    - Or "JSONpress"
    - Or "CMS For Friends (CMSFF)"
-3. Swap generator to Yeoman
+4. Swap generator to Yeoman?

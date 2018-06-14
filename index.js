@@ -87,7 +87,7 @@ function onListening() {
 
 module.exports = Object.assign(app.localApp, {
   mainApp: app,
-  run: ({ localAppPath = dirname(caller()) } = {}) =>  {
+  run: ({ localAppPath = dirname(caller()), listenOnPort = true } = {}) =>  {
 
     assert(localAppPath, 'required!')
 
@@ -105,10 +105,11 @@ module.exports = Object.assign(app.localApp, {
     });
 
     // inspect(app.get('container').registrations)
-
-    server = http.createServer(app);
-    server.listen(port);
-    server.on('error', onError);
-    server.on('listening', onListening);
+    if (!!parseInt(listenOnPort)) {
+      server = http.createServer(app);
+      server.listen(isNaN(listenOnPort) ? port : listenOnPort);
+      server.on('error', onError);
+      server.on('listening', onListening);
+    }
   },
 })
