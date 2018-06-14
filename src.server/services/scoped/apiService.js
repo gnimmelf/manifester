@@ -24,14 +24,15 @@ module.exports = ({ dbService, userService }) =>
     makeSingleInvoker: makeSingleInvoker,
 
     makeAJV: (ajvOptions={}) => {
-      return new Ajv({
+      const ajv = new Ajv({
         allErrors: true,
         jsonPointers: true,
         removeAdditional: true,
         ...ajvOptions,
       });
-      // TODO! Make default optional
+      // TODO! Make into an option
       ajv.addMetaSchema(draft06);
+      return ajv;
     },
 
     parseSchemaName: (schemaNamePrefix, schemaNameSuffix) =>

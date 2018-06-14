@@ -12,6 +12,7 @@ router.get('/list', api('getUserList'));
 router.get('/current', api('getCurrentUser'));
 router.get('/current/groups', api('getCurrentUserGroups'));
 router.get('/logout', api('invalidateSession'));
+
 // User-data
 router.get('/:userHandle/data/:schemaNameSuffix/list', api('getObjectIds'));
 router.get('/:userHandle/data/:schemaNameSuffix/:objId', api('getObj'));

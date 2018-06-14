@@ -1,5 +1,8 @@
 const debug = require('debug')('mf:api:data');
-const { maybeThrow, sendApiResponse, requestFullUrl, addFileExt } = require('../lib');
+
+const {
+  sendApiResponse,
+} = require('../lib');
 
 module.exports = ({ dataService }) =>
 {
@@ -36,7 +39,9 @@ module.exports = ({ dataService }) =>
     {
       debug('setObj', req.params);
 
-      dataService[req.params.objId ? 'updateObj' : 'createObj'](req.body, 'content', req.params)
+      const method = req.params.objId ? 'updateObj' : 'createObj';
+
+      dataService[method]('content', req.body, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })

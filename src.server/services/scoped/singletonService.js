@@ -15,16 +15,15 @@ module.exports = ({ dbService, apiService, schemaService }) =>
 {
 
   return {
-    getObj: (schemaNamePrefix, {schemaNameSuffix, dottedPath, raw}) =>
+    getObj: (dbKey, {schemaNameSuffix, dottedPath, raw}) =>
     {
-      const schemaName = apiService.parseSchemaName(schemaNamePrefix, schemaNameSuffix);
+      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'read')
         .then(schema => {
 
-          const {dbKey, pathPart} = apiService.schemaName2parts(schemaName);
-
-          const relPath =  addFileExt(pathPart);
+          // Singletons are just the schemaNameSuffix
+          const relPath =  addFileExt(schemaNameSuffix);
 
           const data = dbService[dbKey].get(relPath, dottedPath, {raw: !!parseInt(raw)});
 
@@ -34,38 +33,50 @@ module.exports = ({ dbService, apiService, schemaService }) =>
         });
     },
 
-    setObj: (schemaNamePrefix, data, {schemaNameSuffix, dottedPath}) =>
+    updateObj: (dbKey, data, {schemaNameSuffix, dottedPath}) =>
     {
-      const schemaName = apiService.parseSchemaName(schemaNamePrefix, schemaNameSuffix);
+      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'update')
         .then(schema => {
 
-          const {dbKey, pathPart} = apiService.schemaName2parts(schemaName);
-
-          const relPath =  addFileExt(pathPart);
+          // Singletons are just the schemaNameSuffix
+          const relPath =  addFileExt(schemaNameSuffix);
 
           // Get object-clone from db
           const dbObj = dbService[dbKey].get(relPath, {clone: true});
 
           // Check that it exists
-          maybeThrow(!dbObj, `ObjId '${objId}' not found`, 404);
+          maybeThrow(!dbObj, `ObjId '${schemaNameSuffix}' not found`, 404);
 
           // Extract `value` from `data`, or use entire `data`-object when `value`-prop not found
           const value = dotProp.set({}, dottedPath, data.value || data);
 
-          // Saturate `dbObj`
-          deepAssign(dbObj, value);
+          // Saturate `data`
+          if (dottedPath) {
+
+            // Extract `value` from `data`, or use entire `data`-object when `value`-prop not found
+            const value = dotProp.set({}, dottedPath, data.value || data);
+
+            debug('updateObj', 'dottedPath', `${dottedPath} = ${value}`);
+
+            data = deepAssign({}, dbObj, value);
+          }
+          else {
+            data = deepAssign({}, dbObj, data);
+          }
 
           // Validate `dbObj` vs `schema`
+          const ajv = apiService.makeAJV();
           const isValid = ajv.validate(schema, dbObj);
           maybeThrow(!isValid, ajv.errors, 400);
 
           // Update Db
-          const success = dbService[dbKey].set(relPath, dottedPath);
+          const success = dbService[dbKey].set(relPath, data);
           maybeThrow(!success, 'Could not delete object', 424);
 
-          maybeThrow(!data, null, 404);
+          // Write commits to disk
+          dbService[dbKey].push();
 
           return data;
         });

@@ -59,7 +59,9 @@ module.exports = ({ dbService, accessService, userService }) =>
                   - `idProperty can be `false` for "singleton"-schemas, like `site.*`-schemas & data...
                 - Figure out how to validate the schemas themselves, agains my own schema "extension"?
               */
-              maybeThrow(schema.idProperty == undefined, `Invalid schema: No 'idProperty' found on '${schemaName}'`, 424);
+              if (!schema.isSingleton) {
+                maybeThrow(!schema.idProperty, `Invalid schema: No 'idProperty' found on '${schemaName}'`, 424);
+              }
 
               cache[fsPath] = schema;
               debug("added to cache", fsPath);

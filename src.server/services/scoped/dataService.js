@@ -128,6 +128,7 @@ module.exports = ({ dbService, apiService, schemaService }) =>
           }
 
           // Validate saturated `data` vs `schema`
+          const ajv = apiService.makeAJV();
           const isValid = ajv.validate(schema, data);
           maybeThrow(!isValid, ajv.errors, 400);
 

@@ -7,13 +7,13 @@ const apiData = makeInvoker(require('../../apis/data'));
 const apiSingleton = makeInvoker(require('../../apis/singleton'));
 
 // Data
-router.get('/:dbKey/:schemaNameSuffix/list', apiData('getObjectIds'));
-router.get('/:dbKey/:schemaNameSuffix/:objId/:dottedPath?', apiData('getObj'));
-router.post('/:dbKey/:schemaNameSuffix/:objId?/:dottedPath?', apiData('setObj'));
-router.delete('/:dbKey/:schemaNameSuffix/:objId/:dottedPath?', apiData('deleteObj'))
+router.get('/content/:schemaNameSuffix/list', apiData('getObjectIds'));
+router.get('/content/:schemaNameSuffix/:objId/:dottedPath?', apiData('getObj'));
+router.post('/content/:schemaNameSuffix/:objId?/:dottedPath?', apiData('setObj'));
+router.delete('/content/:schemaNameSuffix/:objId/:dottedPath?', apiData('deleteObj'))
 
 // Singletons
-router.get('/singleton/:dbKey/list', apiSingleton('getObjectIds'));
+router.get('/singleton/:dbKey/list/:globpattern?', apiSingleton('getObjectIds'));
 router.get('/singleton/:dbKey/:schemaNameSuffix/:dottedPath?', apiSingleton('getObj'));
 router.post('/singleton/:dbKey/:schemaNameSuffix/:dottedPath?', apiSingleton('setObj'));
 

@@ -71,8 +71,8 @@ app.use(require('./middleware/authenticateHeaderToken'));
  */
 
 app.use('/api/auth', require('./routes/api.authenticate'));
-app.use('/api/user', require('./routes/api.user'));
 app.use('/api/schema', require('./routes/api.schema'));
+app.use('/api/user', require('./routes/api.user'));
 app.use('/api/data', require('./routes/api.data'));
 app.use(app.localApp)
 

@@ -53,7 +53,7 @@ the ExpressJs app.
 
 Your created app, `<your app>/app.js`, is an ExpressJs app which is mounted onto the `manifester` ExpressJs app.
   * It is "mounted" *last*, so your app-routes will have precedence.
-  * It will by default have all props of the `manifester` ExpressJs App, including the `awilix` container.
+  * It will by default have all props of the `manifester` ExpressJs App, including the `awilix` container with all registered services.
 
 ## Disclaimer & motivation
 
