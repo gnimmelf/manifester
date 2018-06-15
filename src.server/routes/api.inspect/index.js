@@ -5,6 +5,8 @@ const { makeInvoker } = require('awilix-express');
 const router = Router();
 const api = makeInvoker(require('../../apis/inspect'));
 
-router.get('/:text', api('getEndpoints'));
+router.get('/inspect', api('getEndpoints'));
+router.get('/inspect/asHtml', api('getEndpointsAsHtml'));
+router.get('/inspect/asText', api('getEndpointsAsText'));
 
 module.exports = router;
