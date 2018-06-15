@@ -1,6 +1,7 @@
 const debug = require('debug')('mf:app');
 
 const express = require('express');
+const listEndpoints = require('express-list-endpoints')
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -70,6 +71,9 @@ app.use(require('./middleware/authenticateHeaderToken'));
  * Routes
  */
 
+
+
+app.use('/api', require('./routes/api.inspect'));
 app.use('/api/auth', require('./routes/api.authenticate'));
 app.use('/api/schema', require('./routes/api.schema'));
 app.use('/api/user', require('./routes/api.user'));
@@ -80,7 +84,6 @@ app.use(app.localApp)
  * Favicon: uncomment after placing your favicon in... TODO! Where? -Should prefer `app.localApp`...
  */
 //app.use(favicon(join("public", 'favicon.ico')));
-
 
 /**
  * Downstream errorhandling

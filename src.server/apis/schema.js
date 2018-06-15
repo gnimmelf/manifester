@@ -1,6 +1,9 @@
 const debug = require('debug')('mf:api:schemas');
 
-const { sendApiResponse, requestFullUrl } = require('../lib');
+const {
+  sendApiResponse,
+  requestFullUrl
+} = require('../lib');
 
 module.exports = ({ schemaService }) =>
 {
@@ -9,7 +12,7 @@ module.exports = ({ schemaService }) =>
 
     getSchema: (req, res) =>
     {
-      debug(req.params.schemaName)
+      debug('getSchema', req.params)
 
       schemaService.getSchema(req.params.schemaName)
         .then(schema => {
@@ -17,7 +20,7 @@ module.exports = ({ schemaService }) =>
           // Add `schema.$id`, just because.
           schema.$id = requestFullUrl(req);
 
-          sendApiResponse(res, { schema: schema })
+          sendApiResponse(res, schema)
         })
         .catch(err => {
           sendApiResponse(res, err)
@@ -27,9 +30,11 @@ module.exports = ({ schemaService }) =>
 
     getSchemaNames: (req, res) =>
     {
+      debug('getSchemaNames', req.params)
+
       schemaService.getSchemaNames(req.params.globpattern)
         .then(schemaNames => {
-          sendApiResponse(res, { schemas: schemaNames })
+          sendApiResponse(res, schemaNames)
         })
         .catch(err => {
           sendApiResponse(res, err)

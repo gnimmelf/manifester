@@ -26,7 +26,10 @@ module.exports = function(mainApp, cwd) {
 
   container.loadModules([
     ['services/scoped/*.js', Lifetime.SCOPED],
-    ['services/singleton/*.js', Lifetime.SINGLETON],
+    ['services/singleton/*.js', {
+      injector: () => ({ mainApp: mainApp }),
+      lifetime: Lifetime.SINGLETON,
+    }],
   ]
   , {
     formatName: 'camelCase',

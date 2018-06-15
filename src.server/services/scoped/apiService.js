@@ -10,6 +10,9 @@ const {
 const draft06 = require('ajv/lib/refs/json-schema-draft-06.json');
 
 module.exports = ({ dbService, userService }) =>
+/*
+  TODO! Make sure stuff from `lib/utils` that might be needed in the `localApp` is available here...
+*/
 {
   const dbKeys = Object.keys(dbService);
   const siteDb = dbService.site;
