@@ -21,7 +21,7 @@ exports.upquirePath = function(some_path, ...rest)
 exports.isObject = (a) => (!!a) && (a.constructor === Object);
 exports.isArray = (a) => (!!a) && (a.constructor === Array);
 
-exports.requestFullUrl = (expressRequestObj) =>
+exports.getRequestFullUrl = (expressRequestObj) =>
 {
   const req = expressRequestObj;
   const secure = req.connection.encrypted || req.headers['x-forwarded-proto'] === 'https'

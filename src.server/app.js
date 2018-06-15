@@ -1,5 +1,6 @@
 const debug = require('debug')('mf:app');
 
+const { join } = require('path');
 const assert = require('assert');
 const express = require('express');
 const morgan = require('morgan');
@@ -7,18 +8,20 @@ const listEndpoints = require('express-list-endpoints')
 const favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-
+const { urlencoded, json } = require('body-parser');
 const { scopePerRequest } = require('awilix-express');
 
-const { urlencoded, json } = require('body-parser');
-const { join } = require('path');
+const {
+  inspect,
+  sendApiResponse,
+  getRequestFullUrl,
+} = require('./lib');
 
 const {
   configureContainer,
-  inspect,
-  sendApiResponse,
-  logger,
-} = require('./lib');
+  configureNodeEnv,
+  configureLoggers,
+} = require('./config');
 
 // Main Express app
 const app = express();
@@ -27,20 +30,18 @@ app.localApp = express();
 
 
 /**
- * `NODE_ENV`
+ * Configurations
  */
 
-const NODE_ENV = (process.env.NODE_ENV || 'development');
-const ALLOWED_NODE_ENVS = ['production', 'development', 'test']
+// Node-env
+app.checkEnv = configureNodeEnv(['production', 'development', 'test']);
 
-app.checkEnv = (needle=NODE_ENV) => ALLOWED_NODE_ENVS.find(straw => {
-  return needle.toLowerCase() == straw.substr(0, needle.length);
-});
+// Logger
+const logger = configureLoggers().get('default');
 
-assert(app.checkEnv(NODE_ENV), `'NODE_ENV' must be one of ${ALLOWED_NODE_ENVS} when specified! -Defaults to 'development'`);
-
-console.log('NODE_ENV', app.checkEnv());
-
+// Awilix-container
+const container = configureContainer(app, __dirname);
+app.set('container', container)
 
 /**
  *  View engine setup
@@ -52,12 +53,6 @@ app.set('view engine', 'pug');
 app.set('json spaces', 2);
 
 
-/**
- * App setup (`awilix`-container)
- */
-
-const container = configureContainer(app, __dirname);
-app.set('container', container);
 
 
 /**
@@ -67,10 +62,12 @@ app.set('container', container);
 // CORS
 // NOTE! The manifested `localApp` must set it's own CORS when in production (see `../index.js`)
 if (!app.checkEnv('production')) {
-  app.use(cors({
+  const options = {
     origin: true,
     credentials: true,
-  }));
+  };
+  console.log('CORS', options)
+  app.use(cors(options));
 }
 
 // Logging
@@ -135,7 +132,7 @@ app.use('/api', function(err, req, res, next) {
     logger.error(err)
   }
 
-  err.data = req.protocol + '://' + req.get('host') + req.originalUrl;
+  err.data = getRequestFullUrl(req);
   sendApiResponse(res, err);
 });
 

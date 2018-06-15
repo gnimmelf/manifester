@@ -17,7 +17,9 @@ const writeFile = require('write-file-atomic').sync;
 const deleteFile = require('delete').sync;
 
 const dotProp = require('./dotProp');
-const logger = require('./logger');
+const logger = require('./loggers').get('default');
+
+
 
 const {
   inspect,
@@ -151,7 +153,6 @@ class Db {
         .on('ready', () => {
           logger.verbose('Initial scan complete. Ready for changes');
           resolve(self);
-          //inspect(self)
         });
 
     });
