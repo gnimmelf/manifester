@@ -8,7 +8,7 @@ const api = makeInvoker(require('../../apis/user'));
 const authorizeRequest = require('../../middleware/authorizeRequest');
 
 // User
-router.get('/list', api('getUserList'));
+router.get('/list', authorizeRequest(['user']), api('getUserList'));
 router.get('/current', api('getCurrentUser'));
 router.get('/current/groups', api('getCurrentUserGroups'));
 router.get('/logout', api('invalidateSession'));

@@ -10,16 +10,26 @@ const {
   deepAssign
 } = require('../../lib');
 
-module.exports = ({ dbService, apiService, schemaService }) =>
+module.exports = ({ dbService, schemaService }) =>
 {
 
+  const dbKeys = Object.keys(dbService);
+  const siteDb = dbService.site;
+
+  const siteSettings = {
+    ...siteDb.get('site.settings.public.json', {raw: true}),
+    ...siteDb.get('site.settings.private.json', {raw: true}),
+  };
+
   return {
+
+    getSiteSettings: (dottedPath) => dotProp.get(siteSettings, dottedPath),
 
     getObjectIds: (dbKey, {schemaNameSuffix}, owner=null) =>
     {
       debug('getObjectIds', dbKey, schemaNameSuffix, owner)
 
-      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
+      const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'read', {owner: owner})
         .then(schema => {
@@ -36,7 +46,7 @@ module.exports = ({ dbService, apiService, schemaService }) =>
     {
       debug('getObj >', dbKey, schemaNameSuffix, objId, dottedPath, owner);
 
-      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
+      const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'read', {owner: owner})
         .then(schema => {
@@ -57,13 +67,13 @@ module.exports = ({ dbService, apiService, schemaService }) =>
     {
       debug('getObj >', data, dbKey, schemaNameSuffix, owner);
 
-      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
+      const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'create', {owner: owner})
         .then(schema => {
 
           // Validate `data` vs `schema`
-          const ajv = apiService.makeAJV();
+          const ajv = schemaService.ajvFactory();
           const isValid = ajv.validate(schema, data);
           maybeThrow(!isValid, ajv.errors, 400);
 
@@ -99,7 +109,7 @@ module.exports = ({ dbService, apiService, schemaService }) =>
     {
       debug('updateObj >', data, dbKey, schemaNameSuffix, owner);
 
-      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
+      const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'update', {owner: owner})
         .then(schema => {
@@ -128,7 +138,7 @@ module.exports = ({ dbService, apiService, schemaService }) =>
           }
 
           // Validate saturated `data` vs `schema`
-          const ajv = apiService.makeAJV();
+          const ajv = schemaService.ajvFactory();
           const isValid = ajv.validate(schema, data);
           maybeThrow(!isValid, ajv.errors, 400);
 
@@ -153,7 +163,7 @@ module.exports = ({ dbService, apiService, schemaService }) =>
     {
       debug('deleteObj >', data, dbKey, schemaNameSuffix, owner);
 
-      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
+      const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'delete', {owner: owner})
         .then(schema => {

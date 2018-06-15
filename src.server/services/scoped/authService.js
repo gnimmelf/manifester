@@ -4,7 +4,7 @@ const jsonPath = require('jsonpath');
 const jwt = require('jsonwebtoken');
 const {
   makeLoginCode,
-  maybeThrow
+  maybeThrow,
 } = require('../../lib');
 
 const AUTH_FILE = 'auth.json';
@@ -35,7 +35,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, dataSer
         const relPath = maybeGetAuthPath(email);
 
         const loginCode = makeLoginCode();
-        const siteSettings = dataService.internal.getSettings();
+        const siteSettings = dataService.getSiteSettings();
 
         userDb.set(relPath, 'loginCode', loginCode);
 

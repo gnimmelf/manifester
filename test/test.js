@@ -38,33 +38,82 @@ manifester.run({
 
 const agent = chai.request.agent('http://localhost:3001')
 
-/*
-Tests
-*/
 
+/*
+  Paths
+*/
 const paths = {
-  root: '/',
+  inspect: '/api/inspect',
   currentUser: '/api/user/current',
 }
 
 describe('paths', () => {
 
-  it(`"${paths.currentUser}"" should return 401`, async () => {
+  it(`"${paths.currentUser}" should return 401`, async () => {
 
     const res = await agent.get(paths.currentUser)
     expect(res).to.have.status(401);
 
   });
 
-  it(`"${paths.root}"" should return 200`, async () => {
+  it(`"${paths.inspect}" should return 200`, async () => {
 
-    const res = await agent.get(paths.root);
+    const res = await agent.get(paths.inspect);
     expect(res).to.have.status(200);
-
 
   });
 
-
 })
 
+/*
+┌────────┬──────────────────────────────────────────────────────────────────┐
+│ Method │ url                                                              │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/inspect                                                     │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/inspect/asHtml                                              │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/inspect/asText                                              │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ POST   │ /api/auth/request                                                │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ POST   │ /api/auth/exchange                                               │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ POST   │ /api/auth/authenticate                                           │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/schema/list/:globpattern?/:operation?                       │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/schema/:schemaName                                          │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/user/list                                                   │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/user/current                                                │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/user/current/groups                                         │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/user/logout                                                 │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/user/:userHandle/data/:schemaNameSuffix/list                │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/user/:userHandle/data/:schemaNameSuffix/:objId              │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ POST   │ /api/user/:userHandle/data/:schemaNameSuffix/:objId/:dottedPath? │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ DELETE │ /api/user/:userHandle/data/:schemaNameSuffix/:objId/:dottedPath? │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/data/content/:schemaNameSuffix/list                         │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/data/content/:schemaNameSuffix/:objId/:dottedPath?          │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ POST   │ /api/data/content/:schemaNameSuffix/:objId?/:dottedPath?         │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ DELETE │ /api/data/content/:schemaNameSuffix/:objId/:dottedPath?          │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/data/singleton/:dbKey/list/:globpattern?                    │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ GET    │ /api/data/singleton/:dbKey/:schemaNameSuffix/:dottedPath?        │
+├────────┼──────────────────────────────────────────────────────────────────┤
+│ POST   │ /api/data/singleton/:dbKey/:schemaNameSuffix/:dottedPath?        │
+└────────┴──────────────────────────────────────────────────────────────────┘
+*/
 

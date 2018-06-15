@@ -11,13 +11,13 @@ const {
 } = require('../../lib');
 
 
-module.exports = ({ dbService, apiService, schemaService }) =>
+module.exports = ({ dbService, schemaService }) =>
 {
 
   return {
     getObj: (dbKey, {schemaNameSuffix, dottedPath, raw}) =>
     {
-      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
+      const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'read')
         .then(schema => {
@@ -35,7 +35,7 @@ module.exports = ({ dbService, apiService, schemaService }) =>
 
     updateObj: (dbKey, data, {schemaNameSuffix, dottedPath}) =>
     {
-      const schemaName = apiService.parseSchemaName(dbKey, schemaNameSuffix);
+      const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
       return schemaService.getSchema(schemaName, 'update')
         .then(schema => {
@@ -67,7 +67,7 @@ module.exports = ({ dbService, apiService, schemaService }) =>
           }
 
           // Validate `dbObj` vs `schema`
-          const ajv = apiService.makeAJV();
+          const ajv = schemaService.ajvFactory();
           const isValid = ajv.validate(schema, dbObj);
           maybeThrow(!isValid, ajv.errors, 400);
 

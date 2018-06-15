@@ -71,8 +71,6 @@ app.use(require('./middleware/authenticateHeaderToken'));
  * Routes
  */
 
-
-
 app.use('/api', require('./routes/api.inspect'));
 app.use('/api/auth', require('./routes/api.authenticate'));
 app.use('/api/schema', require('./routes/api.schema'));

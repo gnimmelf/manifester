@@ -3,6 +3,8 @@ const { join, relative } = require('path');
 const assert = require('assert');
 const $RefParser = require('json-schema-ref-parser');
 const minimatch = require('minimatch');
+const Ajv = require('ajv');
+const draft06 = require('ajv/lib/refs/json-schema-draft-06.json');
 const {
   maybeThrow,
   inspect,
@@ -32,7 +34,25 @@ module.exports = ({ dbService, accessService, userService }) =>
   schemaDb.watcher.on('change', invalidateCache);
   schemaDb.watcher.on('unlink', invalidateCache);
 
+  const ajvFactory = (ajvOptions={}) => {
+    const ajv = new Ajv({
+      allErrors: true,
+      jsonPointers: true,
+      removeAdditional: true,
+      ...ajvOptions,
+    });
+    // TODO! Make into an option
+    ajv.addMetaSchema(draft06);
+    return ajv;
+  };
+
+  const makeSchemaName = (schemaNamePrefix, schemaNameSuffix) => `${schemaNamePrefix}.${schemaNameSuffix}`.replace(/\.+/g, '.');
+
   return {
+
+    makeSchemaName: makeSchemaName,
+
+    ajvFactory: ajvFactory,
 
     getSchema: (schemaName, operation='read', {owner=null, supressError=false}={}) =>
     {
