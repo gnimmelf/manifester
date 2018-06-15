@@ -1,7 +1,10 @@
 const { join } = require('path');
 const mkdirp = require('mkdirp').sync;
 const loopWhile = require('deasync').loopWhile;
-const { Db } = require('../../lib');
+const {
+  Db,
+  logger,
+} = require('../../lib');
 
 const ensureDir = (path) => { mkdirp(path); return path }
 
@@ -31,7 +34,7 @@ module.exports = ({ localAppPath }) =>
   // Loop while not all done
   loopWhile(() => !done);
 
-  console.log('dbServices loaded!', Object.keys(dbs))
+  logger.info('dbServices loaded!', Object.keys(dbs))
 
   return dbs;
 }

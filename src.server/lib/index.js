@@ -12,3 +12,4 @@ exports.deepAssign = require('deep-assign');
 exports.makeLoginCode = require('./makeLoginCode');
 exports.makeSingleInvoker = require('./makeSingleInvoker')
 exports.configureContainer = require('./configureContainer');
+exports.logger = require('./logger');

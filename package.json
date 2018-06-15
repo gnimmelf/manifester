@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --exit"
+    "test": "LOG_LEVEL=error mocha --exit"
   },
   "bin": {
     "manifest-a-site": "generators/create-site/create-site.js"
@@ -52,6 +52,7 @@
     "string-format-obj": "^1.1.1",
     "table": "^4.0.3",
     "upquire": "0.0.13",
+    "winston": "^3.0.0",
     "write-file-atomic": "^2.1.0"
   },
   "devDependencies": {

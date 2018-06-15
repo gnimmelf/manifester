@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const {
   makeLoginCode,
   maybeThrow,
+  logger,
 } = require('../../lib');
 
 const AUTH_FILE = 'auth.json';
@@ -46,7 +47,7 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, dataSer
           })
           .then(html => {
 
-            console.log("requestLoginCodeByEmail\n", html)
+            debug.log("requestLoginCodeByEmail\n", html)
 
             // mailService.sendMail({
             //   senderName: siteSettings.siteName,

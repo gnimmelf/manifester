@@ -1,11 +1,12 @@
 const debug = require('debug')('mf:app');
 
+const assert = require('assert');
 const express = require('express');
+const morgan = require('morgan');
 const listEndpoints = require('express-list-endpoints')
 const favicon = require('serve-favicon');
-const logger = require('morgan');
 const cookieParser = require('cookie-parser');
-var cors = require('cors');
+const cors = require('cors');
 
 const { scopePerRequest } = require('awilix-express');
 
@@ -16,6 +17,7 @@ const {
   configureContainer,
   inspect,
   sendApiResponse,
+  logger,
 } = require('./lib');
 
 // Main Express app
@@ -25,9 +27,26 @@ app.localApp = express();
 
 
 /**
+ * `NODE_ENV`
+ */
+
+const NODE_ENV = (process.env.NODE_ENV || 'development');
+const ALLOWED_NODE_ENVS = ['production', 'development', 'test']
+
+app.checkEnv = (needle=NODE_ENV) => ALLOWED_NODE_ENVS.find(straw => {
+  return needle.toLowerCase() == straw.substr(0, needle.length);
+});
+
+assert(app.checkEnv(NODE_ENV), `'NODE_ENV' must be one of ${ALLOWED_NODE_ENVS} when specified! -Defaults to 'development'`);
+
+console.log('NODE_ENV', app.checkEnv());
+
+
+/**
  *  View engine setup
  * -Yes, pug/jade. Tried "all" others, they suck and really hamper coding effiency.
  */
+
 app.set('views', join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.set('json spaces', 2);
@@ -36,31 +55,51 @@ app.set('json spaces', 2);
 /**
  * App setup (`awilix`-container)
  */
+
 const container = configureContainer(app, __dirname);
 app.set('container', container);
 
+
 /**
- * Cors
- * NOTE! The manifested `localApp` must set it's own CORS when in production (see `../index.js`)
+ * Standard middleware
  */
-if (app.get('env') !== 'production') {
+
+// CORS
+// NOTE! The manifested `localApp` must set it's own CORS when in production (see `../index.js`)
+if (!app.checkEnv('production')) {
   app.use(cors({
     origin: true,
     credentials: true,
   }));
 }
 
-/**
- * Standard middleware
- */
+// Logging
+const morganProfile = 'dev';
+app.use(morgan(morganProfile, {
+    skip: function (req, res) {
+        return res.statusCode < 400
+    },
+    stream: process.stderr,
+}));
 
-app.use(logger('dev'));
+app.use(morgan(morganProfile, {
+    skip: function (req, res) {
+        return res.statusCode >= 400
+    },
+    stream: process.stdout,
+}));
+
+// Encoding
 app.use(json());
 app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// TODO! Favicon: uncomment after placing your favicon... where? -Should prefer `app.localApp`...
+//app.use(favicon(join("public", 'favicon.ico')));
+
+
 /**
- * Middleware
+ * Custom middleware
  */
 
 app.use(scopePerRequest(container));
@@ -78,10 +117,6 @@ app.use('/api/user', require('./routes/api.user'));
 app.use('/api/data', require('./routes/api.data'));
 app.use(app.localApp)
 
-/**
- * Favicon: uncomment after placing your favicon in... TODO! Where? -Should prefer `app.localApp`...
- */
-//app.use(favicon(join("public", 'favicon.ico')));
 
 /**
  * Downstream errorhandling
@@ -96,8 +131,8 @@ app.use(function(req, res, next) {
 
 // API-error: JSON-response
 app.use('/api', function(err, req, res, next) {
-  if (req.app.get('env') !== 'production' && err.code >= 500) {
-    console.error(err)
+  if (err.code >= 500) {
+    logger.error(err)
   }
 
   err.data = req.protocol + '://' + req.get('host') + req.originalUrl;
@@ -106,8 +141,8 @@ app.use('/api', function(err, req, res, next) {
 
 // Non-API-error: HTML-response
 app.use(function(err, req, res, next) {
-  if (req.app.get('env') !== 'production') {
-    console.error(err)
+  if (app.checkEnv('production')) {
+    logger.error(err)
   }
 
   const statusCode = err.code || 500;

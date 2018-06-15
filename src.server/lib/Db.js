@@ -17,8 +17,11 @@ const writeFile = require('write-file-atomic').sync;
 const deleteFile = require('delete').sync;
 
 const dotProp = require('./dotProp');
+const logger = require('./logger');
 
-const { inspect } = require('./');
+const {
+  inspect,
+} = require('./');
 
 const tree = {};
 
@@ -39,7 +42,7 @@ const updateTreePath = (absPath, instance) =>
     dotProp.set(tree, dotPropKey, content);
   }
   catch(err) {
-    console.error(err.message, absPath)
+    logger.error(err.message, absPath)
   }
 }
 
@@ -143,10 +146,10 @@ class Db {
         .on('all', this.handleEvent.bind(this))
         .on('error', error => {
           // Chokidar ENOSPC error: https://stackoverflow.com/a/17437601/1008905
-          console.warn(`Watcher error: ${error}`)
+          logger.error(`Watcher error: ${error}`)
         })
         .on('ready', () => {
-          console.log('Initial scan complete. Ready for changes');
+          logger.verbose('Initial scan complete. Ready for changes');
           resolve(self);
           //inspect(self)
         });
@@ -178,7 +181,7 @@ class Db {
       case 'addDir':
       case 'unlinkDir':
       default:
-        console.error(`unhandled event: ${event} [${absPath}]`)
+        logger.warn(`unhandled event: ${event} [${absPath}]`)
     }
   }
 
@@ -219,8 +222,6 @@ class Db {
       retVal = clone ? Object.assign({}, value) : value;
     }
 
-    //console.log('OPTIONS', options, relPath, key, typeof value, '=>', retVal)
-
     return retVal;
   }
 
@@ -255,7 +256,7 @@ class Db {
       });
     }
     catch(err) {
-      console.error(err); return false;
+      logger.error(err); return false;
     }
 
     return true;
@@ -284,7 +285,7 @@ class Db {
       });
     }
     catch(err) {
-      console.error(err); return false;
+      logger.error(err); return false;
     }
 
     return true;

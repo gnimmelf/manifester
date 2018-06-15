@@ -32,11 +32,11 @@ sh.cp('-R', `${sourceDir}/*`, targetDir);
 manifester.use('/', (req, res) => res.send('Test App\n'));
 manifester.run({
   localAppPath: targetDir,
-  listenOnPort: 3001,
+  createServer: false,
 });
 
 
-const agent = chai.request.agent('http://localhost:3001')
+const agent = chai.request.agent(manifester.mainApp)
 
 
 /*
@@ -45,26 +45,41 @@ const agent = chai.request.agent('http://localhost:3001')
 const paths = {
   inspect: '/api/inspect',
   currentUser: '/api/user/current',
+  userList: '/api/user/list',
+  schemaList: '/api/schema/list',
+
 }
 
-describe('paths', () => {
+describe('not logged in', () => {
 
-  it(`"${paths.currentUser}" should return 401`, async () => {
+  describe('200/Ok paths', () => {
 
-    const res = await agent.get(paths.currentUser)
-    expect(res).to.have.status(401);
+    ([
+      'inspect',
+      'schemaList',
+    ])
+    .map(name => paths[name])
+    .forEach(path => {
+
+      it(paths.inspect, async () => {
+        const res = await agent.get(paths.inspect);
+        expect(res).to.have.status(200);
+      });
+
+    });
 
   });
 
-  it(`"${paths.inspect}" should return 200`, async () => {
+  describe('401/Unauthorized paths', () => {
 
-    const res = await agent.get(paths.inspect);
-    expect(res).to.have.status(200);
+    it(paths.currentUser, async () => {
+      const res = await agent.get(paths.currentUser)
+      expect(res).to.have.status(401);
+    });
 
   });
 
-})
-
+});
 /*
 ┌────────┬──────────────────────────────────────────────────────────────────┐
 │ Method │ url                                                              │

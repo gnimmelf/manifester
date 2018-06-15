@@ -9,22 +9,14 @@ const { asValue } = require('awilix');
 const app = require('./src.server/app');
 const { inspect } = require('./src.server/lib');
 
-app.set('env', process.env.ENV || process.env.NODE_ENV || 'development');
-
-assert(~['production', 'development'].indexOf(app.get('env')),
-    "'(NODE_)ENV' must be 'production' or 'development' when specified! -Defaults to 'development'");
-
-
 const DEFAULT_PORT = 3000;
 
 // Server
 let server;
 
-/**
- * Get port from environment and store in Express.
- */
-
-function normalizePort(val) {
+function normalizePort(val)
+// Get port from environment and store in Express.
+{
   const port = parseInt(val, 10);
 
   if (isNaN(port)) {
@@ -96,10 +88,7 @@ module.exports = Object.assign(app.localApp, {
 
     app.set('port', port);
 
-
     console.log('\nlocalPath', localAppPath);
-    console.log('ENV', app.get('env'));
-    console.log('listenOnPort', );
 
     const sensitive = require(join(localAppPath, 'sensitive.json'));
 

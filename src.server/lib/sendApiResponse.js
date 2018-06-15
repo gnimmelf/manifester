@@ -1,6 +1,8 @@
 const debug = require('debug')('mf:sendApiResponse');
 const RESTfulError = require('./RESTfulError');
-const { isObject } = require('./utils');
+const {
+  logger
+} = require('./utils');
 
 module.exports = (expressResponseObj, payload) =>
 {
@@ -12,11 +14,6 @@ module.exports = (expressResponseObj, payload) =>
 
 
     status = isNaN(payload.code) ? 500 : payload.code;
-
-    if (status >= 500) {
-      // TODO! Use `morgan` logger to log error?
-      console.error(payload);
-    }
 
     if (!(payload instanceof RESTfulError) && RESTfulError.getByTypeOrCode(payload.code)) {
       // Make it a `RESTfulError`
