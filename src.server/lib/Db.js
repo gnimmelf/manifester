@@ -16,14 +16,9 @@ const isObj = require('is-obj');
 const writeFile = require('write-file-atomic').sync;
 const deleteFile = require('delete').sync;
 
-const dotProp = require('./dotProp');
-const logger = require('./loggers').get('default');
+const { dotProp } = require('../utils');
+const loggers = require('./loggers');
 
-
-
-const {
-  inspect,
-} = require('./');
 
 const tree = {};
 
@@ -44,7 +39,7 @@ const updateTreePath = (absPath, instance) =>
     dotProp.set(tree, dotPropKey, content);
   }
   catch(err) {
-    logger.error(err.message, absPath)
+    instance.logger.error(err.message, absPath)
   }
 }
 
@@ -109,6 +104,7 @@ class Db {
   {
     assert(root);
 
+    this.logger = loggers.get('default')
     this.root = resolve(root);
     this.instantPush = instantPush;
     this.prettify = prettify;
@@ -148,10 +144,10 @@ class Db {
         .on('all', this.handleEvent.bind(this))
         .on('error', error => {
           // Chokidar ENOSPC error: https://stackoverflow.com/a/17437601/1008905
-          logger.error(`Watcher error: ${error}`)
+          self.logger.error(`Watcher error: ${error}`)
         })
         .on('ready', () => {
-          logger.verbose('Initial scan complete. Ready for changes');
+          self.logger.verbose('Initial scan complete. Ready for changes');
           resolve(self);
         });
 

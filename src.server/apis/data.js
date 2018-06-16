@@ -2,7 +2,7 @@ const debug = require('debug')('mf:api:data');
 
 const {
   sendApiResponse,
-} = require('../lib');
+} = require('../utils');
 
 module.exports = ({ dataService }) =>
 {

@@ -5,7 +5,7 @@ const jsonPath = require('jsonpath');
 const {
   maybeThrow,
   addFileExt
-} = require('../../lib');
+} = require('../../utils');
 
 // Symbols
 const USERID = Symbol('userId');

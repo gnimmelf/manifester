@@ -1,15 +1,14 @@
 const { join } = require('path');
 const mkdirp = require('mkdirp').sync;
 const loopWhile = require('deasync').loopWhile;
-const {
-  Db,
-  logger,
-} = require('../../lib');
+const Db = require('../../lib/Db');
+const loggers = require('../../lib/loggers');
 
 const ensureDir = (path) => { mkdirp(path); return path }
 
 module.exports = ({ localAppPath }) =>
 {
+  const logger = loggers.get('default');
   const dbs = {};
   let done = false;
 

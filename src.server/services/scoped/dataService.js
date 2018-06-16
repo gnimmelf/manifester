@@ -8,7 +8,7 @@ const {
   dotProp,
   objDiff,
   deepAssign
-} = require('../../lib');
+} = require('../../utils');
 
 module.exports = ({ dbService, schemaService }) =>
 {

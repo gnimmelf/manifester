@@ -1,6 +1,6 @@
 const path = require('path');
 const join = path.join;
-const RESTfulError = require('./RESTfulError');
+const RESTfulError = require('../lib/RESTfulError');
 const upquire = exports.upquire = require('upquire');
 const { inspect } = require('util');
 

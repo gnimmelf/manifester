@@ -3,7 +3,7 @@ const debug = require('debug')('mf:api:user');
 const {
   sendApiResponse,
   requestFullUrl,
-  maybeThrow } = require('../lib');
+  maybeThrow } = require('../utils');
 
 const RE_RE_USER_SCHEMA_MASK = new RegExp(/^user\./);
 

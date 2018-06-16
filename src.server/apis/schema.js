@@ -3,7 +3,7 @@ const debug = require('debug')('mf:api:schemas');
 const {
   sendApiResponse,
   requestFullUrl
-} = require('../lib');
+} = require('../utils');
 
 module.exports = ({ schemaService }) =>
 {

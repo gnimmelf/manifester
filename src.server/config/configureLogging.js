@@ -1,3 +1,4 @@
+const morgan = require('morgan');
 const appRoot = require('app-root-path');
 const {
   format,
@@ -7,9 +8,12 @@ const {
 
 const loggers = require('../lib/loggers');
 
-module.exports = () => {
+module.exports = (mainApp) => {
 
+  // Winston
   level = process.env.LOG_LEVEL || 'debug'
+
+  console.log('Log level:', level);
 
   loggers.add('default', createLogger({
     format: format.combine(
@@ -37,6 +41,23 @@ module.exports = () => {
     exitOnError: false,
     emitErrors: false,
   }));
+
+  // Morgan
+  const morganProfile = 'dev';
+  mainApp.use(morgan(morganProfile, {
+      skip: function (req, res) {
+          return res.statusCode < 400
+      },
+      stream: process.stderr,
+  }));
+
+  mainApp.use(morgan(morganProfile, {
+      skip: function (req, res) {
+          return res.statusCode >= 400
+      },
+      stream: process.stdout,
+  }));
+
 
   return loggers;
 }

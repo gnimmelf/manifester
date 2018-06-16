@@ -1,8 +1,5 @@
 const debug = require('debug')('mf:sendApiResponse');
-const RESTfulError = require('./RESTfulError');
-const {
-  logger
-} = require('./utils');
+const RESTfulError = require('../lib/RESTfulError');
 
 module.exports = (expressResponseObj, payload) =>
 {

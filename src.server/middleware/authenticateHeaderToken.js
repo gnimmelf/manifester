@@ -1,6 +1,6 @@
 const debug = require('debug')('mf:middleware:authenticateHeaderToken');
 const { asValue, asFunction } = require('awilix');
-const { makeSingleInvoker, maybeThrow } = require('../lib');
+const { makeSingleInvoker, maybeThrow } = require('../utils');
 
 const AUTH_FILE = 'auth.json';
 

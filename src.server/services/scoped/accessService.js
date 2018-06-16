@@ -4,9 +4,8 @@ const intersect = require('intersect');
 const jsonPath = require('jsonpath');
 const jwt = require('jsonwebtoken');
 const {
-  makeLoginCode,
   maybeThrow
-} = require('../../lib');
+} = require('../../utils');
 
 const IS_PARSED = Symbol('parsed');
 

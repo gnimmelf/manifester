@@ -2,12 +2,12 @@ const debug = require('debug')('mf:repo:nodemailerTransport');
 const assert = require('assert');
 const mailgunTransport = require('nodemailer-mailgun-transport');
 
-const {
-  logger
-} = require('../../lib');
+const loggers = require('../../lib/loggers');
 
 module.exports = ({ emailConfig }) =>
 {
+  const logger = loggers.get('default');
+
   logger.warn('No custom `nodemailerTransport` found. -Setting up default (mailgun)');
   assert(emailConfig && emailConfig.mailgunAuth, 'Could not set up mailService. `emailConfig.mailgunAuth` not found!')
 

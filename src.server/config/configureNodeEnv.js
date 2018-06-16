@@ -24,7 +24,7 @@ module.exports = function(allowedEnvs=['production', 'development', 'test'], def
 
   assert(nodeEnv, `'NODE_ENV' must be one of ${allowedEnvs} when specified! -Defaults to 'development'`);
 
-  console.log('NODE_ENV', NODE_ENV, checkEnv(), 'isProduction:', !!checkEnv('production'));
+  console.log(`NODE_ENV ${NODE_ENV} (${checkEnv()}, isProduction: ${!!checkEnv('production')})`);
 
   // Make checker available for use elsewhere
   return checkEnv;

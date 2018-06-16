@@ -4,4 +4,5 @@
 
 exports.configureContainer = require('./configureContainer');
 exports.configureNodeEnv = require('./configureNodeEnv');
-exports.configureLoggers = require('./configureLoggers');
+exports.configureLogging = require('./configureLogging');
+exports.configureErrorHandling = require('./configureErrorHandling');

@@ -7,7 +7,6 @@ const assert = require('assert');
 const caller = require('caller');
 const { asValue } = require('awilix');
 const app = require('./src.server/app');
-const { inspect } = require('./src.server/lib');
 
 const DEFAULT_PORT = 3000;
 
@@ -98,7 +97,6 @@ module.exports = Object.assign(app.localApp, {
       emailConfig: asValue(sensitive.emailConfig),
     });
 
-    // inspect(app.get('container').registrations)
     if (createServer) {
       server = http.createServer(app);
       server.on('error', onError);

@@ -4,9 +4,11 @@
 
 Object.assign(exports, require('./utils'));
 
+// Local
 exports.sendApiResponse = require('./sendApiResponse');
 exports.dotProp = require('./dotProp');
+exports.makeSingleInvoker = require('./makeSingleInvoker')
+
+// Npm
 exports.objDiff = require('deep-object-diff');
 exports.deepAssign = require('deep-assign');
-exports.makeLoginCode = require('./makeLoginCode');
-exports.makeSingleInvoker = require('./makeSingleInvoker')

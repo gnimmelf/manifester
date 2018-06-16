@@ -9,7 +9,7 @@ const {
   maybeThrow,
   inspect,
   addFileExt
-} = require('../../lib');
+} = require('../../utils');
 
 const cache = {};
 

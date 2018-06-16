@@ -2,7 +2,7 @@ const debug = require('debug')('mf:api:singleton');
 
 const {
   sendApiResponse,
-} = require('../lib');
+} = require('../utils');
 
 module.exports = ({ schemaService, singletonService, apiService }) =>
 /*

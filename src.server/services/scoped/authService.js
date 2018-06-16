@@ -2,11 +2,11 @@ const debug = require('debug')('mf:service:authService');
 const { join } = require('path');
 const jsonPath = require('jsonpath');
 const jwt = require('jsonwebtoken');
+const makeLoginCode = require('../../lib/makeLoginCode');
 const {
-  makeLoginCode,
   maybeThrow,
   logger,
-} = require('../../lib');
+} = require('../../utils');
 
 const AUTH_FILE = 'auth.json';
 

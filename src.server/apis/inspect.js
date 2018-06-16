@@ -7,7 +7,7 @@ const Table = require('cli-table')
 const {
   sendApiResponse,
   requestFullUrl
-} = require('../lib');
+} = require('../utils');
 
 module.exports = ({ mainApp }) =>
 {

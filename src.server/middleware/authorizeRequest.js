@@ -1,7 +1,11 @@
 const debug = require('debug')('mf:middleware:authorizeUser');
 const intersect = require('intersect');
 const normalizeBool = require('normalize-bool');
-const { maybeThrow, requestFullUrl, makeSingleInvoker } = require('../lib');
+const {
+  maybeThrow,
+  requestFullUrl,
+  makeSingleInvoker
+} = require('../utils');
 
 const authorizeRequest = (allowedGroups=[], redirectUrl='') =>
 {

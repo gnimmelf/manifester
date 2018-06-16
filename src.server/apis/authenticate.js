@@ -1,6 +1,8 @@
 const debug = require('debug')('mf:api:authenticate');
 
-const { sendApiResponse } = require('../lib');
+const {
+  sendApiResponse
+} = require('../utils');
 
 module.exports = ({ authService, tokenKeyName }) =>
 {
