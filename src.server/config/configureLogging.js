@@ -1,6 +1,7 @@
 const assert = require('assert');
 const { join } = require('path');
 const morgan = require('morgan');
+const mkdirp = require('mkdirp').sync;
 const {
   format,
   transports,
@@ -17,18 +18,19 @@ const { loggers } = require('../utils');
 
 module.exports = (app, {
   logFileDir=join(__localAppRoot, '/logs/'),
-  defaultLogLevel='debug',
+  loglevel='debug',
 }={}) => {
 
   assert(app, 'required!')
 
-  const LOG_FILE_PATH = join(logFileDir, 'app.log');
+  mkdirp(logFileDir);
 
-  // Winston
-  level = process.env.LOG_LEVEL || defaultLogLevel;
+  const logFilePath = join(logFileDir, 'app.log');
 
-  console.log(`Log level: ${level}`);
-  console.log(`Logfile: ${LOG_FILE_PATH}`);
+
+  /**
+   * Winston
+   */
 
   loggers.add('default', createLogger({
     format: format.combine(
@@ -37,27 +39,30 @@ module.exports = (app, {
       format.simple(),
     ),
     transports: [
-      new transports.File({
-        level: level,
-        filename: LOG_FILE_PATH,
+      new transports.Console({
+        level: loglevel,
         handleExceptions: true,
         json: true,
-        maxsize: 5242880, // 5MB
+        colorize: true,
+      }),
+      new transports.File({
+        level: loglevel,
+        filename: logFilePath,
+        handleExceptions: true,
+        json: true,
+        maxsize: 5 * 1024 * 1024, // 5MB
         maxFiles: 5,
         colorize: false,
       }),
-      new transports.Console({
-        level: level,
-        handleExceptions: true,
-        json: false,
-        colorize: true,
-      })
     ],
     exitOnError: false,
     emitErrors: false,
   }));
 
-  // Morgan
+
+  /**
+   * Morgan
+   */
   const morganProfile = 'dev';
   app.use(morgan(morganProfile, {
       skip: function (req, res) {
@@ -73,6 +78,10 @@ module.exports = (app, {
       stream: process.stdout,
   }));
 
-
-  return loggers;
+  // Standard config return, a list of [k,v] tuples
+  return [
+    ['logFilePath', logFilePath],
+    ['loglevel', loglevel],
+    ['morganProfile', morganProfile],
+  ];
 }

@@ -13,7 +13,10 @@ const {
 } = require('awilix');
 const { scopePerRequest } = require('awilix-express');
 
-module.exports = (app, { servicesDir }) => {
+module.exports = (app, {
+  servicesDir,
+  tokenKeyName='XSRF-TOKEN',
+}) => {
 
   assert(app, 'required!')
   assert(servicesDir, 'required!')
@@ -22,7 +25,7 @@ module.exports = (app, { servicesDir }) => {
 
   container.register({
     'app': asValue(app),
-    'tokenKeyName': asValue('XSRF-TOKEN'),
+    'tokenKeyName': asValue(tokenKeyName),
   });
 
   container.loadModules([
@@ -48,4 +51,11 @@ module.exports = (app, { servicesDir }) => {
 
   app.set('container', container);
   app.use(scopePerRequest(container));
+
+  // Standard config return, a list of [k,v] tuples
+  return [
+    ['servicesDir', servicesDir],
+    ['templateService.templates', Object.keys(templateService).join(',')],
+    ['tokenKeyName', tokenKeyName]
+  ]
 }

@@ -85,7 +85,7 @@ module.exports = Object.assign(app.localApp, {
 
   // TODO! Figure this one out: What to present to `localApp`? - Awilix-container + utils?
 
-  run: ({ dbPath=join(__localAppRoot, 'db'), createServer = true } = {}) =>  {
+  run: ({ dbRoot=join(__localAppRoot, 'db'), createServer = true } = {}) =>  {
 
     const port = normalizePort(process.env.PORT || DEFAULT_PORT);
 
@@ -94,7 +94,7 @@ module.exports = Object.assign(app.localApp, {
     const sensitive = require(join(__localAppRoot, 'sensitive.json'));
 
     app.get('container').register({
-      dbPath: asValue(dbPath),
+      dbRoot: asValue(dbRoot),
       hashSecret: asValue(sensitive.hashSecret),
       emailConfig: asValue(sensitive.emailConfig),
     });

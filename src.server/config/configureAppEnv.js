@@ -35,10 +35,14 @@ module.exports = (app, {
 
   assert(nodeEnv, `'NODE_ENV' must be one of ${allowedEnvs} when specified! -Defaults to 'development'`);
 
-  console.log(`NODE_ENV ${NODE_ENV} (${getEnv()}, isProduction: ${!!getEnv('production')})`);
-
   // Set globals (YES, THEY ARE!)
   global.__localAppRoot = parse(process.mainModule.filename).dir;
   global.__getEnv = getEnv
+
+  // Standard config return, a list of [k,v] tuples
+  return [
+    ['Allowed Envs', allowedEnvs.join(', ')],
+    ['Env', nodeEnv],
+  ]
 
 }

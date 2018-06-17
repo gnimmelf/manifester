@@ -15,7 +15,6 @@ module.exports = (expressResponseObj, payload) =>
 
   if (payload instanceof Error) {
 
-
     status = isNaN(payload.code) ? 500 : payload.code;
 
     if (!(payload instanceof RESTfulError) && RESTfulError.getByTypeOrCode(payload.code)) {
@@ -24,15 +23,15 @@ module.exports = (expressResponseObj, payload) =>
       debug('RESTfulError', RESTfulError)
     }
 
-    if (err.code >= 500 && __getEnv('development')) {
-      logger.error(err)
-    }
-
     // Set the payload
     apiPayload = {
       msg: payload.message || '',
       data: payload.data || false,
     };
+
+    if (status >= 500) {
+      logger.error(err)
+    }
   }
   else {
     apiPayload = typeof payload == 'string' ? {

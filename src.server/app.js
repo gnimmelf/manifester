@@ -15,6 +15,8 @@ const {
   configureErrorHandling,
 } = require('./config');
 
+const { loggers } = require('./utils')
+
 /**
  * Express apps
  */
@@ -26,19 +28,33 @@ app.localApp = express(); // The Express app for local development of the "head"
  * Configurations
  */
 
+const configLogs = {}; // For logging
+
 // Node-env, INCLUDING GLOBALS!!
-configureAppEnv(app, {
+configLogs['env'] = configureAppEnv(app, {
   allowedEnvs: ['production', 'development', 'test'],
   defaultEnv: 'development',
 });
 
-// Loggers, grab the default logger for use here
-configureLogging(app);
+// Loggers
+configLogs['logging'] = configureLogging(app, {
+  logLevel: process.env.LOG_LEVEL || 'default',
+});
 
 // Awilix-container, set on `app`
-configureContainer(app, {
+configLogs['container'] = configureContainer(app, {
   servicesDir: join(__dirname, 'services')
 });
+
+/**
+ * Log configs
+ */
+
+const logger = loggers.get('default');
+
+Object.entries(configLogs).forEach(([category, configTuples]) => configTuples.forEach(([key, value]) => {
+  logger.verbose(`(${category.toUpperCase()}) ${key} = ${value}`);
+}));
 
 /**
  * View engine setup
@@ -61,7 +77,7 @@ if (__getEnv('production')) {
     origin: true,
     credentials: true,
   };
-  console.log('CORS', options)
+  logger.info('CORS', options)
   app.use(cors(options));
 }
 
@@ -90,7 +106,7 @@ app.use('/api/auth', require('./routes/api.authenticate'));
 app.use('/api/schema', require('./routes/api.schema'));
 app.use('/api/user', require('./routes/api.user'));
 app.use('/api/data', require('./routes/api.data'));
-app.use(app.localApp)
+app.use(app.localApp); // Mount the `localApp` last, so that all its routes apply
 
 
 /**

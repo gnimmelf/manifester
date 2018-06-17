@@ -2,7 +2,7 @@ const debug = require('debug')('mf:api:schemas');
 
 const {
   sendApiResponse,
-  requestFullUrl
+  getRequestFullUrl
 } = require('../utils');
 
 module.exports = ({ schemaService }) =>
@@ -18,7 +18,7 @@ module.exports = ({ schemaService }) =>
         .then(schema => {
 
           // Add `schema.$id`, just because.
-          schema.$id = requestFullUrl(req);
+          schema.$id = getRequestFullUrl(req);
 
           sendApiResponse(res, schema)
         })

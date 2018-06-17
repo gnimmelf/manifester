@@ -7,28 +7,32 @@ const {
   loggers
 } = require('../../utils');
 
-const ensureDir = (path) => { mkdirp(path); return path }
-
-module.exports = ({ dbPath }) =>
+module.exports = ({ dbRoot }) =>
 {
+
   const logger = loggers.get('default');
+
+  const ensureDir = (dbPath) => {
+    logger.verbose('Ensure dbPath', { data :dbPath });
+    mkdirp(dbPath); return dbPath
+  }
 
   const dbs = {};
   let done = false;
 
   Promise.all([
     new Db({
-      root: ensureDir(join(dbPath, 'schemas')),
+      root: ensureDir(join(dbRoot, 'schemas')),
     }).promise.then(db => dbs['schema'] = db),
     new Db({
-      root: ensureDir(join(dbPath, 'site')),
+      root: ensureDir(join(dbRoot, 'site')),
     }).promise.then(db => dbs['site'] = db),
     new Db({
-      root: ensureDir(join(dbPath, 'users')),
+      root: ensureDir(join(dbRoot, 'users')),
       instantPush: true,
     }).promise.then(db => dbs['user'] = db),
     new Db({
-      root: ensureDir(join(dbPath, 'content')),
+      root: ensureDir(join(dbRoot, 'content')),
     }).promise.then(db => dbs['content'] = db),
   ])
   .then(() => { done = true; })
@@ -37,7 +41,7 @@ module.exports = ({ dbPath }) =>
   // Loop while not all done
   loopWhile(() => !done);
 
-  logger.info('dbServices loaded:', Object.keys(dbs).join(', '));
+  logger.verbose('dbService loaded!', { data: Object.keys(dbs).join(', ') });
 
   return dbs;
 }

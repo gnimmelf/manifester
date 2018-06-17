@@ -20,14 +20,18 @@ module.exports = (app) => {
 
   // API-errorhandler: JSON-response
   app.use('/api', function(err, req, res, next) {
-    err.data = getRequestFullUrl(req);
+    err.data = {
+      url: getRequestFullUrl(req),
+      params: req.params,
+      query: req.query,
+    };
     sendApiResponse(res, err);
   });
 
   // Non-API-errorhandler: HTML-response
   app.use(function(err, req, res, next) {
     if (err.code >= 500 && app.checkEnv('dev')) {
-      console.error(err)
+      logger.error(err)
     }
 
     const statusCode = err.code || 500;
@@ -46,5 +50,8 @@ module.exports = (app) => {
 
     res.render('error');
   });
+
+  // Standard config return, a list of [k,v] tuples
+  return [];
 
 }
