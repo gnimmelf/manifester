@@ -8,6 +8,7 @@ Object.assign(exports, require('./utils'));
 exports.sendApiResponse = require('./sendApiResponse');
 exports.dotProp = require('./dotProp');
 exports.makeSingleInvoker = require('./makeSingleInvoker')
+exports.loggers = require('./loggers');
 
 // Npm
 exports.objDiff = require('deep-object-diff');

@@ -2,7 +2,10 @@ const debug = require('debug')('mf:repo:nodemailerTransport');
 const assert = require('assert');
 const mailgunTransport = require('nodemailer-mailgun-transport');
 
-const loggers = require('../../lib/loggers');
+const {
+  loggers
+} = require('../../utils');
+
 
 module.exports = ({ emailConfig }) =>
 {

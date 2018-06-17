@@ -1,19 +1,34 @@
+const assert = require('assert');
+const { join } = require('path');
 const morgan = require('morgan');
-const appRoot = require('app-root-path');
 const {
   format,
   transports,
   createLogger,
 } = require("winston");
 
-const loggers = require('../lib/loggers');
+/**
+ * NOTE! We're not adding loggers to `winston`, but a custom `loggers` module
+ * - Because `winston.loggers.add` does only accepts a configuration-object, not an instance,
+ *   and that is a bad choice...
+ */
+const { loggers } = require('../utils');
 
-module.exports = (mainApp) => {
+
+module.exports = (app, {
+  logFileDir=join(__localAppRoot, '/logs/'),
+  defaultLogLevel='debug',
+}={}) => {
+
+  assert(app, 'required!')
+
+  const LOG_FILE_PATH = join(logFileDir, 'app.log');
 
   // Winston
-  level = process.env.LOG_LEVEL || 'debug'
+  level = process.env.LOG_LEVEL || defaultLogLevel;
 
-  console.log('Log level:', level);
+  console.log(`Log level: ${level}`);
+  console.log(`Logfile: ${LOG_FILE_PATH}`);
 
   loggers.add('default', createLogger({
     format: format.combine(
@@ -24,7 +39,7 @@ module.exports = (mainApp) => {
     transports: [
       new transports.File({
         level: level,
-        filename: `${appRoot.path}/logs/app.log`,
+        filename: LOG_FILE_PATH,
         handleExceptions: true,
         json: true,
         maxsize: 5242880, // 5MB
@@ -44,14 +59,14 @@ module.exports = (mainApp) => {
 
   // Morgan
   const morganProfile = 'dev';
-  mainApp.use(morgan(morganProfile, {
+  app.use(morgan(morganProfile, {
       skip: function (req, res) {
           return res.statusCode < 400
       },
       stream: process.stderr,
   }));
 
-  mainApp.use(morgan(morganProfile, {
+  app.use(morgan(morganProfile, {
       skip: function (req, res) {
           return res.statusCode >= 400
       },

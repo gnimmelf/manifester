@@ -1,30 +1,32 @@
+const assert = require('assert');
 const {
   sendApiResponse,
   getRequestFullUrl,
+  loggers,
 } = require('../utils');
 
-module.exports = (mainApp) => {
+module.exports = (app) => {
 
+  assert(app, 'required!')
 
-  // Catch 404 and forward to error handler
-  mainApp.use(function(req, res, next) {
+  const logger = loggers.get('default');
+
+  // Catch 404 and forward to errorhandler
+  app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.code = 404;
     next(err);
   });
 
-  // API-error: JSON-response
-  mainApp.use('/api', function(err, req, res, next) {
-    if (err.code >= 500 && mainApp.checkEnv('dev')) {
-      console.error(err)
-    }
+  // API-errorhandler: JSON-response
+  app.use('/api', function(err, req, res, next) {
     err.data = getRequestFullUrl(req);
     sendApiResponse(res, err);
   });
 
-  // Non-API-error: HTML-response
-  mainApp.use(function(err, req, res, next) {
-    if (err.code >= 500 && mainApp.checkEnv('dev')) {
+  // Non-API-errorhandler: HTML-response
+  app.use(function(err, req, res, next) {
+    if (err.code >= 500 && app.checkEnv('dev')) {
       console.error(err)
     }
 
@@ -37,7 +39,7 @@ module.exports = (mainApp) => {
       statusCode: statusCode,
     };
 
-    if (req.mainApp.get('env') !== 'production') {
+    if (__getEnv('development')) {
       // Show stack
       res.locals.error.stack = err.stack;
     }

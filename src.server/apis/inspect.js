@@ -9,10 +9,10 @@ const {
   requestFullUrl
 } = require('../utils');
 
-module.exports = ({ mainApp }) =>
+module.exports = ({ app }) =>
 {
   const endpoints = {
-    asObj:  expressListEndpoints(mainApp)
+    asObj:  expressListEndpoints(app)
   };
 
   const table = new Table({

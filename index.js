@@ -2,7 +2,13 @@
  * Export the Manifester "api".
  */
 const http = require('http');
-const { join, dirname, resolve } = require('path');
+const {
+  join,
+  dirname,
+  resolve,
+  parse
+} = require('path');
+
 const assert = require('assert');
 const caller = require('caller');
 const { asValue } = require('awilix');
@@ -76,23 +82,19 @@ function onListening() {
  */
 
 module.exports = Object.assign(app.localApp, {
-  mainApp: app,
-  run: ({ localAppPath = dirname(caller()), createServer = true } = {}) =>  {
 
-    assert(localAppPath, 'required!')
+  // TODO! Figure this one out: What to present to `localApp`? - Awilix-container + utils?
 
-    localAppPath = resolve(localAppPath);
+  run: ({ dbPath=join(__localAppRoot, 'db'), createServer = true } = {}) =>  {
 
     const port = normalizePort(process.env.PORT || DEFAULT_PORT);
 
     app.set('port', port);
 
-    console.log('\nlocalPath', localAppPath);
-
-    const sensitive = require(join(localAppPath, 'sensitive.json'));
+    const sensitive = require(join(__localAppRoot, 'sensitive.json'));
 
     app.get('container').register({
-      localAppPath: asValue(localAppPath),
+      dbPath: asValue(dbPath),
       hashSecret: asValue(sensitive.hashSecret),
       emailConfig: asValue(sensitive.emailConfig),
     });

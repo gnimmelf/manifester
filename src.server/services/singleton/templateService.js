@@ -12,7 +12,6 @@ const {
 
 const viewTemplates ={}
 
-
 const tryStat = (path) =>
 {
   debug('stat "%s"', path);
@@ -45,7 +44,7 @@ const extractAppDirs = (app) => {
   }
 }
 
-module.exports = ({ mainApp }) =>
+module.exports = ({ app }) =>
 /*
   Serve the templates for admin core functions, like login and mail-templates.
   They should be overridable with fallback to original, and their original context must be hookable to provide
@@ -53,8 +52,8 @@ module.exports = ({ mainApp }) =>
 */
 {
 
-  const mainAppDirs = extractAppDirs(mainApp);
-  const localAppDirs =  extractAppDirs(mainApp.localApp);
+  const appDirs = extractAppDirs(app);
+  const localAppDirs =  extractAppDirs(app.localApp);
 
 
   class Template {
@@ -114,7 +113,7 @@ module.exports = ({ mainApp }) =>
 
         // Set `app` and `filePath` to first `filePath`-file found
         let stat, app, filePath;
-        [localAppDirs, mainAppDirs].every(obj =>
+        [localAppDirs, appDirs].every(obj =>
         {
           obj.dirs.every(dir =>
           {

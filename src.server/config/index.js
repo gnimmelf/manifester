@@ -3,6 +3,6 @@
  */
 
 exports.configureContainer = require('./configureContainer');
-exports.configureNodeEnv = require('./configureNodeEnv');
+exports.configureAppEnv = require('./configureAppEnv');
 exports.configureLogging = require('./configureLogging');
 exports.configureErrorHandling = require('./configureErrorHandling');

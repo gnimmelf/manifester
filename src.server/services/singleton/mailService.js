@@ -3,7 +3,6 @@ const fs = require('fs');
 const { join } = require('path');
 const nodemailer = require('nodemailer');
 
-
 module.exports = ({ emailConfig, nodemailerTransport }) =>
 /*
   Usage:
@@ -18,14 +17,14 @@ module.exports = ({ emailConfig, nodemailerTransport }) =>
 {
 
   // create reusable transporter object using SMTP transport
-  var transporter = nodemailer.createTransport(nodemailerTransport);
+  const transporter = nodemailer.createTransport(nodemailerTransport);
 
 
   const sendMail = ({ senderName, recieverEmail, subjectStr, textOrHtml }) => {
 
     return new Promise((resolve, reject) => {
       // Setup e-mail data with unicode symbols
-      var mail_options = {
+      const mail_options = {
         from: senderName + ' <'+ emailConfig.senderEmail +'>',
         to: recieverEmail,
         subject: subjectStr,

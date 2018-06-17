@@ -7,12 +7,11 @@ const favicon = require('serve-favicon');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const { urlencoded, json } = require('body-parser');
-const { scopePerRequest } = require('awilix-express');
 
 const {
-  configureContainer,
-  configureNodeEnv,
+  configureAppEnv,
   configureLogging,
+  configureContainer,
   configureErrorHandling,
 } = require('./config');
 
@@ -21,21 +20,25 @@ const {
  */
 
 const app = express();
-app.localApp = express(); // Exportable Express app for local development of the "head" in "headless"
+app.localApp = express(); // The Express app for local development of the "head" in "headless"
 
 /**
  * Configurations
  */
 
-// Node-env, set returned env-checker on app
-app.checkEnv = configureNodeEnv(['production', 'development', 'test']);
+// Node-env, INCLUDING GLOBALS!!
+configureAppEnv(app, {
+  allowedEnvs: ['production', 'development', 'test'],
+  defaultEnv: 'development',
+});
 
 // Loggers, grab the default logger for use here
-const logger = configureLogging(app).get('default');
+configureLogging(app);
 
 // Awilix-container, set on `app`
-const container = configureContainer(app, __dirname);
-app.set('container', container)
+configureContainer(app, {
+  servicesDir: join(__dirname, 'services')
+});
 
 /**
  * View engine setup
@@ -53,7 +56,7 @@ app.set('json spaces', 2);
 
 // CORS
 // NOTE! The manifested `localApp` must set it's own CORS when in production (see `../index.js`)
-if (!app.checkEnv('production')) {
+if (__getEnv('production')) {
   const options = {
     origin: true,
     credentials: true,
@@ -61,8 +64,6 @@ if (!app.checkEnv('production')) {
   console.log('CORS', options)
   app.use(cors(options));
 }
-
-
 
 // Encoding
 app.use(json());
@@ -77,7 +78,6 @@ app.use(cookieParser());
  * Custom middleware
  */
 
-app.use(scopePerRequest(container));
 app.use(require('./middleware/authenticateHeaderToken'));
 
 

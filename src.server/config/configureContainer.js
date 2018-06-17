@@ -11,29 +11,30 @@ const {
   asFunction,
   asClass
 } = require('awilix');
+const { scopePerRequest } = require('awilix-express');
 
-module.exports = function(mainApp, cwd) {
+module.exports = (app, { servicesDir }) => {
 
-  assert(mainApp, 'required!')
-  assert(cwd, 'required!')
+  assert(app, 'required!')
+  assert(servicesDir, 'required!')
 
   const container = createContainer();
 
   container.register({
-    'mainApp': asValue(mainApp),
+    'app': asValue(app),
     'tokenKeyName': asValue('XSRF-TOKEN'),
   });
 
   container.loadModules([
-    ['services/scoped/*.js', Lifetime.SCOPED],
-    ['services/singleton/*.js', {
-      injector: () => ({ mainApp: mainApp }),
+    ['scoped/*.js', Lifetime.SCOPED],
+    ['singleton/*.js', {
+      injector: () => ({ app: app }),
       lifetime: Lifetime.SINGLETON,
     }],
   ]
   , {
     formatName: 'camelCase',
-    cwd: cwd,
+    cwd: servicesDir,
   });
 
   /**
@@ -43,8 +44,8 @@ module.exports = function(mainApp, cwd) {
 
   ;[
     'mail-login-code.pug',
-  ].forEach(templateService.set)
+  ].forEach(templateService.set);
 
-
-  return container;
+  app.set('container', container);
+  app.use(scopePerRequest(container));
 }

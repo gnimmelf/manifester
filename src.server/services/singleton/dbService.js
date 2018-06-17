@@ -1,30 +1,34 @@
 const { join } = require('path');
 const mkdirp = require('mkdirp').sync;
 const loopWhile = require('deasync').loopWhile;
+
 const Db = require('../../lib/Db');
-const loggers = require('../../lib/loggers');
+const {
+  loggers
+} = require('../../utils');
 
 const ensureDir = (path) => { mkdirp(path); return path }
 
-module.exports = ({ localAppPath }) =>
+module.exports = ({ dbPath }) =>
 {
   const logger = loggers.get('default');
+
   const dbs = {};
   let done = false;
 
   Promise.all([
     new Db({
-      root: ensureDir(join(localAppPath, 'db/schemas')),
+      root: ensureDir(join(dbPath, 'schemas')),
     }).promise.then(db => dbs['schema'] = db),
     new Db({
-      root: ensureDir(join(localAppPath, 'db/site')),
+      root: ensureDir(join(dbPath, 'site')),
     }).promise.then(db => dbs['site'] = db),
     new Db({
-      root: ensureDir(join(localAppPath, 'db/users')),
+      root: ensureDir(join(dbPath, 'users')),
       instantPush: true,
     }).promise.then(db => dbs['user'] = db),
     new Db({
-      root: ensureDir(join(localAppPath, 'db/content')),
+      root: ensureDir(join(dbPath, 'content')),
     }).promise.then(db => dbs['content'] = db),
   ])
   .then(() => { done = true; })
@@ -33,7 +37,7 @@ module.exports = ({ localAppPath }) =>
   // Loop while not all done
   loopWhile(() => !done);
 
-  logger.info('dbServices loaded!', Object.keys(dbs))
+  logger.info('dbServices loaded:', Object.keys(dbs).join(', '));
 
   return dbs;
 }

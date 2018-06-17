@@ -16,9 +16,10 @@ const isObj = require('is-obj');
 const writeFile = require('write-file-atomic').sync;
 const deleteFile = require('delete').sync;
 
-const { dotProp } = require('../utils');
-const loggers = require('./loggers');
-
+const {
+  dotProp,
+  loggers,
+} = require('../utils');
 
 const tree = {};
 
@@ -91,7 +92,7 @@ const pushCommits = (instance) => {
 
 class Db {
 
-  constructor({ root, instantPush=false, prettify=true, watchArgs={}, name='' })
+  constructor({ root, instantPush=false, prettify=true, watchArgs={}, name='', logger=loggers.get('default')})
   /*
     Start watching whole storage for changes, returns object with `tree`.
     Arguments:
@@ -104,11 +105,11 @@ class Db {
   {
     assert(root);
 
-    this.logger = loggers.get('default')
     this.root = resolve(root);
     this.instantPush = instantPush;
     this.prettify = prettify;
     this.name = name;
+    this.logger = logger;
 
     watchArgs = Object.assign({
       // https://www.npmjs.com/package/chokidar#api
@@ -147,7 +148,7 @@ class Db {
           self.logger.error(`Watcher error: ${error}`)
         })
         .on('ready', () => {
-          self.logger.verbose('Initial scan complete. Ready for changes');
+          self.logger.verbose('Initial scan complete. Ready for changes!');
           resolve(self);
         });
 
@@ -178,7 +179,7 @@ class Db {
       case 'addDir':
       case 'unlinkDir':
       default:
-        logger.warn(`unhandled event: ${event} [${absPath}]`)
+        this.logger.warn(`unhandled event: ${event} [${absPath}]`)
     }
   }
 
@@ -253,7 +254,8 @@ class Db {
       });
     }
     catch(err) {
-      logger.error(err); return false;
+      this.logger.error(err);
+      return false;
     }
 
     return true;
@@ -282,7 +284,8 @@ class Db {
       });
     }
     catch(err) {
-      logger.error(err); return false;
+      this.logger.error(err);
+      return false;
     }
 
     return true;
