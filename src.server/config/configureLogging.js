@@ -34,22 +34,25 @@ module.exports = (app, {
 
   loggers.add('default', createLogger({
     format: format.combine(
-      format.colorize(),
-      format.splat(),
-      format.simple(),
+      format.timestamp({
+        format: 'YYYY-MM-DD HH:mm:ss'
+      }),
+      format.colorize({ all: true }),
+      format.json(),
+      format.printf(({level, timestamp, message, ...data}) => {
+        return `${timestamp} [${level}] ${message} ${Object.keys(data).length ? JSON.stringify(data) : ''}`
+      }),
     ),
     transports: [
       new transports.Console({
         level: loglevel,
         handleExceptions: true,
-        json: true,
         colorize: true,
       }),
       new transports.File({
         level: loglevel,
         filename: logFilePath,
         handleExceptions: true,
-        json: true,
         maxsize: 5 * 1024 * 1024, // 5MB
         maxFiles: 5,
         colorize: false,
