@@ -11,21 +11,23 @@ module.exports = (expressResponseObj, payload) =>
 
   const logger = loggers.get('default');
 
-  let apiPayload, status=200;
+  let err, apiPayload, status=200;
 
   if (payload instanceof Error) {
 
     status = isNaN(payload.code) ? 500 : payload.code;
 
+
+
     if (!(payload instanceof RESTfulError) && RESTfulError.getByTypeOrCode(payload.code)) {
       // Make it a `RESTfulError`
-      payload = new RESTfulError(payload.code, payload.message);
-      debug('RESTfulError', RESTfulError)
+      err = new RESTfulError(payload.code, payload.message);
+      debug('RESTfulError', err)
     }
 
     // Set the payload
     apiPayload = {
-      msg: payload.message || '',
+      msg: err.message || '',
       data: payload.data || false,
     };
 
