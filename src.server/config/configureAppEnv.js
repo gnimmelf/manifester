@@ -6,33 +6,35 @@ const {
   parse
 } = require('path');
 
-const NODE_ENV = process.env.NODE_ENV||'';
 const ALLOWED_ENVS =['production', 'development', 'test']
 
-module.exports = (app, { defaultEnv='development' }={}) =>
+module.exports = (app, { nodeEnv }) =>
 {
 
   assert(app, 'required!')
+  assert(nodeEnv, 'required!')
 
   const getEnv = (vsEnvStr='') => {
 
     if (!vsEnvStr) {
-      vsEnvStr = NODE_ENV;
+      // Set vs-string to passed `nodeEnv`
+      vsEnvStr = nodeEnv;
     }
 
-    const checkLen = Math.min(NODE_ENV.length, vsEnvStr.length);
+    const checkLen = Math.min(nodeEnv.length, vsEnvStr.length);
 
-    if (vsEnvStr.substr(0, checkLen).toLowerCase() == NODE_ENV.substr(0, checkLen).toLowerCase()) {
-      // Return the full Env-name
+    if (vsEnvStr.substr(0, checkLen).toLowerCase() == nodeEnv.substr(0, checkLen).toLowerCase()) {
+      // Return the full env-name
       return ALLOWED_ENVS.find(allowedEnv => vsEnvStr == allowedEnv.substr(0, vsEnvStr.length));;
     }
     return false;
 
   };
 
-  const nodeEnv = getEnv(process.env.NODE_ENV || defaultEnv);
+  // Get full env-name or `false` if mismatch with `ALLOWED_ENVS`
+  nodeEnv = getEnv(nodeEnv);
 
-  assert(nodeEnv, `'NODE_ENV' must be one of ${ALLOWED_ENVS} when specified! -Defaults to 'development'`);
+  assert(nodeEnv, `'nodeEnv' must be one of ${ALLOWED_ENVS}!'`);
 
   /**
    * Set globals (YES, THEY ARE!)
@@ -51,9 +53,9 @@ module.exports = (app, { defaultEnv='development' }={}) =>
   // Standard config return, a list of [k,v] tuples
   return [
     ['__localAppRoot', __localAppRoot],
+    ['ALLOWED_ENVS', ALLOWED_ENVS.join(', ')],
     ['process.env.NODE_ENV', process.env.NODE_ENV],
-    ['Allowed Envs', ALLOWED_ENVS.join(', ')],
-    ['Env', nodeEnv],
+    ['nodeEnv', nodeEnv],
   ]
 
 }

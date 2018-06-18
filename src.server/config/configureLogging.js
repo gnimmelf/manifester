@@ -16,12 +16,11 @@ const {
 const { loggers } = require('../utils');
 
 
-module.exports = (app, {
-  logFileDir=join(__localAppRoot, '/logs/'),
-  loglevel='debug',
-}={}) => {
+module.exports = (app, { logFileDir, logLevel }) => {
 
-  assert(app, 'required!')
+  assert(app, 'required!');
+  assert(logFileDir, 'required!')
+  assert(logLevel, 'required!')
 
   mkdirp(logFileDir);
 
@@ -34,16 +33,16 @@ module.exports = (app, {
   const myTransports = [];
 
   myTransports.push(new transports.Console({
-    level: loglevel,
+    level: logLevel,
     handleExceptions: true,
     colorize: true,
   }));
 
 
   if (!__getEnv('test')) {
-    // We're testing so don't add `File`-transports (the `logFilePath` cannot be safely determined...)
+    // Not testing (When testing the `logFilePath` cannot be safely determined...)
     myTransports.push(new transports.File({
-      level: loglevel,
+      level: logLevel,
       filename: logFilePath,
       handleExceptions: true,
       maxsize: 5 * 1024 * 1024, // 5MB
@@ -73,25 +72,29 @@ module.exports = (app, {
   /**
    * Morgan
    */
+
   const morganProfile = 'dev';
-  app.use(morgan(morganProfile, {
-      skip: function (req, res) {
-          return res.statusCode < 400
-      },
-      stream: process.stderr,
-  }));
 
-  app.use(morgan(morganProfile, {
-      skip: function (req, res) {
-          return res.statusCode >= 400
-      },
-      stream: process.stdout,
-  }));
+  if (!__getEnv('test')) {
+    // Not testing, so add loggers
+    app.use(morgan(morganProfile, {
+        skip: function (req, res) {
+            return res.statusCode < 400
+        },
+        stream: process.stderr,
+    }));
 
+    app.use(morgan(morganProfile, {
+        skip: function (req, res) {
+            return res.statusCode >= 400
+        },
+        stream: process.stdout,
+    }));
+  }
   // Standard config return, a list of [k,v] tuples
   return [
     ['logFilePath', logFilePath],
-    ['loglevel', loglevel],
+    ['logLevel', logLevel],
     ['morganProfile', morganProfile],
   ];
 }

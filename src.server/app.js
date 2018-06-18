@@ -32,12 +32,13 @@ const configLogs = {}; // For logging
 
 // Node-env, INCLUDING GLOBALS!!
 configLogs['env'] = configureAppEnv(app, {
-  defaultEnv: 'development',
+  nodeEnv: process.env.NODE_ENV || 'development',
 });
 
 // Loggers
 configLogs['logging'] = configureLogging(app, {
-  logLevel: process.env.LOG_LEVEL || 'default',
+  logLevel: process.env.LOG_LEVEL || 'debug',
+  logFileDir: join(__localAppRoot, '/logs/'),
 });
 
 // Awilix-container, set on `app`
