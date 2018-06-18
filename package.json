@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "LOG_LEVEL=error mocha --exit"
+    "test": "NODE_ENV=test LOG_LEVEL=error mocha --exit"
   },
   "bin": {
     "manifest-a-site": "generators/create-site/create-site.js"

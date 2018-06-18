@@ -6,7 +6,7 @@ const router = Router();
 const api = makeInvoker(require('../../apis/inspect'));
 
 router.get('/inspect', api('getEndpoints'));
-router.get('/inspect/asHtml', api('getEndpointsAsHtml'));
-router.get('/inspect/asText', api('getEndpointsAsText'));
+router.get('/inspect/toHtml', api('getEndpointsAsHtml'));
+router.get('/inspect/toText', api('getEndpointsAsText'));
 
 module.exports = router;

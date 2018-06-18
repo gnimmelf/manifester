@@ -7,11 +7,10 @@ const {
 } = require('path');
 
 const NODE_ENV = process.env.NODE_ENV||'';
+const ALLOWED_ENVS =['production', 'development', 'test']
 
-module.exports = (app, {
-  allowedEnvs=['production', 'development', 'test'],
-  defaultEnv='development',
-}={}) => {
+module.exports = (app, { defaultEnv='development' }={}) =>
+{
 
   assert(app, 'required!')
 
@@ -25,7 +24,7 @@ module.exports = (app, {
 
     if (vsEnvStr.substr(0, checkLen).toLowerCase() == NODE_ENV.substr(0, checkLen).toLowerCase()) {
       // Return the full Env-name
-      return allowedEnvs.find(allowedEnv => vsEnvStr == allowedEnv.substr(0, vsEnvStr.length));;
+      return ALLOWED_ENVS.find(allowedEnv => vsEnvStr == allowedEnv.substr(0, vsEnvStr.length));;
     }
     return false;
 
@@ -33,15 +32,27 @@ module.exports = (app, {
 
   const nodeEnv = getEnv(process.env.NODE_ENV || defaultEnv);
 
-  assert(nodeEnv, `'NODE_ENV' must be one of ${allowedEnvs} when specified! -Defaults to 'development'`);
+  assert(nodeEnv, `'NODE_ENV' must be one of ${ALLOWED_ENVS} when specified! -Defaults to 'development'`);
 
-  // Set globals (YES, THEY ARE!)
-  global.__localAppRoot = parse(process.mainModule.filename).dir;
+  /**
+   * Set globals (YES, THEY ARE!)
+   */
+
+  if (nodeEnv == 'test') {
+    // Must be set globally allready!
+    assert(global.__localAppRoot, '"global.__localAppRoot" must be set when testing!');
+  }
+  else {
+    global.__localAppRoot = parse(process.mainModule.filename).dir;
+  }
+
   global.__getEnv = getEnv
 
   // Standard config return, a list of [k,v] tuples
   return [
-    ['Allowed Envs', allowedEnvs.join(', ')],
+    ['__localAppRoot', __localAppRoot],
+    ['process.env.NODE_ENV', process.env.NODE_ENV],
+    ['Allowed Envs', ALLOWED_ENVS.join(', ')],
     ['Env', nodeEnv],
   ]
 

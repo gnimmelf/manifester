@@ -3,8 +3,6 @@ const RESTfulError = require('../lib/RESTfulError');
 
 const loggers = require('./loggers');
 
-debug('loggers', loggers);
-
 module.exports = (expressResponseObj, payload) =>
 {
   debug('> payload', payload);
@@ -23,6 +21,9 @@ module.exports = (expressResponseObj, payload) =>
       // Make it a `RESTfulError`
       err = new RESTfulError(payload.code, payload.message);
       debug('RESTfulError', err)
+    }
+    else {
+      err = payload;
     }
 
     // Set the payload

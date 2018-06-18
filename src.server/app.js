@@ -32,7 +32,6 @@ const configLogs = {}; // For logging
 
 // Node-env, INCLUDING GLOBALS!!
 configLogs['env'] = configureAppEnv(app, {
-  allowedEnvs: ['production', 'development', 'test'],
   defaultEnv: 'development',
 });
 

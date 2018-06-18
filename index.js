@@ -82,10 +82,11 @@ function onListening() {
  */
 
 module.exports = Object.assign(app.localApp, {
+  mainApp: app,
 
-  // TODO! Figure this one out: What to present to `localApp`? - Awilix-container + utils?
+  // TODO! Figure out what more to present to `localApp`? - Awilix-container + utils?
 
-  run: ({ dbRoot=join(__localAppRoot, 'db'), createServer = true } = {}) =>  {
+  run: ({ createServer = true, dbRoot=join(__localAppRoot, 'db') } = {}) =>  {
 
     const port = normalizePort(process.env.PORT || DEFAULT_PORT);
 

@@ -27,11 +27,32 @@ module.exports = (app, {
 
   const logFilePath = join(logFileDir, 'app.log');
 
-
   /**
    * Winston
    */
 
+  const myTransports = [];
+
+  myTransports.push(new transports.Console({
+    level: loglevel,
+    handleExceptions: true,
+    colorize: true,
+  }));
+
+
+  if (!__getEnv('test')) {
+    // We're testing so don't add `File`-transports (the `logFilePath` cannot be safely determined...)
+    myTransports.push(new transports.File({
+      level: loglevel,
+      filename: logFilePath,
+      handleExceptions: true,
+      maxsize: 5 * 1024 * 1024, // 5MB
+      maxFiles: 5,
+      colorize: false,
+    }));
+  }
+
+  // Add new logger
   loggers.add('default', createLogger({
     format: format.combine(
       format.timestamp({
@@ -43,21 +64,7 @@ module.exports = (app, {
         return `${timestamp} [${level}] ${message} ${Object.keys(data).length ? JSON.stringify(data) : ''}`
       }),
     ),
-    transports: [
-      new transports.Console({
-        level: loglevel,
-        handleExceptions: true,
-        colorize: true,
-      }),
-      new transports.File({
-        level: loglevel,
-        filename: logFilePath,
-        handleExceptions: true,
-        maxsize: 5 * 1024 * 1024, // 5MB
-        maxFiles: 5,
-        colorize: false,
-      }),
-    ],
+    transports: myTransports,
     exitOnError: false,
     emitErrors: false,
   }));

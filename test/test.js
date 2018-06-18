@@ -5,36 +5,40 @@ const sh = require('shelljs');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 
+/**
+ * Need to accuratly set the `__localAppRoot` that manifester depends on to `TARGET_DIR`
+ * - So only way to do that is `global.__localAppRoot`, since `TARGET_DIR` is not known
+ *   outside here, and there is no way of passing it programatically...
+ */
+
+const SOURCE_DIR = join(__dirname, '../generators/create-site/templates');
+const TARGET_DIR = join(osTmpdir(), 'mfs-site');
+
+global.__localAppRoot = TARGET_DIR;
+
 const manifester = require('../index');
-const sourceDir = join(__dirname, '../generators/create-site/templates');
-const targetDir = join(osTmpdir(), 'mfs-site');
 
-console.log(sourceDir)
-console.log(targetDir)
 
-/*
-Chai setup
-*/
+/**
+ * Chai setup
+ */
 
 chai.use(chaiHttp);
 const { expect } = chai;
 
-/*
-App setup
-*/
 
-// Copy the local-app structure
-sh.rm('-rf', targetDir);
-sh.mkdir(targetDir);
-sh.cp('-R', `${sourceDir}/*`, targetDir);
+/**
+ * Set up test app
+ */
 
-// Run `manifester` on the local-app dir
+sh.rm('-rf', TARGET_DIR);
+sh.mkdir(TARGET_DIR);
+sh.cp('-R', `${SOURCE_DIR}/*`, TARGET_DIR);
+
 manifester.use('/', (req, res) => res.send('Test App\n'));
 manifester.run({
-  localAppPath: targetDir,
   createServer: false,
 });
-
 
 const agent = chai.request.agent(manifester.mainApp)
 
@@ -86,9 +90,9 @@ describe('not logged in', () => {
 ├────────┼──────────────────────────────────────────────────────────────────┤
 │ GET    │ /api/inspect                                                     │
 ├────────┼──────────────────────────────────────────────────────────────────┤
-│ GET    │ /api/inspect/asHtml                                              │
+│ GET    │ /api/inspect/toHtml                                              │
 ├────────┼──────────────────────────────────────────────────────────────────┤
-│ GET    │ /api/inspect/asText                                              │
+│ GET    │ /api/inspect/toText                                              │
 ├────────┼──────────────────────────────────────────────────────────────────┤
 │ POST   │ /api/auth/request                                                │
 ├────────┼──────────────────────────────────────────────────────────────────┤

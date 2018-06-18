@@ -40,7 +40,7 @@ const updateTreePath = (absPath, instance) =>
     dotProp.set(tree, dotPropKey, content);
   }
   catch(err) {
-    instance.logger.error(err.message, absPath)
+    instance.logger.error(err, absPath)
   }
 }
 
