@@ -22,8 +22,8 @@ router.delete('/:userHandle/data/:schemaNameSuffix/:objId/:dottedPath?', api('se
 module.exports = router;
 
 /*
-http --session=~/tmp/session.json :3000/api/user/current
-http --session=~/tmp/session.json :3000/api/user/logout
-http --session=~/tmp/session.json :3000/api/user/gnimmelf/data/user.blog/list
-http --session=~/tmp/session.json :3000/api/user/gnimmelf/data/user.blog/a-test
+http --session=~/tmp/session.json GET :3000/api/user/current
+http --session=~/tmp/session.json GET :3000/api/user/logout
+http --session=~/tmp/session.json GET :3000/api/user/gnimmelf/data/user.blog/list
+http --session=~/tmp/session.json GET :3000/api/user/gnimmelf/data/user.blog/a-test
 */

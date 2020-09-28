@@ -16,14 +16,18 @@ module.exports = ({ dbService, schemaService }) =>
   const dbKeys = Object.keys(dbService);
   const siteDb = dbService.site;
 
-  const siteSettings = {
-    ...siteDb.get('site.settings.public.json', {raw: true}),
-    ...siteDb.get('site.settings.private.json', {raw: true}),
-  };
+  const siteSettings = Object.freeze({
+    ...siteDb.get('settings.public.json', {raw: true}),
+    ...siteDb.get('settings.private.json', {raw: true}),
+  });
+
+  debug({ siteSettings });
 
   return {
 
-    getSiteSettings: (dottedPath) => dotProp.get(siteSettings, dottedPath),
+    getSiteSettings: (dottedPath=null) => dottedPath 
+      ? dotProp.get(siteSettings, dottedPath) 
+      : siteSettings,
 
     getObjectIds: (dbKey, {schemaNameSuffix}, owner=null) =>
     {

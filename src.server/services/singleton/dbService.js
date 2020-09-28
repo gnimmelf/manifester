@@ -41,7 +41,7 @@ module.exports = ({ dbRoot }) =>
   // Loop while not all done
   loopWhile(() => !done);
 
-  logger.verbose('dbService loaded!', { data: Object.keys(dbs).join(', ') });
+  logger.verbose('dbService loaded!', { keys: Object.keys(dbs).join(', ') });
 
   return dbs;
 }

@@ -14,4 +14,6 @@ module.exports = router;
 /*
 http --session=~/tmp/session.json POST :3000/api/auth/request email=gnimmelf@gmail.com
 http --session=~/tmp/session.json POST :3000/api/auth/exchange email=gnimmelf@gmail.com code=06856
+http --session=~/tmp/session.json GET :3000/api/user/current
+http --session=~/tmp/session.json GET :3000/api/user/logout
 */

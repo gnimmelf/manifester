@@ -10,7 +10,7 @@ const {
 
 const AUTH_FILE = 'auth.json';
 
-module.exports = ({ dbService, templateService, mailService, hashSecret, dataService }) =>
+module.exports = ({ app, dbService, templateService, mailService, hashSecret, dataService }) =>
 {
   const userDb = dbService.user;
 
@@ -38,6 +38,8 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, dataSer
         const loginCode = makeLoginCode();
         const siteSettings = dataService.getSiteSettings();
 
+        debug({ siteSettings });
+
         userDb.set(relPath, 'loginCode', loginCode);
 
         templateService['mail-login-code']
@@ -47,15 +49,19 @@ module.exports = ({ dbService, templateService, mailService, hashSecret, dataSer
           })
           .then(html => {
 
-            debug.log("requestLoginCodeByEmail\n", html)
-
-            // mailService.sendMail({
-            //   senderName: siteSettings.siteName,
-            //   recieverEmail: email,
-            //   subjectStr: 'Your requested loginCode',
-            //   textOrHtml: html,
-            // });
-
+            if (!__getEnv('production')) {
+              // If 'dev' or 'test', don't sent email, just make sure it gets printed to console
+              console.log("requestLoginCodeByEmail\n", html);
+            }
+            else {
+              mailService.sendMail({
+                senderName: siteSettings.siteName,
+                recieverEmail: email,
+                subjectStr: 'Your requested loginCode',
+                textOrHtml: html,
+              });
+            }
+            
             resolve(loginCode)
           })
           .catch(err => reject(err))

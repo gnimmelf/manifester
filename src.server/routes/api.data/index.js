@@ -20,7 +20,7 @@ router.post('/singleton/:dbKey/:schemaNameSuffix/:dottedPath?', apiSingleton('se
 module.exports = router;
 
 /*
-http --session=~/tmp/session.json :3000/api/data/content.article/list
-http --session=~/tmp/session.json :3000/api/data/content.article/b-test
-http --session=~/tmp/session.json :3000/api/data/content.article/b-test.json
+http --session=~/tmp/session.json GET :3000/api/data/content.article/list
+http --session=~/tmp/session.json GET :3000/api/data/content.article/b-test
+http --session=~/tmp/session.json GET :3000/api/data/content.article/b-test.json
 */

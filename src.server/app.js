@@ -25,6 +25,15 @@ const app = express();
 app.localApp = express(); // The Express app for local development of the "head" in "headless"
 
 /**
+ * View engine setup
+ * -Yes, pug/jade. Tried "all" others, they suck and really hamper coding effiency.
+ */
+
+app.set('views', [join(__dirname, 'views')]);
+app.set('view engine', 'pug');
+app.set('json spaces', 2);
+
+/**
  * Configurations
  */
 
@@ -55,16 +64,6 @@ const logger = loggers.get('default');
 Object.entries(configLogs).forEach(([category, configTuples]) => configTuples.forEach(([key, value]) => {
   logger.verbose(`(${category.toUpperCase()}) ${key} = ${value}`);
 }));
-
-/**
- * View engine setup
- * -Yes, pug/jade. Tried "all" others, they suck and really hamper coding effiency.
- */
-
-app.set('views', join(__dirname, 'views'));
-app.set('view engine', 'pug');
-app.set('json spaces', 2);
-
 
 /**
  * Standard middleware

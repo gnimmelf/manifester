@@ -55,7 +55,6 @@ module.exports = ({ app }) =>
   const appDirs = extractAppDirs(app);
   const localAppDirs =  extractAppDirs(app.localApp);
 
-
   class Template {
     constructor({ name, filePath, ext, dir })
     {
@@ -113,6 +112,9 @@ module.exports = ({ app }) =>
 
         // Set `app` and `filePath` to first `filePath`-file found
         let stat, app, filePath;
+
+        debug(`Looking for template '${this.filePath}'`);
+
         [localAppDirs, appDirs].every(obj =>
         {
           obj.dirs.every(dir =>
@@ -127,6 +129,8 @@ module.exports = ({ app }) =>
           // `every` breaks loop on `false`
           return !app;
         })
+
+        if (!app) reject(`${filePath} not found`);
 
         // Let the "owner"-`app` do the rendering to merge its `app.locals`...
         // TODO! -Is all of this necessary? Besides, we're still not merging in the `req.locals`...

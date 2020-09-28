@@ -69,6 +69,10 @@ Use at own risk! This is a pet project, so it is justified according to my inter
 
 # HttPie
 
+```
+http GET :3000/api/inspect/toText
+```
+
 NOTE! See the individual routes for more examples.
 
 ## Login

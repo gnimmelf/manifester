@@ -10,3 +10,8 @@ router.get('/inspect/toHtml', api('getEndpointsAsHtml'));
 router.get('/inspect/toText', api('getEndpointsAsText'));
 
 module.exports = router;
+
+/*
+http --session=~/tmp/session.json GET :3000/api/inspect
+http --session=~/tmp/session.json GET :3000/api/inspect/toText
+*/
