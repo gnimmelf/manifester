@@ -49,6 +49,12 @@ npm start
 ```
 the ExpressJs app.
 
+NOTE! If you get a `MODULE-NOT-FOUND`-error manually link in the `manifester` package
+```
+npm link manifester
+```
+
+
 ## Development
 
 Your created app, `<your app>/app.js`, is an ExpressJs app which is mounted onto the `manifester` ExpressJs app.

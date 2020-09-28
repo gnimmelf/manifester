@@ -13,15 +13,12 @@ const {
 module.exports = ({ dbService, schemaService }) =>
 {
 
-  const dbKeys = Object.keys(dbService);
   const siteDb = dbService.site;
 
   const siteSettings = Object.freeze({
     ...siteDb.get('settings.public.json', {raw: true}),
     ...siteDb.get('settings.private.json', {raw: true}),
   });
-
-  debug({ siteSettings });
 
   return {
 
