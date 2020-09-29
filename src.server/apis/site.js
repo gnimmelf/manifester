@@ -1,10 +1,10 @@
-const debug = require('debug')('mf:api:singleton');
+const debug = require('debug')('mf:api:site');
 
 const {
   sendApiResponse,
 } = require('../utils');
 
-module.exports = ({ schemaService, singletonService, apiService }) =>
+module.exports = ({ objService, schemaService }) =>
 /*
   NOTE! All site-data are "singletons"
   -So per "site.*"-schema, there is only one corresponding ".json"-data-file designated by the suffix after "site.".
@@ -17,13 +17,9 @@ module.exports = ({ schemaService, singletonService, apiService }) =>
     {
       debug('getObjectIds', req.params)
 
-      const { dbKey, globpattern } = req.params;
-
-      const fullGlobPattern = apiService.parseSchemaName(dbKey, globpattern);
-
-      schemaService.getSchemaNames(fullGlobPattern)
-        .then(data => {
-          sendApiResponse(res, data)
+      schemaService.getSchemaNames('site.*')
+        .then(schemaNames => {
+          sendApiResponse(res, schemaNames)
         })
         .catch(err => {
           sendApiResponse(res, err)
@@ -34,9 +30,7 @@ module.exports = ({ schemaService, singletonService, apiService }) =>
     {
       debug('getObj', req.params)
 
-      const { dbKey, ...params } = req.params;
-
-      singletonService.getObj(dbKey, params)
+      objService.getObj('site', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -49,9 +43,9 @@ module.exports = ({ schemaService, singletonService, apiService }) =>
     {
       debug('setObj', req.params);
 
-      const { dbKey, ...params } = req.params;
+      const method = req.params.objId ? 'updateObj' : 'createObj';
 
-      singletonService.updateObj(dbKey, req.body, params)
+      objService[method]('site', req.body, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -59,6 +53,19 @@ module.exports = ({ schemaService, singletonService, apiService }) =>
           sendApiResponse(res, err)
         });
     },
+
+    deleteObj: (req, res) =>
+    {
+      debug('deleteObj', req.params);
+
+      objService.deleteObj('site', req.params)
+        .then(data => {
+          sendApiResponse(res, data)
+        })
+        .catch(err => {
+          sendApiResponse(res, err)
+        });
+    }
 
   };
 };

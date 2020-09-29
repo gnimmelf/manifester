@@ -104,7 +104,8 @@ app.use('/api', require('./routes/api.inspect'));
 app.use('/api/auth', require('./routes/api.authenticate'));
 app.use('/api/schema', require('./routes/api.schema'));
 app.use('/api/user', require('./routes/api.user'));
-app.use('/api/data', require('./routes/api.data'));
+app.use('/api/content', require('./routes/api.content'));
+app.use('/api/site', require('./routes/api.site'));
 app.use(app.localApp); // Mount the `localApp` last, so that all its routes apply
 
 

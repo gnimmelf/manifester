@@ -1,10 +1,10 @@
-const debug = require('debug')('mf:api:data');
+const debug = require('debug')('mf:api:content');
 
 const {
   sendApiResponse,
 } = require('../utils');
 
-module.exports = ({ dataService }) =>
+module.exports = ({ objService }) =>
 {
 
   return {
@@ -13,7 +13,7 @@ module.exports = ({ dataService }) =>
     {
       debug('getObjectIds', req.params)
 
-      dataService.getObjectIds('content', req.params)
+      objService.getObjectIds('content', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -26,7 +26,7 @@ module.exports = ({ dataService }) =>
     {
       debug('getObj', req.params)
 
-      dataService.getObj('content', req.params)
+      objService.getObj('content', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -41,7 +41,7 @@ module.exports = ({ dataService }) =>
 
       const method = req.params.objId ? 'updateObj' : 'createObj';
 
-      dataService[method]('content', req.body, req.params)
+      objService[method]('content', req.body, req.params)
         .then(data => {
           sendApiResponse(res, data)
         })
@@ -54,7 +54,7 @@ module.exports = ({ dataService }) =>
     {
       debug('deleteObj', req.params);
 
-      dataService.deleteObj('content', req.params)
+      objService.deleteObj('content', req.params)
         .then(data => {
           sendApiResponse(res, data)
         })

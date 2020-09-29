@@ -7,7 +7,7 @@ const {
 
 const RE_RE_USER_SCHEMA_MASK = new RegExp(/^user\./);
 
-module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
+module.exports = ({ userService, authService, objService, tokenKeyName }) =>
 {
 
   const getUserByHandle = (handle) =>
@@ -99,7 +99,7 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.getObjectIds('user', params, owner);
+          return objService.getObjectIds('user', params, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -117,7 +117,7 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.getObj('user', params, owner);
+          return objService.getObj('user', params, owner);
         })
         .then(data => {
           sendApiResponse(res, data);
@@ -137,7 +137,7 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService[method]('user', req.body, params, owner);
+          return objService[method]('user', req.body, params, owner);
         })
         .then(data => {
           sendApiResponse(res, data)
@@ -155,7 +155,7 @@ module.exports = ({ userService, authService, dataService, tokenKeyName }) =>
 
       getUserByHandle(userHandle)
         .then((owner) => {
-          return dataService.deleteObj('user', params, owner);
+          return objService.deleteObj('user', params, owner);
         })
         .then(data => {
           sendApiResponse(res, data)

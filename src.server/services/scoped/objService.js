@@ -1,4 +1,4 @@
-const debug = require('debug')('mf:service:dataService');
+const debug = require('debug')('mf:service:objService');
 const Ajv = require('ajv');
 const jsonPointer = require('js-pointer');
 const slug = require('slug');
@@ -13,18 +13,20 @@ const {
 module.exports = ({ dbService, schemaService }) =>
 {
 
-  const siteDb = dbService.site;
-
   const siteSettings = Object.freeze({
-    ...siteDb.get('settings.public.json', {raw: true}),
-    ...siteDb.get('settings.private.json', {raw: true}),
+    ...dbService.site.get('settings.public.json', {raw: true}),
+    ...dbService.site.get('settings.private.json', {raw: true}),
   });
 
   return {
 
-    getSiteSettings: (dottedPath=null) => dottedPath 
-      ? dotProp.get(siteSettings, dottedPath) 
-      : siteSettings,
+    getSiteSettings: (dottedPath=null) => 
+    {
+      // NOTE! Direct access! -Only for internal use!
+      return dottedPath 
+        ? dotProp.get(siteSettings, dottedPath) 
+        : siteSettings
+    },
 
     getObjectIds: (dbKey, {schemaNameSuffix}, owner=null) =>
     {
@@ -45,7 +47,7 @@ module.exports = ({ dbService, schemaService }) =>
 
     getObj: (dbKey, {schemaNameSuffix, objId, dottedPath, raw}, owner=null) =>
     {
-      debug('getObj >', dbKey, schemaNameSuffix, objId, dottedPath, owner);
+      debug('getObj >', {dbKey, schemaNameSuffix, objId, dottedPath, owner});
 
       const schemaName = schemaService.makeSchemaName(dbKey, schemaNameSuffix);
 
