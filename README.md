@@ -6,6 +6,10 @@ _Dead simple headless CMS_
 
 Under leisure development.
 
+### NOTE! 
+
+I highly recommend GraphQL instead.
+
 ## Tech
 * https://www.npmjs.com/package/jsonpath
 * https://github.com/BigstickCarpet/json-schema-ref-parser
