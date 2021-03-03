@@ -45,7 +45,7 @@
     "nodemailer-mailgun-transport": "^1.4.0",
     "normalize-bool": "^1.0.0",
     "omit": "^1.0.1",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "restful-error": "^1.0.6",
     "serve-favicon": "^2.5.0",
     "slug": "^0.9.4",
